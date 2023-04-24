@@ -26,7 +26,5 @@ app.prepare().then(() => {
 
   $server(fastifyServer, { basePath: "/api" });
 
-  fastifyServer.listen({ port }).then(() => {
-    fastifyServer.log.info("aaaaa");
-  });
+  fastifyServer.listen({ port, host: "0.0.0.0" });
 });

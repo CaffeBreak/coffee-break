@@ -1,0 +1,10 @@
+version: '3'
+services:
+  caffe:
+    image: node
+    tty: true
+    init: true
+    volumes:
+      - .:/caffe
+    ports:
+      - 3000:3000

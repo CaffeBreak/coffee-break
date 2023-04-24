@@ -11,7 +11,8 @@
     "build": "run-z build:aspida,build:frourio",
     "build:aspida": "aspida",
     "build:frourio": "frourio",
-    "build:prisma": "prisma generate"
+    "build:prisma": "prisma generate",
+    "clean": "rm -rf node_modules"
   },
   "keywords": [],
   "author": "",

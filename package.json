@@ -2,6 +2,7 @@
   "name": "jinro",
   "version": "0.1.0",
   "private": true,
+  "packageManager": "pnpm@8.3.1",
   "scripts": {
     "dev": "run-z build:server watch:server,watch:next,watch:aspida,watch:frourio,watch:prisma",
     "watch:aspida": "pnpm --filter server watch:aspida",
@@ -15,11 +16,14 @@
     "build:prisma": "prisma generate",
     "build:next": "next build",
     "build:server": "swc server.ts src/server/\\$server.ts src/server/api -d built -D",
+    "migrate": "prisma migrate deploy",
     "start": "NODE_ENV=production node built/server.js",
+    "migrateandstart": "run-z migrate start",
     "lint": "next lint",
-    "clean-all": "run-z clean:module,clean:built",
+    "clean-all": "run-z clean:module,clean:built,clean:server",
     "clean:module": "rm -rf node_modules",
-    "clean:built": "rm -rf built .next"
+    "clean:built": "rm -rf built .next",
+    "clean:server": "pnpm --filter server clean"
   },
   "dependencies": {
     "@aspida/fetch": "^1.12.0",
@@ -29,8 +33,10 @@
     "fastify": "^4.15.0",
     "next": "13.3.0",
     "pino-pretty": "^10.0.0",
+    "prisma": "^4.13.0",
     "react": "18.2.0",
     "react-dom": "18.2.0",
+    "run-z": "^1.11.0",
     "velona": "^0.7.0",
     "zod": "^3.21.4"
   },
@@ -50,8 +56,6 @@
     "node-dev": "^8.0.0",
     "postcss": "8.4.23",
     "prettier-plugin-tailwindcss": "^0.2.7",
-    "prisma": "^4.13.0",
-    "run-z": "^1.11.0",
     "tailwindcss": "3.3.1",
     "typescript": "5.0.4"
   },
