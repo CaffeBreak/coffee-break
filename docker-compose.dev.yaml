@@ -1,7 +1,9 @@
 version: '3'
 services:
   caffe:
-    image: node:lts
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
     tty: true
     init: true
     volumes:
