@@ -4,7 +4,7 @@
   "private": true,
   "packageManager": "pnpm@8.3.1",
   "scripts": {
-    "dev": "run-z build:server watch:server,watch:next,watch:aspida,watch:frourio,watch:prisma",
+    "dev": "WATCHPACK_POLLING=true run-z build:server watch:server,watch:next,watch:aspida,watch:frourio,watch:prisma",
     "watch:aspida": "pnpm --filter server watch:aspida",
     "watch:frourio": "pnpm --filter server watch:frourio",
     "watch:prisma": "pnpm build:prisma --watch",
