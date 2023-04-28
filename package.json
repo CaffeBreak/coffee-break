@@ -4,7 +4,7 @@
   "private": true,
   "packageManager": "pnpm@8.3.1",
   "scripts": {
-    "dev": "run-z build:server watch:server,watch:next,watch:aspida,watch:frourio,watch:prisma",
+    "dev": "WATCHPACK_POLLING=true run-z build:server watch:server,watch:next,watch:aspida,watch:frourio,watch:prisma",
     "watch:aspida": "pnpm --filter server watch:aspida",
     "watch:frourio": "pnpm --filter server watch:frourio",
     "watch:prisma": "pnpm build:prisma --watch",
@@ -33,12 +33,14 @@
     "@prisma/client": "^4.13.0",
     "fast-json-stringify": "^5.7.0",
     "fastify": "^4.15.0",
+    "jotai": "^2.0.4",
     "next": "13.3.0",
     "pino-pretty": "^10.0.0",
     "prisma": "^4.13.0",
     "react": "18.2.0",
     "react-dom": "18.2.0",
     "run-z": "^1.11.0",
+    "socket.io": "^4.6.1",
     "velona": "^0.7.0",
     "zod": "^3.21.4"
   },
