@@ -19,12 +19,24 @@ const fastifyServer = fastify({
   },
 });
 
-fastifyServer.register(fastifyCors);
+fastifyServer.register(fastifyCors).then(
+  () => {
+    fastifyServer.log.info("Register fastify cors");
+  },
+  () => {
+    return new Error("Can't register fastify cors");
+  },
+);
 
-app.prepare().then(() => {
-  fastifyServer.get("*", (req, res) => handle(req.raw, res.raw, parse(req.url, true)));
+app
+  .prepare()
+  .then(async () => {
+    fastifyServer.get("*", (req, res) => handle(req.raw, res.raw, parse(req.url, true)));
 
-  $server(fastifyServer, { basePath: "/api" });
+    $server(fastifyServer, { basePath: "/api" });
 
-  fastifyServer.listen({ port, host: "0.0.0.0" });
-});
+    await fastifyServer.listen({ port, host: "0.0.0.0" });
+  })
+  .catch(() => {
+    return new Error("Can't start server");
+  });
