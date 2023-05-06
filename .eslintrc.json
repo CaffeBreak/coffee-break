@@ -69,7 +69,8 @@
     ],
     "unused-imports/no-unused-imports": "error",
     "@next/next/no-head-element": "off",
-    "react/function-component-definition": [2, { "namedComponents": "arrow-function" }],
+    "react/function-component-definition": ["error", { "namedComponents": "arrow-function" }],
+    "react/destructuring-assignment": ["error", "never"],
     "@typescript-eslint/no-misused-promises": "warn"
   }
 }

@@ -1,7 +1,13 @@
-const RootLayout = ({ children }: { children: React.ReactNode }) => {
+import { ReactNode } from "react";
+
+interface RootLayoutProps {
+  children: ReactNode;
+}
+
+const RootLayout = (props: RootLayoutProps) => {
   return (
     <html lang="ja">
-      <body>{children}</body>
+      <body>{props.children}</body>
     </html>
   );
 };
