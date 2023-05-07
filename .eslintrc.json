@@ -21,7 +21,7 @@
     "project": "./tsconfig.json"
   },
   "plugins": ["react", "@typescript-eslint", "unused-imports", "tailwindcss"],
-  "ignorePatterns": ["**/$*.ts"],
+  "ignorePatterns": ["**/$*.ts", "_templates/**/index.js"],
   "rules": {
     "indent": [
       "error",

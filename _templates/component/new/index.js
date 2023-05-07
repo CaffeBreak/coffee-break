@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-var-requires */
 module.exports = {
   prompt: ({ prompter }) => {
     const question = [
