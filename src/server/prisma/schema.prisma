@@ -1,17 +1,59 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
 generator client {
   provider = "prisma-client-js"
 }
 
 datasource db {
-  provider = "sqlite"
+  provider = "mysql"
   url      = env("DATABASE_URL")
 }
 
-model User {
-  id    Int     @id @default(autoincrement())
-  email String  @unique
-  name  String?
+model Player {
+  id       String     @id // プレイヤーID One Game Token
+  name     String // プレイヤー名
+  Room     Room       @relation(fields: [roomId], references: [id]) // プレイヤーが参加している部屋
+  roomId   String
+  role     Role
+  isDead   Boolean // プレイヤーの生死
+  Chat     Chat[]
+  UsedCard UsedCard[]
+}
+
+model Room {
+  id       String     @id // 部屋ID
+  password String // 合言葉
+  players  Player[] // 部屋に参加しているプレイヤー
+  UsedCard UsedCard[]
+  state    RoomState // 部屋の状態 現在のフェーズとか
+}
+
+model Chat {
+  id        String   @id // チャットID
+  player    Player   @relation(fields: [playerId], references: [id]) // 発言をしたプレイヤー
+  playerId  String
+  message   String // 発言内容
+  createdAt DateTime @default(now())
+}
+
+model UsedCard {
+  id       String  @id // カード使用ID
+  room     Room    @relation(fields: [roomId], references: [id]) // カードが使用された部屋
+  roomId   String
+  player   Player  @relation(fields: [playerId], references: [id]) // カードを使用したプレイヤー
+  playerId String
+  name     String // 使用したカードの名前 存在しないカード名をここに淹れるとまずい
+  turn     Int // カードが使用されたターン(日)
+  isNight  Boolean // 夜かどうか
+}
+
+enum Role {
+  VILLAGER // 村人
+  WEREWOLF // 人狼
+}
+
+enum RoomState {
+  WAITING // 参加者待ち
+  USING // カード行使
+  DISCUSSION // 議論
+  VOTING // 投票中
+  FINISHING // ゲーム終了後
 }

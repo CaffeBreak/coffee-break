@@ -10,3 +10,12 @@ services:
       - .:/caffe
     ports:
       - 3000:3000
+  db:
+    image: mariadb:lts
+    ports:
+      - 3306:3306
+    environment:
+      - MARIADB_DATABASE=caffebreak
+      - MARIADB_USER=caffe
+      - MARIADB_PASSWORD=caffe
+      - MARIADB_ROOT_PASSWORD=root
