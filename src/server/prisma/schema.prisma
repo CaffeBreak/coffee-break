@@ -8,21 +8,21 @@ datasource db {
 }
 
 model Player {
-  id       String     @id // プレイヤーID One Game Token
-  name     String // プレイヤー名
-  Room     Room       @relation(fields: [roomId], references: [id]) // プレイヤーが参加している部屋
-  roomId   String
-  role     Role
-  isDead   Boolean // プレイヤーの生死
-  Chat     Chat[]
-  UsedCard UsedCard[]
+  id     String  @id // プレイヤーID One Game Token
+  name   String // プレイヤー名
+  Room   Room    @relation(fields: [roomId], references: [id]) // プレイヤーが参加している部屋
+  roomId String
+  role   Role
+  isDead Boolean // プレイヤーの生死
+  chat   Chat[]
+  cards  Card[]
 }
 
 model Room {
-  id       String     @id // 部屋ID
+  id       String    @id // 部屋ID
   password String // 合言葉
   players  Player[] // 部屋に参加しているプレイヤー
-  UsedCard UsedCard[]
+  cards    Card[]
   state    RoomState // 部屋の状態 現在のフェーズとか
 }
 
@@ -34,15 +34,16 @@ model Chat {
   createdAt DateTime @default(now())
 }
 
-model UsedCard {
-  id       String  @id // カード使用ID
-  room     Room    @relation(fields: [roomId], references: [id]) // カードが使用された部屋
+model Card {
+  id       String   @id
+  room     Room     @relation(fields: [roomId], references: [id]) // カードが所属する部屋
   roomId   String
-  player   Player  @relation(fields: [playerId], references: [id]) // カードを使用したプレイヤー
+  player   Player   @relation(fields: [playerId], references: [id]) // カードを所持しているプレイヤー
   playerId String
   name     String // 使用したカードの名前 存在しないカード名をここに淹れるとまずい
-  turn     Int // カードが使用されたターン(日)
-  isNight  Boolean // 夜かどうか
+  isUsed   Boolean // カードが使用されたか
+  turn     Int? // カードが使用されたターン(日)
+  isNight  Boolean? // 夜かどうか
 }
 
 enum Role {
