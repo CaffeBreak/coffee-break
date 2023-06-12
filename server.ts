@@ -1,42 +1,51 @@
-import { parse } from "url";
-
 import fastifyCors from "@fastify/cors";
-import fastify from "fastify";
-import next from "next";
+import fastify, { FastifyPluginCallback } from "fastify";
+import Next from "next";
 
 import $server from "@/server/$server";
 
 const dev = process.env.NODE_ENV !== "production";
 const port = 3000;
 
-const app = next({ dev, port });
-const handle = app.getRequestHandler();
 const fastifyServer = fastify({
   logger: {
     transport: {
       target: "pino-pretty",
     },
   },
+  pluginTimeout: dev ? 10000 : 0,
 });
 
-fastifyServer.register(fastifyCors).then(
-  () => {
-    fastifyServer.log.info("Register fastify cors");
-  },
-  () => {
-    return new Error("Can't register fastify cors");
-  },
-);
+export const nextJsCustomServerPlugin: FastifyPluginCallback<{ isDev: boolean }> = (
+  serve,
+  option,
+  done,
+) => {
+  const app = Next({ dev: option.isDev });
+  const handle = app.getRequestHandler();
 
-app
-  .prepare()
-  .then(async () => {
-    fastifyServer.get("*", (req, res) => handle(req.raw, res.raw, parse(req.url, true)));
-
-    $server(fastifyServer, { basePath: "/api" });
-
-    await fastifyServer.listen({ port, host: "0.0.0.0" });
-  })
-  .catch(() => {
-    return new Error("Can't start server");
+  app.prepare().catch((err: Error) => {
+    serve.log.error("error", err);
+    done(err);
   });
+
+  serve.get("*", async (req, reply) => {
+    await handle(req.raw, reply.raw);
+    reply.sent = true;
+  });
+
+  $server(serve, { basePath: "/api" });
+
+  done();
+};
+
+fastifyServer.register(fastifyCors).after(() => {
+  fastifyServer.log.info("CORS enabled");
+});
+fastifyServer.register(nextJsCustomServerPlugin, { isDev: dev }).after(() => {
+  fastifyServer.log.info("Next.js enabled");
+});
+
+fastifyServer.listen({ port, host: "0.0.0.0" }).catch((err) => {
+  throw err;
+});

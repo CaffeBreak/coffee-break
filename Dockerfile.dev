@@ -1,3 +1,7 @@
 FROM node:lts
 
+WORKDIR /caffe
+
 RUN corepack enable
+
+CMD ["pnpm", "dev"]
