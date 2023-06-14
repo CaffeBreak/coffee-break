@@ -27,7 +27,7 @@ module.exports = {
       const camelCase = (await import("camelcase")).default;
 
       const path = join(
-        "src/",
+        "apps/frontend/src/",
         dir,
         "/",
         camelCase(name, { pascalCase: false, preserveConsecutiveUppercase: true }),
