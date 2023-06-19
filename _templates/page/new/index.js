@@ -27,7 +27,7 @@ module.exports = {
           .join("-");
       };
 
-      const path = join("src/app/", dir, "/", kebabCase(name));
+      const path = join("apps/frontend/src/app/", dir, "/", kebabCase(name));
       const pascalName = camelCase(name, { pascalCase: true, preserveConsecutiveUppercase: true });
 
       return { ...answers, name: pascalName, path };
