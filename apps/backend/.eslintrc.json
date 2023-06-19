@@ -16,7 +16,7 @@
     "project": "./tsconfig.json"
   },
   "plugins": ["@typescript-eslint", "unused-imports", "import", "prefer-arrow-functions"],
-  "ignorePatterns": ["_templates/**/index.js"],
+  "ignorePatterns": ["_templates/**/index.js", "dist/**/*", "node_modules/**/*"],
   "rules": {
     "indent": [
       "error",
@@ -43,6 +43,13 @@
       }
     ],
     "@typescript-eslint/no-misused-promises": "warn",
+    "@typescript-eslint/no-unused-vars": [
+      "warn",
+      {
+        "argsIgnorePattern": "^_",
+        "destructuredArrayIgnorePattern": "^_"
+      }
+    ],
     "import/order": [
       "error",
       {
