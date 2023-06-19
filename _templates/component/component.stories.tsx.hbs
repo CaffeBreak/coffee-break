@@ -1,14 +1,11 @@
----
-to: <%= path %>/<%= name%>.stories.tsx
----
 import type { Meta, StoryObj } from "@storybook/react";
 
-import <%= name %> from ".";
+import {{ pascalCase name }} from ".";
 
-type T = typeof <%= name %>;
+type T = typeof {{ pascalCase name }};
 
 export default {
-  component: <%= name %>,
+  component: {{ pascalCase name }},
   args: {},
 } as Meta<T>;
 

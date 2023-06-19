@@ -34,3 +34,6 @@ yarn-error.log*
 
 # vercel
 .vercel
+
+# plop
+plopfile.js
