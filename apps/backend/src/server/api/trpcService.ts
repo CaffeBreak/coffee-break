@@ -3,7 +3,7 @@ import { fastifyTRPCPlugin } from "@trpc/server/adapters/fastify";
 import { boundMethod } from "autobind-decorator";
 
 import { createContext } from "./context";
-import { appRouter } from "./router";
+import { AppRouter } from "./router";
 
 import type { FastifyInstance, FastifyPluginOptions } from "fastify";
 
@@ -14,7 +14,10 @@ import { Logger } from "@/util/logger";
 export class tRPCService {
   private logger: Logger;
 
-  constructor(private readonly loggerService: LoggerService) {
+  constructor(
+    private readonly loggerService: LoggerService,
+    private readonly appRouter: AppRouter,
+  ) {
     this.logger = this.loggerService.getLogger();
   }
 
@@ -28,8 +31,11 @@ export class tRPCService {
       .register(fastifyTRPCPlugin, {
         prefix: "/trpc",
         trpcOptions: {
-          router: appRouter,
+          router: this.appRouter.getAppRouter(),
           createContext,
+          onError: (error) => {
+            this.logger.error(error as Error);
+          },
         },
       })
       .then(

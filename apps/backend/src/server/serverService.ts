@@ -37,7 +37,7 @@ export class ServerService implements OnApplicationShutdown {
     // eslint-disable-next-line @typescript-eslint/unbound-method -- bound by autobind-decorator
     await this.fastify.register(this.socketService.attach);
 
-    this.fastify.listen({ port: 3000, host: "0.0.0.0" }, (error: Error | null, addr: string) => {
+    this.fastify.listen({ port: 5555, host: "0.0.0.0" }, (error: Error | null, addr: string) => {
       if (error) {
         this.logger.error(error);
         process.exit(1);
