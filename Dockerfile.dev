@@ -1,7 +1,11 @@
-FROM node:18
+FROM debian:bookworm
 
 WORKDIR /caffe
 
-RUN apt update && \
-  apt install -y gnupg2 socat && \
-  corepack enable
+COPY package.json ./
+
+RUN apt-get update
+RUN apt-get install -y wget
+RUN wget -O - https://deb.nodesource.com/setup_18.x | sh -
+RUN apt-get install -y nodejs gnupg2 git
+RUN /usr/bin/corepack enable
