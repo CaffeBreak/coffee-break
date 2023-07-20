@@ -15,6 +15,5 @@
     "editor.formatOnSave": true
   },
   "eslint.codeActionsOnSave.mode": "all",
-  "eslint.experimental.useFlatConfig": false,
-  "prettier.prettierPath": "./node_modules/prettier"
+  "eslint.experimental.useFlatConfig": false
 }

@@ -1,6 +1,16 @@
 version: '3'
 
 services:
+  web:
+    image: node:18
+    init: true
+    tty: true
+    ports:
+      - 5000:5000
+      - 3000:3000
+    volumes:
+      - .:/caffe
+
   db:
     image: postgres:15
     restart: always
