@@ -2,7 +2,9 @@ version: '3'
 
 services:
   web:
-    image: node:18
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
     init: true
     tty: true
     ports:

@@ -1,8 +1,29 @@
 {
-	"name": "Existing Docker Compose (Extend)",
-	"dockerComposeFile": [
-		"../compose.yaml"
-	],
-	"service": "web",
-	"workspaceFolder": "/caffe"
+  "name": "Existing Docker Compose (Extend)",
+  "dockerComposeFile": ["../compose.yaml"],
+  "service": "web",
+  "workspaceFolder": "/caffe",
+  "postCreateCommand": "git config --system --add safe.directory /caffe && git config --global gpg.program /usr/bin/gpg2",
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "dsznajder.es7-react-js-snippets",
+        "foxundermoon.next-js",
+        "pulkitgangwar.nextjs-snippets",
+        "editorconfig.editorconfig",
+        "dbaeumer.vscode-eslint",
+        "esbenp.prettier-vscode",
+        "prisma.prisma",
+        "formulahendry.auto-close-tag",
+        "formulahendry.auto-rename-tag",
+        "christian-kohler.path-intellisense",
+        "steoates.autoimport",
+        "VisualStudioExptTeam.vscodeintellicode",
+        "VisualStudioExptTeam.vscodeintellicode-completions",
+        "oderwat.indent-rainbow",
+        "bradgashler.htmltagwrap",
+        "ms-azuretools.vscode-docker"
+      ]
+    }
+  }
 }
