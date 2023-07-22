@@ -21,7 +21,8 @@
     "moduleResolution": "node",
     "paths": {
       "@/*": ["./src/*"]
-    }
+    },
+    "types": ["reflect-metadata"]
   },
   "exclude": ["node_modules", "dist"]
 }
