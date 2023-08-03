@@ -21,7 +21,7 @@
     "test:e2e": "jest --config ./test/jest-e2e.json"
   },
   "dependencies": {
-    "@fastify/cookie": "^8.3.0",
+    "@fastify/cookie": "^9.0.4",
     "@fastify/cors": "^8.3.0",
     "@prisma/client": "4.16.1",
     "@swc/helpers": "^0.5.1",
