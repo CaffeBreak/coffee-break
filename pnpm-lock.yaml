@@ -6347,7 +6347,6 @@ packages:
   /prisma@5.1.0:
     resolution: {integrity: sha512-wkXvh+6wxk03G8qwpZMOed4Y3j+EQ+bMTlvbDZHeal6k1E8QuGKzRO7DRXlE1NV0WNgOAas8kwZqcLETQ2+BiQ==}
     engines: {node: '>=16.13'}
-    hasBin: true
     requiresBuild: true
     dependencies:
       '@prisma/engines': 5.1.0
