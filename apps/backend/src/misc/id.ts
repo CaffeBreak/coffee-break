@@ -24,7 +24,7 @@ export const genId = <T extends Id>(): T => {
   return idSchema.parse(nowTime36 + noise) as T;
 };
 
-export const parseId = (id: Id): Date => {
+export const parseId = <T extends Id>(id: T): Date => {
   const time = parseInt(id.slice(0, 8), 36) + TIME_2000;
 
   return new Date(time);
