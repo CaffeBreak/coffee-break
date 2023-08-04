@@ -31,7 +31,7 @@ importers:
         specifier: ^8.46.0
         version: 8.46.0
       eslint-config-prettier:
-        specifier: ^8.9.0
+        specifier: ^8.10.0
         version: 8.10.0(eslint@8.46.0)
       eslint-config-turbo:
         specifier: ^1.10.12
@@ -70,7 +70,7 @@ importers:
         specifier: ^0.5.1
         version: 0.5.1
       '@trpc/server':
-        specifier: ^10.36.0
+        specifier: ^10.37.1
         version: 10.37.1
       autobind-decorator:
         specifier: ^2.4.0
@@ -94,7 +94,7 @@ importers:
         specifier: ^10.2.0
         version: 10.2.0
       prisma:
-        specifier: ^5.1.0
+        specifier: ^5.1.1
         version: 5.1.1
       reflect-metadata:
         specifier: ^0.1.13
