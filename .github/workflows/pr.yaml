@@ -1,11 +1,9 @@
-name: runs on Pull Request
+name: unanimously-approved
 
 on:
   pull_request:
     types:
       [opened, reopened, synchronize, review_requested, review_request_removed]
-    branches:
-      - develop
   pull_request_review:
     types: [submitted, dismissed]
 
@@ -16,27 +14,3 @@ jobs:
 
     steps:
       - uses: snow-actions/unanimously-approved@v2.1.0
-
-  lint-and-format:
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v3
-
-      - uses: pnpm/action-setup@v2
-
-      - uses: actions/setup-node@v3
-        with:
-          node-version: "lts/*"
-          cache: "pnpm"
-          cache-dependency-path: pnpm-lock.yaml
-
-      - name: Install dependencies
-        run: pnpm install --frozen-lockfile
-
-      - name: lint
-        run: pnpm lint:fix
-
-      - name: format
-        run: pnpm format
