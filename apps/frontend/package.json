@@ -7,7 +7,9 @@
     "dev": "next dev --turbo",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint --fix"
+    "lint": "next lint --ignore-path .gitignore",
+    "lint:fix": "lint --fix",
+    "format": "prettier --write --ignore-path .gitignore './**/*.{ts,tsx,json,css,scss}'"
   },
   "dependencies": {
     "next": "^13.4.12",
