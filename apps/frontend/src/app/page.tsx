@@ -11,7 +11,7 @@ const Home = () => {
         <div className="my-2 ml-[130px] font-serif text-8xl italic">Break</div>
       </div>
       <div className="flex w-full justify-center">
-        <Input />
+        <InputName />
       </div>
       <div className="mt-[70px] flex w-full justify-center">
         <Enter />
