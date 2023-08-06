@@ -17,7 +17,7 @@
     "sourceType": "module",
     "project": "./tsconfig.json"
   },
-  "plugins": ["@typescript-eslint", "unused-imports", "import", "tailwindcss"],
+  "plugins": ["@typescript-eslint", "unused-imports", "import", "tailwindcss", "turbo"],
   "ignorePatterns": ["_templates/**/index.js"],
   "rules": {
     "indent": [
