@@ -14,6 +14,7 @@
     "visualstudioexptteam.vscodeintellicode-completions",
     "oderwat.indent-rainbow",
     "bradgashler.htmltagwrap",
-    "ms-azuretools.vscode-docker"
+    "ms-azuretools.vscode-docker",
+    "github.vscode-github-actions"
   ]
 }
