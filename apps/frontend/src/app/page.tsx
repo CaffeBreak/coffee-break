@@ -1,5 +1,5 @@
 import { Enter } from "../components/ui/button/enter";
-import { Input } from "../components/ui/form/input";
+import { InputText } from "../components/ui/form/InputText";
 import { Header } from "../components/ui/global/header";
 
 const Home = () => {
@@ -11,7 +11,7 @@ const Home = () => {
         <div className="my-2 ml-[130px] font-serif text-8xl italic">Break</div>
       </div>
       <div className="flex w-full justify-center">
-        <InputName />
+        <InputText />
       </div>
       <div className="mt-[70px] flex w-full justify-center">
         <Enter />
