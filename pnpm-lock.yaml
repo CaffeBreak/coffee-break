@@ -94,8 +94,8 @@ importers:
         specifier: ^4.7.2
         version: 4.7.2
       ts-pattern:
-        specifier: ^5.0.4
-        version: 5.0.4
+        specifier: ^5.0.5
+        version: 5.0.5
       ts-results:
         specifier: ^3.3.0
         version: 3.3.0
@@ -7801,8 +7801,8 @@ packages:
       yn: 3.1.1
     dev: true
 
-  /ts-pattern@5.0.4:
-    resolution: {integrity: sha512-D5iVliqugv2C9541W2CNXFYNEZxr4TiHuLPuf49tKEdQFp/8y8fR0v1RExUvXkiWozKCwE7zv07C6EKxf0lKuQ==}
+  /ts-pattern@5.0.5:
+    resolution: {integrity: sha512-tL0w8U/pgaacOmkb9fRlYzWEUDCfVjjv9dD4wHTgZ61MjhuMt46VNWTG747NqW6vRzoWIKABVhFSOJ82FvXrfA==}
     dev: false
 
   /ts-results@3.3.0:

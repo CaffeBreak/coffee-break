@@ -29,7 +29,7 @@
     "reflect-metadata": "^0.1.13",
     "rxjs": "^7.8.1",
     "socket.io": "^4.7.2",
-    "ts-pattern": "^5.0.4",
+    "ts-pattern": "^5.0.5",
     "ts-results": "^3.3.0",
     "zod": "^3.21.4"
   },
