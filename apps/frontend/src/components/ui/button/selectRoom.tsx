@@ -3,13 +3,14 @@ import { useRouter } from "next/navigation";
 
 interface Props {
   msg: string;
+  route: string;
 }
 
 export const SelectRoom = (props: Props) => {
   const router = useRouter();
 
   const handleClick = () => {
-    router.push("/room/word");
+    router.push(props.route);
   };
 
   return (
