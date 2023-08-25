@@ -24,20 +24,20 @@ export type RoomPassword = z.infer<typeof roomPasswordSchema>;
 export type RoomState = z.infer<typeof roomStateSchema>;
 
 export class Room {
-  public readonly roomId: RoomId;
+  public readonly id: RoomId;
   private readonly _password: RoomPassword;
   public readonly ownerId: Id;
   private _state: RoomState;
   private _players: Id[];
 
   constructor(
-    roomId: RoomId,
+    id: RoomId,
     password: RoomPassword,
     ownerId: PlayerId,
     state: RoomState,
     players: PlayerId[],
   ) {
-    this.roomId = roomId;
+    this.id = id;
     this._password = password;
     this.ownerId = ownerId;
     this._state = state;
@@ -60,11 +60,11 @@ export class Room {
     this._players.push(player);
   }
 
-  public start() {
+  public startGame() {
     this._state = roomStateSchema.parse("DISCUSSION");
   }
 
-  public finish() {
+  public finishGame() {
     this._state = roomStateSchema.parse("FINISHED");
   }
 

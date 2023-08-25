@@ -1,6 +1,6 @@
-export abstract class RepositoryError extends Error {
+export abstract class UseCaseError extends Error {
   static {
-    this.prototype.name = "RepositoryError";
+    this.prototype.name = "UseCaseError";
   }
   constructor(message: string, options?: ErrorOptions) {
     super(message, options);
@@ -10,6 +10,6 @@ export abstract class RepositoryError extends Error {
     if (Error.captureStackTrace) {
       Error.captureStackTrace(this, this.constructor);
     }
-    Object.setPrototypeOf(this, RepositoryError.prototype);
+    Object.setPrototypeOf(this, UseCaseError.prototype);
   }
 }
