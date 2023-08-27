@@ -6,7 +6,11 @@ import { PlayerRepository } from "@/domain/repository/playerRepository";
 import { RoomRepository } from "@/domain/repository/roomRepository";
 import { UseCaseError } from "@/error/usecase";
 import { AlreadyJoinedOtherRoomError } from "@/error/usecase/player";
-import { RoomOwnerNotFoundError, RoomPasswordDuplicateError } from "@/error/usecase/room";
+import {
+  RepositoryOperationError,
+  RoomOwnerNotFoundError,
+  RoomPasswordDuplicateError,
+} from "@/error/usecase/room";
 
 export const CreateRoomUseCase =
   // prettier-ignore
@@ -27,12 +31,11 @@ export const CreateRoomUseCase =
       if (ownerResult.unwrap().roomId) {
         return Err(new AlreadyJoinedOtherRoomError());
       }
-
       const newRoom = Room.new(password, ownerId);
-      const roomResult = roomRepository.save(newRoom);
 
+      const roomResult = roomRepository.save(newRoom);
       if (roomResult.err) {
-        return Err(new Error(roomResult.unwrap()));
+        return Err(new RepositoryOperationError(roomResult.val));
       }
 
       return Ok(roomResult.unwrap());

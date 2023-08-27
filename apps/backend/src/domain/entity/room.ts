@@ -2,7 +2,7 @@ import { z } from "zod";
 
 import { PlayerId } from "./player";
 
-import { Id, genId, idSchema } from "@/misc/id";
+import { genId, idSchema } from "@/misc/id";
 
 export const roomIdSchema = idSchema.brand("roomId");
 export const roomPasswordSchema = z
@@ -26,9 +26,9 @@ export type RoomState = z.infer<typeof roomStateSchema>;
 export class Room {
   public readonly id: RoomId;
   private readonly _password: RoomPassword;
-  public readonly ownerId: Id;
+  private _ownerId: PlayerId;
   private _state: RoomState;
-  private _players: Id[];
+  private _players: PlayerId[];
 
   constructor(
     id: RoomId,
@@ -39,9 +39,13 @@ export class Room {
   ) {
     this.id = id;
     this._password = password;
-    this.ownerId = ownerId;
+    this._ownerId = ownerId;
     this._state = state;
     this._players = players;
+  }
+
+  get ownerId() {
+    return this._ownerId;
   }
 
   get state() {
@@ -56,8 +60,15 @@ export class Room {
     return new Room(genId(), password, ownerId, roomStateSchema.parse("BEFORE_START"), [ownerId]);
   }
 
-  public join(player: Id) {
+  public join(player: PlayerId) {
     this._players.push(player);
+  }
+
+  public leave(player: PlayerId) {
+    this._players = this._players.filter((value) => value !== player);
+    if (this._ownerId === player && this._players.length > 0) {
+      this._ownerId = this._players[0];
+    }
   }
 
   public startGame() {

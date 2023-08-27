@@ -1,3 +1,5 @@
+import { RepositoryError } from "../repository";
+
 import { UseCaseError } from ".";
 
 export class RoomPasswordDuplicateError extends UseCaseError {
@@ -42,5 +44,14 @@ export class PlayerNameDuplicatedError extends UseCaseError {
   }
   constructor() {
     super("Players with the same name cannot be in the same room");
+  }
+}
+
+export class RepositoryOperationError extends UseCaseError {
+  static {
+    this.prototype.name = "RepositoryOperationError";
+  }
+  constructor(cause: RepositoryError) {
+    super("The error occurred when operationg a repository", { cause: cause });
   }
 }

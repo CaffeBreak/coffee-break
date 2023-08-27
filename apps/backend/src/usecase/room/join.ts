@@ -9,6 +9,7 @@ import { AlreadyJoinedOtherRoomError, PlayerNotFoundError } from "@/error/usecas
 import {
   PasswordMismatchError,
   PlayerNameDuplicatedError,
+  RepositoryOperationError,
   RoomNotFoundError,
 } from "@/error/usecase/room";
 
@@ -49,8 +50,14 @@ export const JoinRoomUseCase =
       // 部屋に参加する
       room.join(player.id);
       player.joinRoom(room.id);
-      playerRepository.save(player);
-      roomRepository.save(room);
+      const playerRepoResult = playerRepository.save(player);
+      const roomRepoResult = roomRepository.save(room);
+      if (playerRepoResult.err) {
+        return Err(new RepositoryOperationError(playerRepoResult.val));
+      }
+      if (roomRepoResult.err) {
+        return Err(new RepositoryOperationError(roomRepoResult.val));
+      }
 
-      return Ok(room);
+      return Ok(roomRepoResult.unwrap());
     };
