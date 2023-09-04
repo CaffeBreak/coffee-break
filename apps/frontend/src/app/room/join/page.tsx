@@ -5,7 +5,7 @@ const RoomJoin = () => {
   return (
     <div className="flex h-2/3 flex-col items-center justify-center space-y-10">
       <InputText placeholder="合言葉を入力" />
-      <Enter />
+      <Enter dest="/room/join/list" />
     </div>
   );
 };

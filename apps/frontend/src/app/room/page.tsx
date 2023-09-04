@@ -1,4 +1,4 @@
-import { SelectRoom } from "../../components/ui/button/selectRoom";
+import { SelectRoom } from "@/components/ui/button/selectRoom";
 
 const Room = () => {
   return (

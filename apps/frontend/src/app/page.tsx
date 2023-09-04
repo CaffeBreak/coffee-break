@@ -1,5 +1,5 @@
-import { Enter } from "../components/ui/button/enter";
-import { InputText } from "../components/ui/form/inputText";
+import { Enter } from "@/components/ui/button/enter";
+import { InputText } from "@/components/ui/form/inputText";
 
 const Home = () => {
   return (
@@ -12,7 +12,7 @@ const Home = () => {
         <InputText placeholder="名前を入力して焼きあがる" />
       </div>
       <div className="mt-[70px] flex w-full justify-center">
-        <Enter />
+        <Enter dest="/room"/>
       </div>
     </>
   );
