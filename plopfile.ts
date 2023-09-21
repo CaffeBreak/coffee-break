@@ -9,12 +9,12 @@ export default (plop: NodePlopAPI) => {
       {
         type: "list",
         name: "dir",
-        message: "Select component directory",
+        message: "Select components directory",
         choices: [
-          "component",
-          "component/ui",
-          "component/ui/form",
-          "component/ui/global",
+          "components",
+          "components/ui",
+          "components/ui/form",
+          "components/ui/global",
         ],
       },
       {
@@ -49,7 +49,7 @@ export default (plop: NodePlopAPI) => {
         {
           type: "add",
           path: `${path}/index.tsx`,
-          templateFile: "_templates/component/component.tsx.hbs",
+          templateFile: "_templates/components/components.tsx.hbs",
           data: {
             ...data,
             typeAnnotation,
@@ -71,14 +71,14 @@ export default (plop: NodePlopAPI) => {
         {
           type: "add",
           path: `${path}/${camelName}.spec.tsx`,
-          templateFile: "_templates/component/component.spec.tsx.hbs",
+          templateFile: "_templates/components/components.spec.tsx.hbs",
           data: {
             ...data,
             typeAnnotation,
             props,
             propsType,
           },
-        }
+        },
       );
 
       return actions;
@@ -119,7 +119,7 @@ export default (plop: NodePlopAPI) => {
           path: `${path}/layout.tsx`,
           templateFile: "_templates/page/layout.tsx.hbs",
           data,
-        }
+        },
       );
 
       return actions;
