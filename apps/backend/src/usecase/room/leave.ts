@@ -11,7 +11,7 @@ import { RepositoryOperationError, RoomNotFoundError } from "@/error/usecase/roo
 export const LeaveRoomUseCase =
   // prettier-ignore
   (roomRepository: RoomRepository, playerRepository: PlayerRepository) =>
-    (playerId: PlayerId): Result<Room | void, UseCaseError> => {
+    (playerId: PlayerId): Result<Room, UseCaseError> => {
       // 該当のプレイヤーが存在しないなら退出できない
       const playerResult = playerRepository.findById(playerId);
       if (playerResult.err) {
@@ -33,16 +33,6 @@ export const LeaveRoomUseCase =
 
       // プレイヤーを退出させる
       room.leave(player.id);
-      // 部屋にプレイヤーがいないなら部屋を消す
-      if (room.players.length === 0) {
-        const roomRepoResult = roomRepository.delete(room.id);
-        if (roomRepoResult.err) {
-          return Err(new RepositoryOperationError(roomRepoResult.val));
-        }
-
-        return Ok(roomRepoResult.unwrap());
-      }
-      // 部屋にプレイヤーが存在するなら部屋を消さない
       const roomRepoResult = roomRepository.save(room);
       if (roomRepoResult.err) {
         return Err(new RepositoryOperationError(roomRepoResult.val));
