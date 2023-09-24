@@ -16,7 +16,7 @@ export const CreateRoomUseCase =
   // prettier-ignore
   (roomRepository: RoomRepository, playerRepository: PlayerRepository) =>
     (password: RoomPassword, ownerId: PlayerId): Result<Room, UseCaseError> => {
-    // 同じ合言葉の部屋は作れない
+      // 同じ合言葉の部屋は作れない
       if (roomRepository.findByPassword(password).ok) {
         return Err(new RoomPasswordDuplicateError());
       }
