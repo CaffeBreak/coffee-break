@@ -1,11 +1,14 @@
 "use client";
 import { useRouter } from "next/navigation";
 
-export const Enter = () => {
+interface Props {
+  dest: string;
+}
+export const Enter = (props: Props) => {
   const router = useRouter();
 
   const handleClick = () => {
-    router.push("/room");
+    router.push(props.dest);
   };
 
   return (
