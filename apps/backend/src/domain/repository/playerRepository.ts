@@ -9,5 +9,5 @@ export interface PlayerRepository {
   findById(id: PlayerId): Result<Player, RepositoryError>;
   findByRoomId(roomId: RoomId): Result<Player[], RepositoryError>;
   save(player: Player): Result<Player, RepositoryError>;
-  delete(player: Player): Result<Player, RepositoryError>;
+  delete(id: PlayerId): Result<void, RepositoryError>;
 }

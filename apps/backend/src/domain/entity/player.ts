@@ -15,7 +15,7 @@ const playerRoleSchema = z
 const playerStatusSchema = z.union([z.literal("ALIVE"), z.literal("DEAD")]).brand("playerStatus");
 
 export type PlayerId = z.infer<typeof playerIdSchema>;
-type PlayerName = z.infer<typeof playerNameSchema>;
+export type PlayerName = z.infer<typeof playerNameSchema>;
 type PlayerRole = z.infer<typeof playerRoleSchema>;
 type PlayerStatus = z.infer<typeof playerStatusSchema>;
 
