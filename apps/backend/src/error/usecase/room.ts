@@ -1,6 +1,5 @@
+import { UseCaseError } from "./common";
 import { RepositoryError } from "../repository";
-
-import { UseCaseError } from ".";
 
 export class RoomPasswordDuplicateError extends UseCaseError {
   static {

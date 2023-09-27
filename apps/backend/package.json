@@ -5,7 +5,7 @@
   "author": "",
   "private": true,
   "license": "UNLICENSED",
-  "type": "module",
+  "type": "commonjs",
   "scripts": {
     "build": "swc src -d dist -D",
     "format": "prettier --write --ignore-path .gitignore '{src,test}/**/*.{ts,json}'",
@@ -31,6 +31,7 @@
     "socket.io": "^4.7.2",
     "ts-pattern": "^5.0.4",
     "ts-results": "^3.3.0",
+    "tsyringe": "^4.8.0",
     "zod": "^3.21.4"
   },
   "devDependencies": {
