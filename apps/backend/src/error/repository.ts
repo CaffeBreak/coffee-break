@@ -13,3 +13,12 @@ export abstract class RepositoryError extends Error {
     Object.setPrototypeOf(this, RepositoryError.prototype);
   }
 }
+
+export class DataNotFoundError extends RepositoryError {
+  static {
+    this.prototype.name = "DataNotFoundError";
+  }
+  constructor() {
+    super("Target data was not found.");
+  }
+}

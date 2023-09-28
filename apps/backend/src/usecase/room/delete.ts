@@ -1,4 +1,5 @@
 import { Err, Ok, Result } from "ts-results";
+import { inject } from "tsyringe";
 
 import type { IRoomRepository } from "@/domain/repository/interface/roomRepository";
 
@@ -7,7 +8,7 @@ import { UseCaseError } from "@/error/usecase/common";
 import { RepositoryOperationError, RoomNotFoundError } from "@/error/usecase/room";
 
 export class DeleteRoomUseCase {
-  constructor(private roomRepository: IRoomRepository) {}
+  constructor(@inject("RoomRepository") private roomRepository: IRoomRepository) {}
 
   public execute(id: RoomId): Result<void, UseCaseError> {
     // 該当の部屋が存在しないなら消せない

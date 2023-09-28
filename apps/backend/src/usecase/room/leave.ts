@@ -1,4 +1,5 @@
 import { Err, Ok, Result } from "ts-results";
+import { inject } from "tsyringe";
 
 import type { IPlayerRepository } from "@/domain/repository/interface/playerRepository";
 import type { IRoomRepository } from "@/domain/repository/interface/roomRepository";
@@ -11,8 +12,8 @@ import { RepositoryOperationError, RoomNotFoundError } from "@/error/usecase/roo
 
 export class LeaveRoomUseCase {
   constructor(
-    private roomRepository: IRoomRepository,
-    private playerRepository: IPlayerRepository,
+    @inject("RoomRepository") private roomRepository: IRoomRepository,
+    @inject("PlayerRepository") private playerRepository: IPlayerRepository,
   ) {}
 
   public execute(playerId: PlayerId): Result<Room, UseCaseError> {

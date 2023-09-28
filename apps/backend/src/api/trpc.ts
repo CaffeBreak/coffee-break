@@ -1,5 +1,5 @@
 import { initTRPC } from "@trpc/server";
-import { container } from "tsyringe";
+import { inject, injectable } from "tsyringe";
 
 import { PlayerRouter } from "./endpoint/player";
 
@@ -9,5 +9,15 @@ export const router = t.router;
 export const middleware = t.middleware;
 export const publicProcedure = t.procedure;
 
-export const appRouter = router({ player: container.resolve(PlayerRouter).execute() });
-export type AppRouter = typeof appRouter;
+@injectable()
+export class AppRouter {
+  constructor(@inject(PlayerRouter) private playerRouter: PlayerRouter) {}
+
+  public execute() {
+    return router({
+      player: this.playerRouter.execute(),
+    });
+  }
+}
+
+export type Router = ReturnType<typeof AppRouter.prototype.execute>;

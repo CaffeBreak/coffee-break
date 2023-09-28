@@ -1,5 +1,5 @@
 import { Err, Ok, Result } from "ts-results";
-import { injectable } from "tsyringe";
+import { inject, injectable } from "tsyringe";
 
 import type { IPlayerRepository } from "@/domain/repository/interface/playerRepository";
 import type { IRoomRepository } from "@/domain/repository/interface/roomRepository";
@@ -17,8 +17,8 @@ import {
 @injectable()
 export class CreateRoomUseCase {
   constructor(
-    private roomRepository: IRoomRepository,
-    private playerRepository: IPlayerRepository,
+    @inject("RoomRepository") private roomRepository: IRoomRepository,
+    @inject("PlayerRepository") private playerRepository: IPlayerRepository,
   ) {}
 
   public execute(password: RoomPassword, ownerId: PlayerId): Result<Room, UseCaseError> {
