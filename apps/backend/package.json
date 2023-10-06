@@ -10,7 +10,9 @@
     "build": "swc src -d dist -D",
     "format": "prettier --write --ignore-path .gitignore '{src,test}/**/*.{ts,json}'",
     "lint": "eslint --ignore-path .gitignore '{src,test}/**/*.ts'",
-    "lint:fix": "lint --fix"
+    "lint:fix": "lint --fix",
+    "start": "node ./dist/index.js",
+    "dev": "pnpm run build && node ./dist/dev.js"
   },
   "dependencies": {
     "@fastify/cookie": "^9.0.4",
@@ -23,6 +25,7 @@
     "fastify": "^4.21.0",
     "fastify-socket.io": "^4.0.0",
     "inversify": "^6.0.1",
+    "picocolors": "^1.0.0",
     "pino": "^8.15.0",
     "pino-pretty": "^10.2.0",
     "prisma": "^5.1.1",
@@ -41,6 +44,7 @@
     "@types/node": "^18.17.3",
     "@types/supertest": "^2.0.12",
     "@typescript-eslint/eslint-plugin": "^6.2.1",
+    "chokidar": "^3.5.3",
     "eslint-config-prettier": "^9.0.0",
     "eslint-config-turbo": "^1.10.12",
     "eslint-plugin-prefer-arrow-functions": "^3.1.4",
