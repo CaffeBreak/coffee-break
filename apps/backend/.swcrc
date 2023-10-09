@@ -10,16 +10,6 @@
     "transform": {
       "decoratorMetadata": true
     },
-    "experimental": {
-      "plugins": [
-        [
-          "swc-plugin-import-extension-resolver",
-          {
-            "aliases": ["@/*"]
-          }
-        ]
-      ]
-    },
     "target": "esnext",
     "loose": false,
     "externalHelpers": true,
@@ -29,5 +19,8 @@
       "@/*": ["./src/*"]
     }
   },
-  "minify": false
+  "minify": false,
+  "module": {
+    "type": "commonjs"
+  }
 }

@@ -1,26 +1,29 @@
 import { Err, Ok, Result } from "ts-results";
+import { inject } from "tsyringe";
+
+import type { IRoomRepository } from "@/domain/repository/interface/roomRepository";
 
 import { RoomId } from "@/domain/entity/room";
-import { RoomRepository } from "@/domain/repository/roomRepository";
-import { UseCaseError } from "@/error/usecase";
+import { UseCaseError } from "@/error/usecase/common";
 import { RepositoryOperationError, RoomNotFoundError } from "@/error/usecase/room";
 
-export const DeleteRoomUseCase =
-  // prettier-ignore
-  (roomRepository: RoomRepository) =>
-    (id: RoomId): Result<void, UseCaseError> => {
+export class DeleteRoomUseCase {
+  constructor(@inject("RoomRepository") private roomRepository: IRoomRepository) {}
+
+  public execute(id: RoomId): Result<void, UseCaseError> {
     // 該当の部屋が存在しないなら消せない
-      const roomResult = roomRepository.findById(id);
-      if (roomResult.err) {
-        return Err(new RoomNotFoundError());
-      }
-      const room = roomResult.unwrap();
+    const roomResult = this.roomRepository.findById(id);
+    if (roomResult.err) {
+      return Err(new RoomNotFoundError());
+    }
+    const room = roomResult.unwrap();
 
-      // 部屋を削除する
-      const roomRepoResult = roomRepository.delete(room.id);
-      if (roomRepoResult.err) {
-        return Err(new RepositoryOperationError(roomRepoResult.val));
-      }
+    // 部屋を削除する
+    const roomRepoResult = this.roomRepository.delete(room.id);
+    if (roomRepoResult.err) {
+      return Err(new RepositoryOperationError(roomRepoResult.val));
+    }
 
-      return Ok(roomRepoResult.unwrap());
-    };
+    return Ok(roomRepoResult.unwrap());
+  }
+}

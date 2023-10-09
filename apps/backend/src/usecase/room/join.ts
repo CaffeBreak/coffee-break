@@ -1,10 +1,12 @@
 import { Err, Ok, Result } from "ts-results";
+import { inject } from "tsyringe";
+
+import type { IPlayerRepository } from "@/domain/repository/interface/playerRepository";
+import type { IRoomRepository } from "@/domain/repository/interface/roomRepository";
 
 import { PlayerId } from "@/domain/entity/player";
 import { Room, RoomId, RoomPassword } from "@/domain/entity/room";
-import { PlayerRepository } from "@/domain/repository/playerRepository";
-import { RoomRepository } from "@/domain/repository/roomRepository";
-import { UseCaseError } from "@/error/usecase";
+import { UseCaseError } from "@/error/usecase/common";
 import { AlreadyJoinedOtherRoomError, PlayerNotFoundError } from "@/error/usecase/player";
 import {
   PasswordMismatchError,
@@ -13,51 +15,59 @@ import {
   RoomNotFoundError,
 } from "@/error/usecase/room";
 
-export const JoinRoomUseCase =
-  // prettier-ignore
-  (roomRepository: RoomRepository, playerRepository: PlayerRepository) =>
-    (roomId: RoomId, password: RoomPassword, playerId: PlayerId): Result<Room, UseCaseError> => {
-      // 該当の部屋が存在しないなら参加できない
-      const roomResult = roomRepository.findById(roomId);
-      if (roomResult.err) {
-        return Err(new RoomNotFoundError());
-      }
-      const room = roomResult.unwrap();
+export class JoinRoomUseCase {
+  constructor(
+    @inject("RoomRepository") private roomRepository: IRoomRepository,
+    @inject("PlayerRepository") private playerRepository: IPlayerRepository,
+  ) {}
 
-      // 該当のプレイヤーが存在しないなら参加できない
-      const playerResult = playerRepository.findById(playerId);
-      if (playerResult.err) {
-        return Err(new PlayerNotFoundError());
-      }
-      const player = playerResult.unwrap();
+  public execute(
+    roomId: RoomId,
+    password: RoomPassword,
+    playerId: PlayerId,
+  ): Result<Room, UseCaseError> {
+    // 該当の部屋が存在しないなら参加できない
+    const roomResult = this.roomRepository.findById(roomId);
+    if (roomResult.err) {
+      return Err(new RoomNotFoundError());
+    }
+    const room = roomResult.unwrap();
 
-      // 該当のプレイヤーが既に部屋に参加している場合は参加できない
-      if (player.roomId) {
-        return Err(new AlreadyJoinedOtherRoomError());
-      }
+    // 該当のプレイヤーが存在しないなら参加できない
+    const playerResult = this.playerRepository.findById(playerId);
+    if (playerResult.err) {
+      return Err(new PlayerNotFoundError());
+    }
+    const player = playerResult.unwrap();
 
-      // 合言葉が一致しなければ参加できない
-      if (!room.checkPassword(password)) {
-        return Err(new PasswordMismatchError());
-      }
+    // 該当のプレイヤーが既に部屋に参加している場合は参加できない
+    if (player.roomId) {
+      return Err(new AlreadyJoinedOtherRoomError());
+    }
 
-      // 同じ名前のプレイヤーが同じ部屋に入ることはできない
-      const playersInRoom = playerRepository.findByRoomId(room.id).unwrap();
-      if (playersInRoom.some((p) => p.name === player.name)) {
-        return Err(new PlayerNameDuplicatedError());
-      }
+    // 合言葉が一致しなければ参加できない
+    if (!room.checkPassword(password)) {
+      return Err(new PasswordMismatchError());
+    }
 
-      // 部屋に参加する
-      room.join(player.id);
-      player.joinRoom(room.id);
-      const playerRepoResult = playerRepository.save(player);
-      const roomRepoResult = roomRepository.save(room);
-      if (playerRepoResult.err) {
-        return Err(new RepositoryOperationError(playerRepoResult.val));
-      }
-      if (roomRepoResult.err) {
-        return Err(new RepositoryOperationError(roomRepoResult.val));
-      }
+    // 同じ名前のプレイヤーが同じ部屋に入ることはできない
+    const playersInRoom = this.playerRepository.findByRoomId(room.id).unwrap();
+    if (playersInRoom.some((p) => p.name === player.name)) {
+      return Err(new PlayerNameDuplicatedError());
+    }
 
-      return Ok(roomRepoResult.unwrap());
-    };
+    // 部屋に参加する
+    room.join(player.id);
+    player.joinRoom(room.id);
+    const playerRepoResult = this.playerRepository.save(player);
+    const roomRepoResult = this.roomRepository.save(room);
+    if (playerRepoResult.err) {
+      return Err(new RepositoryOperationError(playerRepoResult.val));
+    }
+    if (roomRepoResult.err) {
+      return Err(new RepositoryOperationError(roomRepoResult.val));
+    }
+
+    return Ok(roomRepoResult.unwrap());
+  }
+}

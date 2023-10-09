@@ -1,4 +1,4 @@
-import { UseCaseError } from ".";
+import { UseCaseError } from "./common";
 
 export class PlayerNotFoundError extends UseCaseError {
   static {

@@ -4,15 +4,17 @@ import { type RoomId } from "./room";
 
 import { genId, idSchema } from "@/misc/id";
 
-const playerIdSchema = idSchema.brand("playerId");
-const playerNameSchema = z
+export const playerIdSchema = idSchema.brand("playerId");
+export const playerNameSchema = z
   .string()
   .regex(/^[^\s]{1,16}$/)
   .brand("playerName");
-const playerRoleSchema = z
+export const playerRoleSchema = z
   .union([z.literal("PENDING"), z.literal("VILLAGER"), z.literal("WEREWOLF")])
   .brand("playerRole");
-const playerStatusSchema = z.union([z.literal("ALIVE"), z.literal("DEAD")]).brand("playerStatus");
+export const playerStatusSchema = z
+  .union([z.literal("ALIVE"), z.literal("DEAD")])
+  .brand("playerStatus");
 
 export type PlayerId = z.infer<typeof playerIdSchema>;
 export type PlayerName = z.infer<typeof playerNameSchema>;
@@ -67,6 +69,10 @@ export class Player {
     this._status = playerStatusSchema.parse("DEAD");
   }
 
+  public joinRoom(roomId: RoomId) {
+    this._roomId = roomId;
+  }
+
   public static new(name: PlayerName): Player {
     return new Player(
       genId(),
@@ -74,9 +80,5 @@ export class Player {
       playerRoleSchema.parse("PENDING"),
       playerStatusSchema.parse("ALIVE"),
     );
-  }
-
-  public joinRoom(roomId: RoomId) {
-    this._roomId = roomId;
   }
 }
