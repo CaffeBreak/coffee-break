@@ -1,0 +1,13 @@
+# Dist
+dist/
+
+#npm
+node_modules/
+
+# Intellij Files
+.idea
+
+# test coverage
+coverage
+
+.swc/

@@ -17,20 +17,10 @@
     "baseUrl": "./",
     "paths": {
       "@/*": ["./src/*"]
-    },
-    "experimental": {
-      "plugins": [
-        [
-          "swc-plugin-import-extension-resolver",
-          {
-            "aliases": ["@/*", "$/*"]
-          }
-        ]
-      ]
     }
   },
   "minify": false,
   "module": {
-    "type": "es6"
+    "type": "commonjs"
   }
 }
