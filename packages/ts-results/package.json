@@ -1,6 +1,6 @@
 {
   "name": "ts-results",
-  "version": "3.3.0",
+  "version": "3.3.1",
   "description": "A typescript implementation of Rust's Result and Option objects.",
   "private": true,
   "type": "module",
@@ -14,7 +14,8 @@
         "types": "./dist/cjs/index.d.ts",
         "default": "./dist/cjs/index.js"
       },
-      "default": "./dist/cjs/index.js"
+      "default": "./dist/index.js",
+      "types": "./dist/index.d.ts"
     }
   },
   "types": "./dist/index.d.ts",
@@ -23,7 +24,9 @@
   "scripts": {
     "build": "pnpm run \"/^build:.*/\" && tsconfig-to-dual-package",
     "build:esm": "swc src -d dist -D",
+    "build:esm-type": "tsc -p . --emitDeclarationOnly",
     "build:cjs": "swc src -d dist/cjs -D --config-file .cjs.swcrc",
+    "build:cjs-type": "tsc -p tsconfig.cjs.json --emitDeclarationOnly",
     "clean": "rm -rf dist",
     "test": "jest",
     "format": "prettier . --write"
