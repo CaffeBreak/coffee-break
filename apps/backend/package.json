@@ -15,7 +15,7 @@
     "dev": "pnpm run build && node ./dist/dev.js"
   },
   "dependencies": {
-    "@cffnpwr/ts-results": "^3.3.2",
+    "@cffnpwr/ts-results": "^3.3.5",
     "@fastify/cookie": "^9.1.0",
     "@fastify/cors": "^8.4.0",
     "@prisma/client": "4.16.1",
