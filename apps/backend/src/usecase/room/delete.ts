@@ -1,4 +1,4 @@
-import { Err, Ok, Result } from "ts-results";
+import { Err, Ok, Result } from "@cffnpwr/ts-results";
 import { inject } from "tsyringe";
 
 import type { IRoomRepository } from "@/domain/repository/interface/roomRepository";

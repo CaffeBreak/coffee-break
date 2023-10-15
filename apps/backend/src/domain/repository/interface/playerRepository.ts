@@ -1,4 +1,4 @@
-import { Result } from "ts-results";
+import { Result } from "@cffnpwr/ts-results";
 
 import { Player, PlayerId } from "../../entity/player";
 import { RoomId } from "../../entity/room";

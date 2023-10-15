@@ -1,4 +1,4 @@
-import { Err, Ok, Result } from "ts-results";
+import { Err, Ok, Result } from "@cffnpwr/ts-results";
 import { singleton } from "tsyringe";
 
 import { IPlayerRepository } from "./../interface/playerRepository";
