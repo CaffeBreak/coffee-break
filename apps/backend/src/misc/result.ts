@@ -1,4 +1,4 @@
-import { Err, Ok, Result } from "ts-results";
+import { Err, Ok, Result } from "@cffnpwr/ts-results";
 
 export const OkOrErr = <T, E extends Error>(
   value: T | undefined | null,

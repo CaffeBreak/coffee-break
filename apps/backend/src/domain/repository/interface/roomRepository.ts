@@ -1,4 +1,4 @@
-import { Result } from "ts-results";
+import { Result } from "@cffnpwr/ts-results";
 
 import { Room, RoomId, RoomPassword } from "@/domain/entity/room";
 import { RepositoryError } from "@/error/repository";
