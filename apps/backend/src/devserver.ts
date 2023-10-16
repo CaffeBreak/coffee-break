@@ -14,4 +14,4 @@ container.register("PlayerRepository", InMemoryPlayerRepository);
 container.register("RoomRepository", InMemoryRoomRepository);
 
 // start server
-startServer();
+export const server = await startServer();

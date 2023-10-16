@@ -11,8 +11,8 @@
     "format": "prettier --write --ignore-path .gitignore '{src,test}/**/*.{ts,json}'",
     "lint": "eslint --ignore-path .gitignore '{src,test}/**/*.ts'",
     "lint:fix": "lint --fix",
-    "start": "node ./dist/index.js",
-    "dev": "pnpm run build && node ./dist/dev.js"
+    "start": "NODE_ENV=production node ./dist/index.js",
+    "dev": "vite"
   },
   "dependencies": {
     "@cffnpwr/ts-results": "^3.3.5",
@@ -58,7 +58,10 @@
     "ts-loader": "^9.5.0",
     "ts-node": "^10.9.1",
     "tsconfig-paths": "4.2.0",
-    "types-fastify-socket.io": "^0.0.1"
+    "types-fastify-socket.io": "^0.0.1",
+    "vite": "^4.4.11",
+    "vite-plugin-node": "^3.0.2",
+    "vitest": "^0.34.6"
   },
   "jest": {
     "moduleFileExtensions": [
