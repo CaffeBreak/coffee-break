@@ -175,6 +175,9 @@ importers:
 
   apps/frontend:
     dependencies:
+      '@trpc/client':
+        specifier: ^10.40.0
+        version: 10.40.0(@trpc/server@10.40.0)
       jotai:
         specifier: ^2.2.3
         version: 2.2.3(@types/react@18.2.18)(react@18.2.0)
@@ -1315,8 +1318,20 @@ packages:
     resolution: {integrity: sha512-C5Mc6rdnsaJDjO3UpGW/CQTHtCKaYlScZTly4JIu97Jxo/odCiH0ITnDXSJPTOrEKk/ycSZ0AOgTmkDtkOsvIA==}
     dev: true
 
+  /@trpc/client@10.40.0(@trpc/server@10.40.0):
+    resolution: {integrity: sha512-bT6BcdWjj0KzGQiimE6rB2tIaRYX0Ear4Gthb5szN/c01wrP0yC1Fbz2uCcm/QTVAwu4Lve5M+YjPoEaTHG6lg==}
+    peerDependencies:
+      '@trpc/server': 10.40.0
+    dependencies:
+      '@trpc/server': 10.40.0
+    dev: false
+
   /@trpc/server@10.37.1:
     resolution: {integrity: sha512-r3VeA319/braYMBIzj+XLgLKQ9lJSVglvPvP9HUv4kr5w6Y5grQMxMcExhTiZWltE9bnSJHKtBBzHafOo7KC8A==}
+    dev: false
+
+  /@trpc/server@10.40.0:
+    resolution: {integrity: sha512-49SUOMWzSZtu5+OdrADmJD+u+sjSE0qj1cWgYk2FY4jLkPJunLuNRuhzM7aOeBhiUjyfhg2YTfur8FN1WBmvEw==}
     dev: false
 
   /@tsconfig/node10@1.0.9:
