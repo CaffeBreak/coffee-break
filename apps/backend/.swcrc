@@ -33,5 +33,5 @@
   "module": {
     "type": "es6"
   },
-  "exclude": ["devserver.ts", "./src/**/*.test.ts"]
+  "exclude": ["devserver.ts", "^.+\\.test\\.ts$"]
 }

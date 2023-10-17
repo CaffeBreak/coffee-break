@@ -4,8 +4,8 @@ import { inject } from "tsyringe";
 import type { IRoomRepository } from "@/domain/repository/interface/roomRepository";
 
 import { RoomId } from "@/domain/entity/room";
-import { UseCaseError } from "@/error/usecase/common";
-import { RepositoryOperationError, RoomNotFoundError } from "@/error/usecase/room";
+import { RepositoryOperationError, UseCaseError } from "@/error/usecase/common";
+import { RoomNotFoundError } from "@/error/usecase/room";
 
 export class DeleteRoomUseCase {
   constructor(@inject("RoomRepository") private roomRepository: IRoomRepository) {}

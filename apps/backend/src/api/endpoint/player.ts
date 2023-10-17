@@ -13,7 +13,7 @@ import {
 } from "@/domain/entity/player";
 import { roomIdSchema } from "@/domain/entity/room";
 import { UseCaseError } from "@/error/usecase/common";
-import { RepositoryOperationError } from "@/error/usecase/room";
+import { RepositoryOperationError } from "@/error/usecase/common";
 
 const playerObjSchema = z.object({
   id: playerIdSchema,

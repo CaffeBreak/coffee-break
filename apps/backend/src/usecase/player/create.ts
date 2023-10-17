@@ -1,11 +1,11 @@
-import { Err, Ok, Result } from "@cffnpwr/ts-results";
+import { Err, Ok, Result } from "@cffnpwr/result-ts";
 import { inject, injectable } from "tsyringe";
 
 import type { IPlayerRepository } from "@/domain/repository/interface/playerRepository";
 
 import { Player, PlayerName } from "@/domain/entity/player";
 import { UseCaseError } from "@/error/usecase/common";
-import { RepositoryOperationError } from "@/error/usecase/room";
+import { RepositoryOperationError } from "@/error/usecase/common";
 
 @injectable()
 export class CreatePlayerUseCase {
@@ -15,9 +15,9 @@ export class CreatePlayerUseCase {
     const newPlayer = Player.new(name);
     const playerResult = this.playerRepository.save(newPlayer);
     if (playerResult.err) {
-      return Err(new RepositoryOperationError(playerResult.unwrap()));
+      return new Err(new RepositoryOperationError(playerResult.unwrap()));
     }
 
-    return Ok(playerResult.unwrap());
+    return new Ok(playerResult.unwrap());
   }
 }

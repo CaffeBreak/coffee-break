@@ -45,9 +45,9 @@ importers:
 
   apps/backend:
     dependencies:
-      '@cffnpwr/ts-results':
-        specifier: ^3.3.5
-        version: 3.3.5
+      '@cffnpwr/result-ts':
+        specifier: ^0.0.0
+        version: 0.0.0
       '@fastify/cookie':
         specifier: ^9.1.0
         version: 9.1.0
@@ -595,8 +595,8 @@ packages:
     resolution: {integrity: sha512-0hYQ8SB4Db5zvZB4axdMHGwEaQjkZzFjQiN9LVYvIFB2nSUHW9tYpxWriPrWDASIxiaXax83REcLxuSdnGPZtw==}
     dev: true
 
-  /@cffnpwr/ts-results@3.3.5:
-    resolution: {integrity: sha512-yHK5/L9oY6T1+706ANDNZvE2uBcFzV8PrPjGgtwegERaRqsJEABBZUfasqhJCHhqakJosMQagIIqlcbXYDwNtw==}
+  /@cffnpwr/result-ts@0.0.0:
+    resolution: {integrity: sha512-GJ6jfxKm1PwbvWG1QoUAafmhhoWcal9cC+U1bQFp2A1AcSOfJnIaLx37JJZ0LZMvvTSYV/MKefkRG5o9rW+07w==}
     dev: false
 
   /@cspotcode/source-map-support@0.8.1:

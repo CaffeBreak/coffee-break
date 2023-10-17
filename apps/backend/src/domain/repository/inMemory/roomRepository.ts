@@ -1,4 +1,4 @@
-import { Err, Ok, Result } from "@cffnpwr/ts-results";
+import { Err, Ok, Result } from "@cffnpwr/result-ts";
 import { singleton } from "tsyringe";
 
 import { IRoomRepository } from "../interface/roomRepository";
@@ -29,21 +29,21 @@ export class InMemoryRoomRepository implements IRoomRepository {
     if (index !== -1) {
       store[index] = room;
 
-      return Ok(store[index]);
+      return new Ok(store[index]);
     }
 
     const newIndex = store.push(room);
 
-    return Ok(store[newIndex]);
+    return new Ok(store[newIndex]);
   }
   delete(id: RoomId): Result<void, RepositoryError> {
     const index = store.findIndex((r) => r.id === id);
     if (index === -1) {
-      return Err(new DataNotFoundError());
+      return new Err(new DataNotFoundError());
     }
 
     store.splice(index, 1);
 
-    return Ok(voidType);
+    return new Ok(voidType);
   }
 }

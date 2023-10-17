@@ -1,3 +1,5 @@
+import { fileURLToPath } from "url";
+
 import { defineConfig } from "vite";
 import { VitePluginNode, VitePluginNodeConfig } from "vite-plugin-node";
 
@@ -24,11 +26,13 @@ const vitePluginNodeConfig: VitePluginNodeConfig = {
       paths: {
         "@/*": ["./src/*"],
       },
+      baseUrl: fileURLToPath(import.meta.url),
     },
     minify: false,
     module: {
       type: "es6",
     },
+    swcrc: false,
   },
 };
 

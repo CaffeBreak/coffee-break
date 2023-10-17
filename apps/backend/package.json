@@ -12,10 +12,11 @@
     "lint": "eslint --ignore-path .gitignore '{src,test}/**/*.ts'",
     "lint:fix": "lint --fix",
     "start": "NODE_ENV=production node ./dist/index.js",
-    "dev": "vite"
+    "dev": "vite",
+    "test": "vitest"
   },
   "dependencies": {
-    "@cffnpwr/ts-results": "^3.3.5",
+    "@cffnpwr/result-ts": "^0.0.0",
     "@fastify/cookie": "^9.1.0",
     "@fastify/cors": "^8.4.0",
     "@prisma/client": "4.16.1",

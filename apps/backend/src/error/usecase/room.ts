@@ -1,5 +1,4 @@
 import { UseCaseError } from "./common";
-import { RepositoryError } from "../repository";
 
 export class RoomPasswordDuplicateError extends UseCaseError {
   static {
@@ -7,6 +6,13 @@ export class RoomPasswordDuplicateError extends UseCaseError {
   }
   constructor() {
     super("The room password is duplicated");
+
+    // Error.captureStackTraceはV8 Engineのみに存在する
+    // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
+    if (Error.captureStackTrace) {
+      Error.captureStackTrace(this, this.constructor);
+    }
+    Object.setPrototypeOf(this, RoomPasswordDuplicateError.prototype);
   }
 }
 
@@ -16,6 +22,13 @@ export class RoomOwnerNotFoundError extends UseCaseError {
   }
   constructor() {
     super("The room owner is not found");
+
+    // Error.captureStackTraceはV8 Engineのみに存在する
+    // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
+    if (Error.captureStackTrace) {
+      Error.captureStackTrace(this, this.constructor);
+    }
+    Object.setPrototypeOf(this, RoomOwnerNotFoundError.prototype);
   }
 }
 
@@ -25,6 +38,13 @@ export class RoomNotFoundError extends UseCaseError {
   }
   constructor() {
     super("The room is not found");
+
+    // Error.captureStackTraceはV8 Engineのみに存在する
+    // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
+    if (Error.captureStackTrace) {
+      Error.captureStackTrace(this, this.constructor);
+    }
+    Object.setPrototypeOf(this, RoomNotFoundError.prototype);
   }
 }
 
@@ -34,6 +54,13 @@ export class PasswordMismatchError extends UseCaseError {
   }
   constructor() {
     super("The room password is mismatched");
+
+    // Error.captureStackTraceはV8 Engineのみに存在する
+    // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
+    if (Error.captureStackTrace) {
+      Error.captureStackTrace(this, this.constructor);
+    }
+    Object.setPrototypeOf(this, PasswordMismatchError.prototype);
   }
 }
 
@@ -43,14 +70,12 @@ export class PlayerNameDuplicatedError extends UseCaseError {
   }
   constructor() {
     super("Players with the same name cannot be in the same room");
-  }
-}
 
-export class RepositoryOperationError extends UseCaseError {
-  static {
-    this.prototype.name = "RepositoryOperationError";
-  }
-  constructor(cause: RepositoryError) {
-    super("The error occurred when operationg a repository", { cause: cause });
+    // Error.captureStackTraceはV8 Engineのみに存在する
+    // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
+    if (Error.captureStackTrace) {
+      Error.captureStackTrace(this, this.constructor);
+    }
+    Object.setPrototypeOf(this, PlayerNameDuplicatedError.prototype);
   }
 }
