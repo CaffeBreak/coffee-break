@@ -1,48 +1,48 @@
 import { Err, Ok, Result } from "@cffnpwr/result-ts";
 import { singleton } from "tsyringe";
 
-import { IRoomRepository } from "../interface/roomRepository";
+import { IRoomRepository } from "../interface/room";
 
 import { Room, RoomId, RoomPassword } from "@/domain/entity/room";
 import { DataNotFoundError, RepositoryError } from "@/error/repository";
 import { OkOrErr } from "@/misc/result";
 import { voidType } from "@/misc/type";
 
-const store: Room[] = [];
-
 @singleton()
 export class InMemoryRoomRepository implements IRoomRepository {
+  public store: Room[] = [];
+
   findById(id: RoomId): Result<Room, RepositoryError> {
     return OkOrErr(
-      store.find((room) => room.id === id),
+      this.store.find((room) => room.id === id),
       new DataNotFoundError(),
     );
   }
   findByPassword(password: RoomPassword): Result<Room, RepositoryError> {
     return OkOrErr(
-      store.find((room) => room.checkPassword(password)),
+      this.store.find((room) => room.checkPassword(password)),
       new DataNotFoundError(),
     );
   }
   save(room: Room): Result<Room, RepositoryError> {
-    const index = store.findIndex((r) => r.id === room.id);
+    const index = this.store.findIndex((r) => r.id === room.id);
     if (index !== -1) {
-      store[index] = room;
+      this.store[index] = room;
 
-      return new Ok(store[index]);
+      return new Ok(this.store[index]);
     }
 
-    const newIndex = store.push(room);
+    const newIndex = this.store.push(room) - 1;
 
-    return new Ok(store[newIndex]);
+    return new Ok(this.store[newIndex]);
   }
   delete(id: RoomId): Result<void, RepositoryError> {
-    const index = store.findIndex((r) => r.id === id);
+    const index = this.store.findIndex((r) => r.id === id);
     if (index === -1) {
       return new Err(new DataNotFoundError());
     }
 
-    store.splice(index, 1);
+    this.store.splice(index, 1);
 
     return new Ok(voidType);
   }

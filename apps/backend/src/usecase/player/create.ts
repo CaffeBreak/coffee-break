@@ -1,7 +1,7 @@
 import { Err, Ok, Result } from "@cffnpwr/result-ts";
 import { inject, injectable } from "tsyringe";
 
-import type { IPlayerRepository } from "@/domain/repository/interface/playerRepository";
+import type { IPlayerRepository } from "@/domain/repository/interface/player";
 
 import { Player, PlayerName } from "@/domain/entity/player";
 import { UseCaseError } from "@/error/usecase/common";

@@ -1,8 +1,8 @@
 import { Err, Ok, Result } from "@cffnpwr/result-ts";
 import { inject } from "tsyringe";
 
-import type { IPlayerRepository } from "@/domain/repository/interface/playerRepository";
-import type { IRoomRepository } from "@/domain/repository/interface/roomRepository";
+import type { IPlayerRepository } from "@/domain/repository/interface/player";
+import type { IRoomRepository } from "@/domain/repository/interface/room";
 
 import { PlayerId } from "@/domain/entity/player";
 import { Room } from "@/domain/entity/room";

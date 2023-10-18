@@ -1,7 +1,7 @@
 import { Err, Ok, Result } from "@cffnpwr/result-ts";
 import { singleton } from "tsyringe";
 
-import { IPlayerRepository } from "./../interface/playerRepository";
+import { IPlayerRepository } from "../interface/player";
 
 import { Player, PlayerId } from "@/domain/entity/player";
 import { RoomId } from "@/domain/entity/room";

@@ -1,7 +1,7 @@
 import { Err, Ok, Result } from "@cffnpwr/result-ts";
 import { inject } from "tsyringe";
 
-import type { IRoomRepository } from "@/domain/repository/interface/roomRepository";
+import type { IRoomRepository } from "@/domain/repository/interface/room";
 
 import { RoomId } from "@/domain/entity/room";
 import { RepositoryOperationError, UseCaseError } from "@/error/usecase/common";

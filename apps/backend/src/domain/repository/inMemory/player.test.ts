@@ -9,7 +9,7 @@ import {
   playerStatusSchema,
 } from "@/domain/entity/player";
 import { roomIdSchema } from "@/domain/entity/room";
-import { InMemoryPlayerRepository } from "@/domain/repository/inMemory/playerRepository";
+import { InMemoryPlayerRepository } from "@/domain/repository/inMemory/player";
 import { DataNotFoundError } from "@/error/repository";
 
 describe("findById", () => {
