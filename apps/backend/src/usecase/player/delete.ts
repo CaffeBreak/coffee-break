@@ -15,15 +15,15 @@ export class DeletePlayerUseCase {
   public execute(id: PlayerId): Result<void, UseCaseError> {
     // 該当のプレイヤーが存在しないなら削除できない
     const playerResult = this.playerRepository.findById(id);
-    if (playerResult.err) {
+    if (playerResult.isErr()) {
       return new Err(new PlayerNotFoundError());
     }
     const player = playerResult.unwrap();
 
     // プレイヤーを削除する
     const playerRepoResult = this.playerRepository.delete(player.id);
-    if (playerRepoResult.err) {
-      return new Err(new RepositoryOperationError(playerRepoResult.val));
+    if (playerRepoResult.isErr()) {
+      return new Err(new RepositoryOperationError(playerRepoResult.unwrapErr()));
     }
 
     return new Ok(playerRepoResult.unwrap());

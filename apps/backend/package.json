@@ -13,7 +13,9 @@
     "lint:fix": "lint --fix",
     "start": "NODE_ENV=production node ./dist/index.js",
     "dev": "vite",
-    "test": "vitest"
+    "test": "vitest",
+    "test:ui": "vitest --ui",
+    "coverage": "vitest --coverage"
   },
   "dependencies": {
     "@cffnpwr/result-ts": "^0.0.0",
@@ -62,7 +64,7 @@
     "types-fastify-socket.io": "^0.0.1",
     "vite": "^4.4.11",
     "vite-plugin-node": "^3.0.2",
-    "vitest": "^0.34.6"
+    "vitest": "^1.0.0-beta.2"
   },
   "jest": {
     "moduleFileExtensions": [

@@ -20,10 +20,9 @@ export class InMemoryPlayerRepository implements IPlayerRepository {
     );
   }
   findByRoomId(roomId: RoomId): Result<Player[], RepositoryError> {
-    return OkOrErr(
-      this.store.filter((player) => player.roomId === roomId),
-      new DataNotFoundError(),
-    );
+    const players = this.store.filter((player) => player.roomId === roomId);
+
+    return players.length ? new Ok(players) : new Err(new DataNotFoundError());
   }
   save(player: Player): Result<Player, RepositoryError> {
     const index = this.store.findIndex((p) => p.id === player.id);
@@ -33,7 +32,7 @@ export class InMemoryPlayerRepository implements IPlayerRepository {
       return new Ok(this.store[index]);
     }
 
-    const newIndex = this.store.push(player);
+    const newIndex = this.store.push(player) - 1;
 
     return new Ok(this.store[newIndex]);
   }

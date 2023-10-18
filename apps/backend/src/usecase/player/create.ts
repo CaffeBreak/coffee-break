@@ -14,8 +14,8 @@ export class CreatePlayerUseCase {
   public execute(name: PlayerName): Result<Player, UseCaseError> {
     const newPlayer = Player.new(name);
     const playerResult = this.playerRepository.save(newPlayer);
-    if (playerResult.err) {
-      return new Err(new RepositoryOperationError(playerResult.unwrap()));
+    if (playerResult.isErr()) {
+      return new Err(new RepositoryOperationError(playerResult.unwrapErr()));
     }
 
     return new Ok(playerResult.unwrap());

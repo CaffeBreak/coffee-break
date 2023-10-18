@@ -27,14 +27,14 @@ export class JoinRoomUseCase {
   ): Result<Room, UseCaseError> {
     // 該当の部屋が存在しないなら参加できない
     const roomResult = this.roomRepository.findById(roomId);
-    if (roomResult.err) {
+    if (roomResult.isErr()) {
       return new Err(new RoomNotFoundError());
     }
     const room = roomResult.unwrap();
 
     // 該当のプレイヤーが存在しないなら参加できない
     const playerResult = this.playerRepository.findById(playerId);
-    if (playerResult.err) {
+    if (playerResult.isErr()) {
       return new Err(new PlayerNotFoundError());
     }
     const player = playerResult.unwrap();
@@ -60,11 +60,11 @@ export class JoinRoomUseCase {
     player.joinRoom(room.id);
     const playerRepoResult = this.playerRepository.save(player);
     const roomRepoResult = this.roomRepository.save(room);
-    if (playerRepoResult.err) {
-      return new Err(new RepositoryOperationError(playerRepoResult.val));
+    if (playerRepoResult.isErr()) {
+      return new Err(new RepositoryOperationError(playerRepoResult.unwrapErr()));
     }
-    if (roomRepoResult.err) {
-      return new Err(new RepositoryOperationError(roomRepoResult.val));
+    if (roomRepoResult.isErr()) {
+      return new Err(new RepositoryOperationError(roomRepoResult.unwrapErr()));
     }
 
     return new Ok(roomRepoResult.unwrap());

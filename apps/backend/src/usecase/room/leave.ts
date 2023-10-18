@@ -19,7 +19,7 @@ export class LeaveRoomUseCase {
   public execute(playerId: PlayerId): Result<Room, UseCaseError> {
     // 該当のプレイヤーが存在しないなら退出できない
     const playerResult = this.playerRepository.findById(playerId);
-    if (playerResult.err) {
+    if (playerResult.isErr()) {
       return new Err(new PlayerNotFoundError());
     }
     const player = playerResult.unwrap();
@@ -31,7 +31,7 @@ export class LeaveRoomUseCase {
 
     // 該当の部屋が存在しないなら退出できない
     const roomResult = this.roomRepository.findById(player.roomId);
-    if (roomResult.err) {
+    if (roomResult.isErr()) {
       return new Err(new RoomNotFoundError());
     }
     const room = roomResult.unwrap();
@@ -39,8 +39,8 @@ export class LeaveRoomUseCase {
     // プレイヤーを退出させる
     room.leave(player.id);
     const roomRepoResult = this.roomRepository.save(room);
-    if (roomRepoResult.err) {
-      return new Err(new RepositoryOperationError(roomRepoResult.val));
+    if (roomRepoResult.isErr()) {
+      return new Err(new RepositoryOperationError(roomRepoResult.unwrapErr()));
     }
 
     return new Ok(roomRepoResult.unwrap());

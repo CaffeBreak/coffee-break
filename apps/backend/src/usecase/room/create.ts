@@ -19,13 +19,13 @@ export class CreateRoomUseCase {
 
   public execute(password: RoomPassword, ownerId: PlayerId): Result<Room, UseCaseError> {
     // 同じ合言葉の部屋は作れない
-    if (this.roomRepository.findByPassword(password).ok) {
+    if (this.roomRepository.findByPassword(password).isOk()) {
       return new Err(new RoomPasswordDuplicateError());
     }
 
     const ownerResult = this.playerRepository.findById(ownerId);
     // 部屋作成者が存在しない場合、部屋は作れない
-    if (ownerResult.err) {
+    if (ownerResult.isErr()) {
       return new Err(new RoomOwnerNotFoundError());
     }
 
@@ -36,8 +36,8 @@ export class CreateRoomUseCase {
     const newRoom = Room.new(password, ownerId);
 
     const roomResult = this.roomRepository.save(newRoom);
-    if (roomResult.err) {
-      return new Err(new RepositoryOperationError(roomResult.val));
+    if (roomResult.isErr()) {
+      return new Err(new RepositoryOperationError(roomResult.unwrapErr()));
     }
 
     return new Ok(roomResult.unwrap());

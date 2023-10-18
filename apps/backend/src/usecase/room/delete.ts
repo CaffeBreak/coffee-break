@@ -1,4 +1,4 @@
-import { Err, Ok, Result } from "@cffnpwr/ts-results";
+import { Err, Ok, Result } from "@cffnpwr/result-ts";
 import { inject } from "tsyringe";
 
 import type { IRoomRepository } from "@/domain/repository/interface/roomRepository";
@@ -13,17 +13,17 @@ export class DeleteRoomUseCase {
   public execute(id: RoomId): Result<void, UseCaseError> {
     // 該当の部屋が存在しないなら消せない
     const roomResult = this.roomRepository.findById(id);
-    if (roomResult.err) {
-      return Err(new RoomNotFoundError());
+    if (roomResult.isErr()) {
+      return new Err(new RoomNotFoundError());
     }
     const room = roomResult.unwrap();
 
     // 部屋を削除する
     const roomRepoResult = this.roomRepository.delete(room.id);
-    if (roomRepoResult.err) {
-      return Err(new RepositoryOperationError(roomRepoResult.val));
+    if (roomRepoResult.isErr()) {
+      return new Err(new RepositoryOperationError(roomRepoResult.unwrapErr()));
     }
 
-    return Ok(roomRepoResult.unwrap());
+    return new Ok(roomRepoResult.unwrap());
   }
 }
