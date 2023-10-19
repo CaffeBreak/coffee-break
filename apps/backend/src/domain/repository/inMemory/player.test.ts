@@ -12,9 +12,9 @@ import { roomIdSchema } from "@/domain/entity/room";
 import { InMemoryPlayerRepository } from "@/domain/repository/inMemory/player";
 import { DataNotFoundError } from "@/error/repository";
 
-describe("findById", () => {
-  const inMemoryPlayerRepository = container.resolve(InMemoryPlayerRepository);
+const inMemoryPlayerRepository = container.resolve(InMemoryPlayerRepository);
 
+describe("findById", () => {
   const playerAlice = new Player(
     playerIdSchema.parse("9kvyrk2hq9"),
     playerNameSchema.parse("Alice"),
@@ -48,8 +48,6 @@ describe("findById", () => {
 });
 
 describe("findByRoomId", () => {
-  const inMemoryPlayerRepository = container.resolve(InMemoryPlayerRepository);
-
   const roomId = roomIdSchema.parse("9kzaa4d4gn");
   const playerAlice = new Player(
     playerIdSchema.parse("9kvyrk2hq9"),
@@ -99,8 +97,6 @@ describe("findByRoomId", () => {
 });
 
 describe("save", () => {
-  const inMemoryPlayerRepository = container.resolve(InMemoryPlayerRepository);
-
   const playerAlice = new Player(
     playerIdSchema.parse("9kvyrk2hq9"),
     playerNameSchema.parse("Alice"),
@@ -139,8 +135,6 @@ describe("save", () => {
 });
 
 describe("delete", () => {
-  const inMemoryPlayerRepository = container.resolve(InMemoryPlayerRepository);
-
   const playerAlice = new Player(
     playerIdSchema.parse("9kvyrk2hq9"),
     playerNameSchema.parse("Alice"),

@@ -16,5 +16,6 @@
   },
   "eslint.codeActionsOnSave.mode": "all",
   "eslint.experimental.useFlatConfig": false,
-  "git.enableCommitSigning": true
+  "git.enableCommitSigning": true,
+  "vitest.enable": true
 }

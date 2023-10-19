@@ -71,7 +71,7 @@ importers:
         version: 0.5.3
       '@trpc/server':
         specifier: ^10.40.0
-        version: 10.40.0
+        version: 10.41.0
       autobind-decorator:
         specifier: ^2.4.0
         version: 2.4.0
@@ -1688,8 +1688,8 @@ packages:
     resolution: {integrity: sha512-C5Mc6rdnsaJDjO3UpGW/CQTHtCKaYlScZTly4JIu97Jxo/odCiH0ITnDXSJPTOrEKk/ycSZ0AOgTmkDtkOsvIA==}
     dev: true
 
-  /@trpc/server@10.40.0:
-    resolution: {integrity: sha512-49SUOMWzSZtu5+OdrADmJD+u+sjSE0qj1cWgYk2FY4jLkPJunLuNRuhzM7aOeBhiUjyfhg2YTfur8FN1WBmvEw==}
+  /@trpc/server@10.41.0:
+    resolution: {integrity: sha512-uC0xLelzOuoFwxbBQ3GzX4DaWNucO9lW2vlGPdKu8ycXu2ObSa739oQ/lNF6qWDNUKXS0tQvGnDCAxEd178EzQ==}
     dev: false
 
   /@tsconfig/node10@1.0.9:

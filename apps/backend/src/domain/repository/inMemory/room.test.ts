@@ -7,9 +7,9 @@ import { playerIdSchema } from "@/domain/entity/player";
 import { Room, roomIdSchema, roomPasswordSchema, roomStateSchema } from "@/domain/entity/room";
 import { DataNotFoundError } from "@/error/repository";
 
-describe("findById", () => {
-  const inMemoryRoomRepository = container.resolve(InMemoryRoomRepository);
+const inMemoryRoomRepository = container.resolve(InMemoryRoomRepository);
 
+describe("findById", () => {
   const roomA = new Room(
     roomIdSchema.parse("9kzx7hf7w4"),
     roomPasswordSchema.parse("hogehoge"),
@@ -45,8 +45,6 @@ describe("findById", () => {
 });
 
 describe("findByPassword", () => {
-  const inMemoryRoomRepository = container.resolve(InMemoryRoomRepository);
-
   const roomA = new Room(
     roomIdSchema.parse("9kzx7hf7w4"),
     roomPasswordSchema.parse("hogehoge"),
@@ -82,8 +80,6 @@ describe("findByPassword", () => {
 });
 
 describe("save", () => {
-  const inMemoryRoomRepository = container.resolve(InMemoryRoomRepository);
-
   const roomA = new Room(
     roomIdSchema.parse("9kzx7hf7w4"),
     roomPasswordSchema.parse("hogehoge"),
@@ -124,8 +120,6 @@ describe("save", () => {
 });
 
 describe("delete", () => {
-  const inMemoryRoomRepository = container.resolve(InMemoryRoomRepository);
-
   const roomA = new Room(
     roomIdSchema.parse("9kzx7hf7w4"),
     roomPasswordSchema.parse("hogehoge"),

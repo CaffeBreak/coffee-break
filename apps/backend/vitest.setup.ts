@@ -5,5 +5,5 @@ import { InMemoryPlayerRepository } from "@/domain/repository/inMemory/player";
 import { InMemoryRoomRepository } from "@/domain/repository/inMemory/room";
 
 // dependency injection
-container.register("PlayerRepository", InMemoryPlayerRepository);
-container.register("RoomRepository", InMemoryRoomRepository);
+container.registerSingleton("PlayerRepository", InMemoryPlayerRepository);
+container.registerSingleton("RoomRepository", InMemoryRoomRepository);

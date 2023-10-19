@@ -28,6 +28,7 @@ export class CreateRoomUseCase {
     if (ownerResult.isErr()) {
       return new Err(new RoomOwnerNotFoundError());
     }
+    const owner = ownerResult.unwrap();
 
     // 部屋作成者がすでに他の部屋に参加している場合は部屋を作成できない
     if (ownerResult.unwrap().roomId) {
@@ -38,6 +39,13 @@ export class CreateRoomUseCase {
     const roomResult = this.roomRepository.save(newRoom);
     if (roomResult.isErr()) {
       return new Err(new RepositoryOperationError(roomResult.unwrapErr()));
+    }
+
+    // 部屋作成者は即時に部屋に参加する
+    owner.joinRoom(roomResult.unwrap().id);
+    const playerResult = this.playerRepository.save(owner);
+    if (playerResult.isErr()) {
+      return new Err(new RepositoryOperationError(playerResult.unwrapErr()));
     }
 
     return new Ok(roomResult.unwrap());
