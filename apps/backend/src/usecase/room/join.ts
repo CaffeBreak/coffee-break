@@ -1,5 +1,5 @@
 import { Err, Ok, Result } from "@cffnpwr/result-ts";
-import { inject } from "tsyringe";
+import { inject, injectable } from "tsyringe";
 
 import type { IPlayerRepository } from "@/domain/repository/interface/player";
 import type { IRoomRepository } from "@/domain/repository/interface/room";
@@ -14,6 +14,7 @@ import {
   RoomNotFoundError,
 } from "@/error/usecase/room";
 
+@injectable()
 export class JoinRoomUseCase {
   constructor(
     @inject("RoomRepository") private roomRepository: IRoomRepository,

@@ -73,6 +73,10 @@ export class Player {
     this._roomId = roomId;
   }
 
+  public leaveRoom() {
+    this._roomId = undefined;
+  }
+
   public static new(name: PlayerName): Player {
     return new Player(
       genId(),

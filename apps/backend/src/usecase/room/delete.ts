@@ -6,7 +6,11 @@ import type { IRoomRepository } from "@/domain/repository/interface/room";
 import { PlayerId } from "@/domain/entity/player";
 import { RoomId } from "@/domain/entity/room";
 import { IPlayerRepository } from "@/domain/repository/interface/player";
-import { RepositoryOperationError, UseCaseError } from "@/error/usecase/common";
+import {
+  OperationNotAllowedError,
+  RepositoryOperationError,
+  UseCaseError,
+} from "@/error/usecase/common";
 import { RoomNotFoundError } from "@/error/usecase/room";
 
 @injectable()
@@ -23,6 +27,23 @@ export class DeleteRoomUseCase {
       return new Err(new RoomNotFoundError());
     }
     const room = roomResult.unwrap();
+
+    // 削除実行者が部屋作成者でなければ部屋の削除はできない
+    if (room.ownerId !== operator) {
+      return new Err(new OperationNotAllowedError());
+    }
+
+    // 部屋に参加していたプレイヤーは部屋から退出する
+    const playerRepoResult = room.players.map((playerId) => {
+      const player = this.playerRepository.findById(playerId).unwrap();
+      player.leaveRoom();
+
+      return this.playerRepository.save(player);
+    });
+    const errIndex = playerRepoResult.findIndex((result) => result.isErr());
+    if (errIndex !== -1) {
+      return new Err(new RepositoryOperationError(playerRepoResult[errIndex].unwrapErr()));
+    }
 
     // 部屋を削除する
     const roomRepoResult = this.roomRepository.delete(room.id);

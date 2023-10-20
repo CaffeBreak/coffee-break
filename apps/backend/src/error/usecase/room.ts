@@ -79,3 +79,19 @@ export class PlayerNameDuplicatedError extends UseCaseError {
     Object.setPrototypeOf(this, PlayerNameDuplicatedError.prototype);
   }
 }
+
+export class PlayerNotJoinedRoomError extends UseCaseError {
+  static {
+    this.prototype.name = "PlayerNotJoinedRoomError";
+  }
+  constructor() {
+    super("The player is not joind any room");
+
+    // Error.captureStackTraceはV8 Engineのみに存在する
+    // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
+    if (Error.captureStackTrace) {
+      Error.captureStackTrace(this, this.constructor);
+    }
+    Object.setPrototypeOf(this, PlayerNotJoinedRoomError.prototype);
+  }
+}
