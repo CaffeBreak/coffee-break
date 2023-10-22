@@ -8,8 +8,8 @@
   "type": "module",
   "scripts": {
     "build": "swc src -d dist -D",
-    "format": "prettier --write --ignore-path .gitignore '{src,test}/**/*.{ts,json}'",
-    "lint": "eslint --ignore-path .gitignore '{src,test}/**/*.ts'",
+    "format": "prettier --write --ignore-path .gitignore 'src/**/*.{ts,json}'",
+    "lint": "eslint --ignore-path .gitignore 'src/**/*.ts'",
     "lint:fix": "lint --fix",
     "start": "NODE_ENV=production node ./dist/index.js",
     "dev": "vite",
