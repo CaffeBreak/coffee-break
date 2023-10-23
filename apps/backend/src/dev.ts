@@ -17,4 +17,7 @@ chokidar.watch("./dist").on("all", () => {
   prevServer.stdout.on("data", (chunk: Buffer) => {
     console.log(chunk.toString());
   });
+  prevServer.stderr.on("data", (chunk: Buffer) => {
+    console.log(chunk.toString());
+  });
 });
