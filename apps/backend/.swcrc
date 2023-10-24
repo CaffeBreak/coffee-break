@@ -10,16 +10,6 @@
     "transform": {
       "decoratorMetadata": true
     },
-    "experimental": {
-      "plugins": [
-        [
-          "swc-plugin-import-extension-resolver",
-          {
-            "aliases": ["@/*"]
-          }
-        ]
-      ]
-    },
     "target": "esnext",
     "loose": false,
     "externalHelpers": true,
@@ -27,7 +17,21 @@
     "baseUrl": "./",
     "paths": {
       "@/*": ["./src/*"]
+    },
+    "experimental": {
+      "plugins": [
+        [
+          "swc-plugin-import-extension-resolver",
+          {
+            "aliases": ["@/*", "$/*"]
+          }
+        ]
+      ]
     }
   },
-  "minify": false
+  "minify": false,
+  "module": {
+    "type": "es6"
+  },
+  "exclude": ["devserver.ts", "^.+\\.test\\.ts$"]
 }

@@ -3,7 +3,8 @@
   "dockerComposeFile": ["../compose.yaml"],
   "service": "web",
   "workspaceFolder": "/caffe",
-  "postCreateCommand": "git config --system --add safe.directory /caffe && git config --global gpg.program /usr/bin/gpg2",
+  "remoteUser": "node",
+  "postCreateCommand": "sudo git config --system --add safe.directory /caffe && sudo git config --global gpg.program /usr/bin/gpg2",
   "customizations": {
     "vscode": {
       "extensions": [
@@ -22,7 +23,9 @@
         "VisualStudioExptTeam.vscodeintellicode-completions",
         "oderwat.indent-rainbow",
         "bradgashler.htmltagwrap",
-        "ms-azuretools.vscode-docker"
+        "ms-azuretools.vscode-docker",
+        "GitHub.vscode-github-actions",
+        "ZixuanChen.vitest-explorer"
       ]
     }
   }
