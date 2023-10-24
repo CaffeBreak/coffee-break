@@ -3,22 +3,25 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
+  provider = "mysql"
   url      = env("DB_URL")
 }
 
 model Player {
-  id     String  @id // プレイヤーID One Game Token
-  name   String // プレイヤー名
-  Room   Room    @relation(fields: [roomId], references: [id]) // プレイヤーが参加している部屋
-  roomId String
-  isDead Boolean @default(false) // プレイヤーの生死
+  id           String  @id
+  name         String
+  isDead       Boolean @default(false)
+  ownedRoom    Room?   @relation("owner")
+  joinedRoom   Room?   @relation("joinedPlayers", fields: [joinedRoomId], references: [id])
+  joinedRoomId String?
 }
 
 model Room {
-  id       String    @id // 部屋ID
-  password String    @unique // 合言葉
-  players  Player[] // 部屋に参加しているプレイヤー
+  id       String    @id
+  password String    @unique
+  owner    Player    @relation("owner", fields: [ownerId], references: [id])
+  ownerId  String    @unique
+  players  Player[]  @relation("joinedPlayers")
   state    RoomState @default(WAITING) // 部屋の状態 現在のフェーズとか
 }
 
