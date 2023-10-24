@@ -6,6 +6,9 @@ import React from "react";
 import "./globals.css";
 import { Header } from "../components/ui/global/header";
 
+import type { AppType } from "next/app";
+import { trpc } from "../utils/trpc";
+
 const inter = Inter({ subsets: ["latin"] });
 
 const RootLayout: React.FC<{ children: React.ReactNode }> = (props) => {
@@ -23,4 +26,4 @@ const RootLayout: React.FC<{ children: React.ReactNode }> = (props) => {
   );
 };
 
-export default RootLayout;
+export default trpc.withTRPC(RootLayout);
