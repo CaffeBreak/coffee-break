@@ -13,7 +13,7 @@ import {
 } from "@/domain/entity/player";
 import { roomIdSchema } from "@/domain/entity/room";
 import { UseCaseError } from "@/error/usecase/common";
-import { RepositoryOperationError } from "@/error/usecase/room";
+import { RepositoryOperationError } from "@/error/usecase/common";
 
 const playerObjSchema = z.object({
   id: playerIdSchema,
@@ -38,7 +38,7 @@ export class PlayerRouter {
           const { input } = opts;
 
           const createPlayerResult = this.createPlayerUseCase.execute(input.name);
-          if (createPlayerResult.err) {
+          if (createPlayerResult.isErr()) {
             const errorOpts = ((e: UseCaseError): ConstructorParameters<typeof TRPCError>[0] => {
               if (e instanceof RepositoryOperationError)
                 return {
@@ -47,7 +47,7 @@ export class PlayerRouter {
                   cause: e,
                 };
               else return { message: "Something was happend", code: "INTERNAL_SERVER_ERROR" };
-            })(createPlayerResult.val);
+            })(createPlayerResult.unwrapErr());
             throw new TRPCError(errorOpts);
           }
 

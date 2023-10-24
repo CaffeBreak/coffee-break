@@ -1,12 +1,12 @@
-import { Err, Ok, Result } from "@cffnpwr/ts-results";
+import { Err, Ok, Result } from "@cffnpwr/result-ts";
 
 export const OkOrErr = <T, E extends Error>(
   value: T | undefined | null,
   error: E,
 ): Result<T, E> => {
   if (value !== undefined && value !== null) {
-    return Ok(value);
+    return new Ok(value);
   }
 
-  return Err(error);
+  return new Err(error);
 };

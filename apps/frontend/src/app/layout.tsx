@@ -1,3 +1,5 @@
+"use client";
+import { Provider as JotaiProvider } from "jotai";
 import { Inter } from "next/font/google";
 import React from "react";
 
@@ -9,12 +11,14 @@ const inter = Inter({ subsets: ["latin"] });
 const RootLayout: React.FC<{ children: React.ReactNode }> = (props) => {
   return (
     <html lang="ja">
-      <body className={inter.className}>
-        <div className="h-screen w-screen">
-          <Header />
-          {props.children}
-        </div>
-      </body>
+      <JotaiProvider>
+        <body className={inter.className}>
+          <div className="h-screen w-screen">
+            <Header />
+            {props.children}
+          </div>
+        </body>
+      </JotaiProvider>
     </html>
   );
 };

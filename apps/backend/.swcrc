@@ -32,5 +32,6 @@
   "minify": false,
   "module": {
     "type": "es6"
-  }
+  },
+  "exclude": ["devserver.ts", "^.+\\.test\\.ts$"]
 }

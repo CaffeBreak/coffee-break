@@ -1,12 +1,12 @@
-import { Err, Ok, Result } from "@cffnpwr/ts-results";
+import { Err, Ok, Result } from "@cffnpwr/result-ts";
 import { inject, injectable } from "tsyringe";
 
-import type { IPlayerRepository } from "@/domain/repository/interface/playerRepository";
+import type { IPlayerRepository } from "@/domain/repository/interface/player";
 
 import { PlayerId } from "@/domain/entity/player";
 import { UseCaseError } from "@/error/usecase/common";
+import { RepositoryOperationError } from "@/error/usecase/common";
 import { PlayerNotFoundError } from "@/error/usecase/player";
-import { RepositoryOperationError } from "@/error/usecase/room";
 
 @injectable()
 export class DeletePlayerUseCase {
@@ -15,17 +15,17 @@ export class DeletePlayerUseCase {
   public execute(id: PlayerId): Result<void, UseCaseError> {
     // 該当のプレイヤーが存在しないなら削除できない
     const playerResult = this.playerRepository.findById(id);
-    if (playerResult.err) {
-      return Err(new PlayerNotFoundError());
+    if (playerResult.isErr()) {
+      return new Err(new PlayerNotFoundError());
     }
     const player = playerResult.unwrap();
 
     // プレイヤーを削除する
     const playerRepoResult = this.playerRepository.delete(player.id);
-    if (playerRepoResult.err) {
-      return Err(new RepositoryOperationError(playerRepoResult.val));
+    if (playerRepoResult.isErr()) {
+      return new Err(new RepositoryOperationError(playerRepoResult.unwrapErr()));
     }
 
-    return Ok(playerRepoResult.unwrap());
+    return new Ok(playerRepoResult.unwrap());
   }
 }

@@ -12,7 +12,7 @@ const Home = () => {
         <InputText placeholder="名前を入力して焼きあがる" />
       </div>
       <div className="mt-[70px] flex w-full justify-center">
-        <Enter dest="/room"/>
+        <Enter dest="/room" />
       </div>
     </>
   );
