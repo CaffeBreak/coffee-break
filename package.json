@@ -17,7 +17,7 @@
   "dependencies": {
     "@cffnpwr/result-ts": "^0.0.0",
     "@t3-oss/env-nextjs": "^0.7.1",
-    "@tanstack/react-query": "^5.0.5",
+    "@tanstack/react-query": "^5.4.3",
     "@tanstack/react-query-next-experimental": "^5.0.5",
     "@trpc/client": "^10.43.0",
     "@trpc/react-query": "^10.43.0",
