@@ -1,7 +1,5 @@
 {
   "compilerOptions": {
-    "lib": ["ESNext"],
-    "noEmit": true,
     "module": "ESNext",
     "declaration": true,
     "removeComments": true,
@@ -21,8 +19,10 @@
     "strict": true,
     "strictNullChecks": true,
     "moduleResolution": "node",
-    "allowJs": true,
-    "types": ["node"]
+    "paths": {
+      "@/*": ["./src/*"]
+    },
+    "types": ["reflect-metadata", "node"]
   },
-  "exclude": ["node_modules", "!*.config.js", "*.js"]
+  "exclude": ["node_modules", "dist", "*.config.js"]
 }

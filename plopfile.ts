@@ -1,7 +1,6 @@
-import { join } from "path";
-
-import camelcase from "camelcase";
 import { ActionType, NodePlopAPI } from "plop";
+import { join } from "path";
+import camelcase from "camelcase";
 
 export default (plop: NodePlopAPI) => {
   plop.setGenerator("component", {
@@ -44,7 +43,7 @@ export default (plop: NodePlopAPI) => {
       const propsType = data.hasProps
         ? `\ninterface ${pascalName}Props {};`
         : "";
-      const props = data.hasProps ? "(props)" : "{}";
+      const props = data.hasProps ? `(props)` : "{}";
 
       actions.push(
         {
