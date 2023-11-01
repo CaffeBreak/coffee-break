@@ -146,8 +146,8 @@ importers:
         specifier: ^1.10.15
         version: 1.10.15(eslint@8.51.0)
       eslint-plugin-prefer-arrow-functions:
-        specifier: ^3.1.4
-        version: 3.1.4(eslint@8.51.0)
+        specifier: ^3.2.4
+        version: 3.2.4(eslint@8.51.0)
       eslint-plugin-unused-imports:
         specifier: ^3.0.0
         version: 3.0.0(@typescript-eslint/eslint-plugin@6.8.0)(eslint@8.51.0)
@@ -4020,8 +4020,8 @@ packages:
       semver: 6.3.1
     dev: true
 
-  /eslint-plugin-prefer-arrow-functions@3.1.4(eslint@8.51.0):
-    resolution: {integrity: sha512-LSO8VibqBKqzelr+L21mEIfachavCon+1SEumCJ6U8Ze2q0pntyojmomcVwd9RZBjrP+HV6k1Osz0B3Xwdq8WA==}
+  /eslint-plugin-prefer-arrow-functions@3.2.4(eslint@8.51.0):
+    resolution: {integrity: sha512-HbPmlbO/iYQeVs2fuShNkGVJDfVfgSd84Vzxv+xlh+nIVoSsZvTj6yOqszw4mtG9JbiqMShVWqbVeoVsejE59w==}
     peerDependencies:
       eslint: '>=5.0.0'
     dependencies:
