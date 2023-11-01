@@ -5,25 +5,21 @@ import { z } from "zod";
 import { CreatePlayerUseCase } from "./../../usecase/player/create";
 import { publicProcedure, router } from "../trpc";
 
-import {
-  playerIdSchema,
-  playerNameSchema,
-  playerRoleSchema,
-  playerStatusSchema,
-} from "@/domain/entity/player";
-import { roomIdSchema } from "@/domain/entity/room";
 import { UseCaseError } from "@/error/usecase/common";
 import { RepositoryOperationError } from "@/error/usecase/common";
 
 const playerObjSchema = z.object({
-  id: playerIdSchema,
-  name: playerNameSchema,
-  role: playerRoleSchema,
-  status: playerStatusSchema,
-  roomId: roomIdSchema.optional(),
+  id: z.string(),
+  name: z.string(),
+  role: z.string(),
+  status: z.string(),
+  roomId: z.string(),
 });
 const createPlayerSchema = z.object({
-  name: playerNameSchema,
+  name: z
+    .string()
+    .regex(/^[^\s]{1,16}$/)
+    .brand("playerName"),
 });
 
 @injectable()
