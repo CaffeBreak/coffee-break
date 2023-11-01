@@ -5,7 +5,7 @@ on:
 
 permissions:
   contents: write
-  pull-requests: write
+  pullpull-requests: write
 
 jobs:
   merge:
