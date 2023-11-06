@@ -11,8 +11,8 @@ import { RepositoryOperationError } from "@/error/usecase/common";
 const playerObjSchema = z.object({
   id: z.string(),
   name: z.string(),
-  role: z.union([z.literal("VILLAGER"), z.literal("WEREWOLF")]),
-  status: z.union([z.literal("PENDING"), z.literal("VILLAGER"), z.literal("WEREWOLF")]),
+  role: z.union([z.literal("PENDING"), z.literal("VILLAGER"), z.literal("WEREWOLF")]),
+  status: z.union([z.literal("ALIVE"), z.literal("DEAD")]),
   roomId: z.string().optional(),
 });
 const createPlayerSchema = z.object({
