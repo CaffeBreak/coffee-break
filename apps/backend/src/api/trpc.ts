@@ -1,12 +1,9 @@
 import { initTRPC } from "@trpc/server";
-import superjson from "superjson";
 import { inject, injectable } from "tsyringe";
 
 import { PlayerRouter } from "./endpoint/player";
 
-const t = initTRPC.create({
-  transformer: superjson,
-});
+const t = initTRPC.create({});
 
 export const router = t.router;
 export const middleware = t.middleware;
