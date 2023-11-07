@@ -5,8 +5,6 @@ import React from "react";
 
 import "./globals.css";
 import { Header } from "../components/ui/global/header";
-
-import type { AppType } from "next/app";
 import { trpc } from "../utils/trpc";
 
 const inter = Inter({ subsets: ["latin"] });
