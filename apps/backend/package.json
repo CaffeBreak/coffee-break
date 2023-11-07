@@ -12,7 +12,7 @@
     "lint": "eslint --ignore-path .gitignore 'src/**/*.ts'",
     "lint:fix": "lint --fix",
     "start": "NODE_ENV=production node ./dist/index.js",
-    "dev": "vite",
+    "dev": "pnpm run build && node ./dist/dev.js",
     "test": "vitest",
     "test:ui": "vitest --ui",
     "coverage": "vitest --coverage"

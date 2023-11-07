@@ -3,7 +3,6 @@ import fastify from "fastify";
 import { container } from "tsyringe";
 
 import { AppRouter } from "./api/trpc";
-import { env } from "./env";
 
 const server = fastify({
   maxParamLength: 5000,
@@ -25,12 +24,8 @@ export const startServer = () => {
       },
     );
 
-  if (env.NODE_ENV === "production") {
-    server
-      .listen({ port: 5000 })
-      .then(() => console.log("Listening in port 5000"))
-      .catch((reason) => console.error(reason));
-  }
-
-  return server;
+  server
+    .listen({ port: 5000 })
+    .then(() => console.log("Listening in port 5000"))
+    .catch((reason) => console.error(reason));
 };
