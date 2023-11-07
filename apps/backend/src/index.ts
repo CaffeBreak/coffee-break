@@ -6,4 +6,4 @@ import { startServer } from "./server";
 greet();
 
 // start server
-startServer();
+void startServer();

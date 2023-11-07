@@ -3,7 +3,16 @@ import * as cp from "child_process";
 import * as chokidar from "chokidar";
 
 let prevServer: cp.ChildProcessWithoutNullStreams | undefined;
-const swcProcess = cp.spawn("pnpm", ["swc", "src", "-d", "dist", "-D", "-w"]);
+const swcProcess = cp.spawn("pnpm", [
+  "swc",
+  "--config-file",
+  ".dev.swcrc",
+  "src",
+  "-d",
+  "dist",
+  "-D",
+  "-w",
+]);
 
 swcProcess.stdout.on("data", (chunk: Buffer) => {
   console.log(chunk.toString());

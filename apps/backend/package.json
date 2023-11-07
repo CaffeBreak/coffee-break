@@ -12,7 +12,7 @@
     "lint": "eslint --ignore-path .gitignore 'src/**/*.ts'",
     "lint:fix": "lint --fix",
     "start": "NODE_ENV=production node ./dist/index.js",
-    "dev": "pnpm run build && node ./dist/dev.js",
+    "dev": "swc --config-file .dev.swcrc src -d dist -D && node ./dist/dev.js",
     "test": "vitest",
     "test:ui": "vitest --ui",
     "coverage": "vitest --coverage"
@@ -65,22 +65,5 @@
     "vite": "^4.4.11",
     "vite-plugin-node": "^3.0.2",
     "vitest": "^1.0.0-beta.2"
-  },
-  "jest": {
-    "moduleFileExtensions": [
-      "js",
-      "json",
-      "ts"
-    ],
-    "rootDir": "src",
-    "testRegex": ".*\\.spec\\.ts$",
-    "transform": {
-      "^.+\\.(t|j)s$": "ts-jest"
-    },
-    "collectCoverageFrom": [
-      "**/*.(t|j)s"
-    ],
-    "coverageDirectory": "../coverage",
-    "testEnvironment": "node"
   }
 }
