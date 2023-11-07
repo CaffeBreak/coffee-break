@@ -1,17 +1,16 @@
-import { trpc } from "@/utils/trpc";
-const IndexPage = () => {
+import { trpc } from "../utils/trpc";
+
+export default function Home() {
   const player = trpc.player.create.useMutation();
   if (!player.data) {
+    console.log(player.data);
     return <div>Loading...</div>;
   }
+
   player.mutate({
     name: "aaaa",
   });
   console.log(player.data);
-  return (
-    <div>
-      <p>{}</p>
-    </div>
-  );
-};
-export default IndexPage;
+
+  return <main>{}</main>;
+}
