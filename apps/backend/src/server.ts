@@ -9,10 +9,10 @@ const server = fastify({
   maxParamLength: 5000,
 });
 
-export const startServer = async () => {
+export const startServer = () => {
   const router = container.resolve(AppRouter).execute();
 
-  await server.register(cors, {
+  void server.register(cors, {
     origin: "*",
   });
   // .then(
@@ -24,7 +24,8 @@ export const startServer = async () => {
   //     console.error(resson);
   //   },
   // );
-  await server.register(fastifyTRPCPlugin, {
+
+  void server.register(fastifyTRPCPlugin, {
     prefix: "/trpc",
     trpcOptions: { router },
   });
@@ -37,7 +38,7 @@ export const startServer = async () => {
   // );
 
   server
-    .listen({ port: 5000, host: "0.0.0.0" })
-    .then(() => console.log("Listening in port 5000"))
+    .listen({ port: 5555, host: "0.0.0.0" })
+    .then(() => console.log("Listening in port 5555"))
     .catch((reason) => console.error(reason));
 };

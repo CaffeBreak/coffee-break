@@ -7,7 +7,7 @@ export const trpc = createTRPCNext<Router>({
     return {
       links: [
         httpBatchLink({
-          url: "http://localhost:5000/trpc",
+          url: "http://localhost:5555/trpc",
         }),
       ],
     };

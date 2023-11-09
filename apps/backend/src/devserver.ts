@@ -14,4 +14,4 @@ container.registerSingleton("PlayerRepository", InMemoryPlayerRepository);
 container.registerSingleton("RoomRepository", InMemoryRoomRepository);
 
 // start server
-void startServer();
+startServer();
