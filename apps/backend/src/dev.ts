@@ -24,9 +24,9 @@ chokidar.watch("./dist").on("all", () => {
   }
   prevServer = cp.spawn("node", ["./dist/devserver.js"]);
   prevServer.stdout.on("data", (chunk: Buffer) => {
-    console.log(chunk.toString());
+    process.stdout.write(chunk.toString());
   });
   prevServer.stderr.on("data", (chunk: Buffer) => {
-    console.log(chunk.toString());
+    process.stderr.write(chunk.toString());
   });
 });

@@ -30,7 +30,8 @@ export class PlayerRouter {
     return router({
       create: publicProcedure
         .input(createPlayerSchema)
-        .mutation((opts): z.infer<typeof playerObjSchema> => {
+        .output(playerObjSchema)
+        .mutation((opts) => {
           const { input } = opts;
 
           const createPlayerResult = this.createPlayerUseCase.execute(input.name);

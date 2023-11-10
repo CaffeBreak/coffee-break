@@ -1,16 +1,19 @@
+"use client";
+
 import { trpc } from "@/utils/trpc";
+
 const IndexPage = () => {
   const player = trpc.player.create.useMutation();
-  if (!player.data) {
-    return <div>Loading...</div>;
-  }
-  player.mutate({
-    name: "aaaa",
-  });
-  console.log(player.data);
+  const handler = () => {
+    player.mutate({
+      name: "aaaa",
+    });
+  };
+
   return (
     <div>
-      <p>{}</p>
+      <p>{JSON.stringify(player.data) || "Loading..."}</p>
+      <button onClick={handler}>click me!!</button>
     </div>
   );
 };
