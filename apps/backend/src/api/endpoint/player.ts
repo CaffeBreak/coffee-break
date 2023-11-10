@@ -5,21 +5,22 @@ import { z } from "zod";
 import { CreatePlayerUseCase } from "./../../usecase/player/create";
 import { publicProcedure, router } from "../trpc";
 
+import { playerNameSchema } from "@/domain/entity/player";
 import { UseCaseError } from "@/error/usecase/common";
 import { RepositoryOperationError } from "@/error/usecase/common";
 
 const playerObjSchema = z.object({
-  id: z.string(),
-  name: z.string(),
+  id: z.string().regex(/^[0-9a-z]{10}$/),
+  name: z.string().regex(/^[^\s]{1,16}$/),
   role: z.union([z.literal("PENDING"), z.literal("VILLAGER"), z.literal("WEREWOLF")]),
   status: z.union([z.literal("ALIVE"), z.literal("DEAD")]),
-  roomId: z.string().optional(),
+  roomId: z
+    .string()
+    .regex(/^[0-9a-z]{10}$/)
+    .optional(),
 });
 const createPlayerSchema = z.object({
-  name: z
-    .string()
-    .regex(/^[^\s]{1,16}$/)
-    .brand("playerName"),
+  name: z.string().regex(/^[^\s]{1,16}$/),
 });
 
 @injectable()
@@ -34,7 +35,9 @@ export class PlayerRouter {
         .mutation((opts) => {
           const { input } = opts;
 
-          const createPlayerResult = this.createPlayerUseCase.execute(input.name);
+          const createPlayerResult = this.createPlayerUseCase.execute(
+            playerNameSchema.parse(input.name),
+          );
           if (createPlayerResult.isErr()) {
             const errorOpts = ((e: UseCaseError): ConstructorParameters<typeof TRPCError>[0] => {
               if (e instanceof RepositoryOperationError)
