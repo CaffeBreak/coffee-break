@@ -12,19 +12,26 @@ const store: Room[] = [];
 
 @singleton()
 export class InMemoryRoomRepository implements IRoomRepository {
-  findById(id: RoomId): Result<Room, RepositoryError> {
+  //awaitの敗北
+  // eslint-disable-next-line @typescript-eslint/require-await
+  async findById(id: RoomId): Promise<Result<Room, RepositoryError>> {
     return OkOrErr(
       store.find((room) => room.id === id),
       new DataNotFoundError(),
     );
   }
-  findByPassword(password: RoomPassword): Result<Room, RepositoryError> {
+  //awaitの敗北
+  // eslint-disable-next-line @typescript-eslint/require-await
+  async findByPassword(password: RoomPassword): Promise<Result<Room, RepositoryError>> {
     return OkOrErr(
       store.find((room) => room.checkPassword(password)),
       new DataNotFoundError(),
     );
   }
-  save(room: Room): Result<Room, RepositoryError> {
+
+  //awaitの敗北
+  // eslint-disable-next-line @typescript-eslint/require-await
+  async save(room: Room): Promise<Result<Room, RepositoryError>> {
     const index = store.findIndex((r) => r.id === room.id);
     if (index !== -1) {
       store[index] = room;
@@ -36,7 +43,10 @@ export class InMemoryRoomRepository implements IRoomRepository {
 
     return Ok(store[newIndex]);
   }
-  delete(id: RoomId): Result<void, RepositoryError> {
+
+  //awaitの敗北
+  // eslint-disable-next-line @typescript-eslint/require-await
+  async delete(id: RoomId): Promise<Result<void, RepositoryError>> {
     const index = store.findIndex((r) => r.id === id);
     if (index === -1) {
       return Err(new DataNotFoundError());

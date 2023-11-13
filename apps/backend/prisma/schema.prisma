@@ -8,12 +8,13 @@ datasource db {
 }
 
 model Player {
-  id           String  @id
+  id           String      @id
   name         String
-  isDead       Boolean @default(false)
-  ownedRoom    Room?   @relation("owner")
-  joinedRoom   Room?   @relation("joinedPlayers", fields: [joinedRoomId], references: [id])
+  isDead       Boolean     @default(false)
+  ownedRoom    Room?       @relation("owner")
+  joinedRoom   Room?       @relation("joinedPlayers", fields: [joinedRoomId], references: [id])
   joinedRoomId String?
+  role         PlayerState @default(PENDING)
 }
 
 model Room {
@@ -22,13 +23,19 @@ model Room {
   owner    Player    @relation("owner", fields: [ownerId], references: [id])
   ownerId  String    @unique
   players  Player[]  @relation("joinedPlayers")
-  state    RoomState @default(WAITING) // 部屋の状態 現在のフェーズとか
+  state    RoomState @default(BEFORE_START) // 部屋の状態 現在のフェーズとか
 }
 
 enum RoomState {
-  WAITING // 参加者待ち
+  BEFORE_START // 参加者待ち
   USING // カード行使
   DISCUSSION // 議論
   VOTING // 投票中
-  FINISHING // ゲーム終了後
+  FINISHED // ゲーム終了後
+}
+
+enum PlayerState {
+  VILLAGER //村人
+  WEREWOLF //人狼
+  PENDING //決まっていない
 }

@@ -13,19 +13,26 @@ const store: Player[] = [];
 
 @singleton()
 export class InMemoryPlayerRepository implements IPlayerRepository {
-  findById(id: PlayerId): Result<Player, RepositoryError> {
+  //awaitの敗北
+  // eslint-disable-next-line @typescript-eslint/require-await
+  async findById(id: PlayerId): Promise<Result<Player, RepositoryError>> {
     return OkOrErr(
       store.find((player) => player.id === id),
       new DataNotFoundError(),
     );
   }
-  findByRoomId(roomId: RoomId): Result<Player[], RepositoryError> {
+  //awaitの敗北
+  // eslint-disable-next-line @typescript-eslint/require-await
+  async findByRoomId(roomId: RoomId): Promise<Result<Player[], RepositoryError>> {
     return OkOrErr(
       store.filter((player) => player.roomId === roomId),
       new DataNotFoundError(),
     );
   }
-  save(player: Player): Result<Player, RepositoryError> {
+
+  //awaitの敗北
+  // eslint-disable-next-line @typescript-eslint/require-await
+  async save(player: Player): Promise<Result<Player, RepositoryError>> {
     const index = store.findIndex((p) => p.id === player.id);
     if (index !== -1) {
       store[index] = player;
@@ -37,7 +44,10 @@ export class InMemoryPlayerRepository implements IPlayerRepository {
 
     return Ok(store[newIndex]);
   }
-  delete(id: PlayerId): Result<void, RepositoryError> {
+
+  //awaitの敗北
+  // eslint-disable-next-line @typescript-eslint/require-await
+  async delete(id: PlayerId): Promise<Result<void, RepositoryError>> {
     const index = store.findIndex((p) => p.id === id);
     if (index === -1) {
       return Err(new DataNotFoundError());

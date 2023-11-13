@@ -12,9 +12,9 @@ export const roomPasswordSchema = z
 export const roomStateSchema = z
   .union([
     z.literal("BEFORE_START"),
-    // z.literal("USING"),
+    z.literal("USING"),
     z.literal("DISCUSSION"),
-    // z.literal("VOTING"),
+    z.literal("VOTING"),
     z.literal("FINISHED"),
   ])
   .brand("roomStatus");
@@ -25,7 +25,7 @@ export type RoomState = z.infer<typeof roomStateSchema>;
 
 export class Room {
   public readonly id: RoomId;
-  private readonly _password: RoomPassword;
+  public readonly password: RoomPassword;
   private _ownerId: PlayerId;
   private _state: RoomState;
   private _players: PlayerId[];
@@ -38,7 +38,7 @@ export class Room {
     players: PlayerId[],
   ) {
     this.id = id;
-    this._password = password;
+    this.password = password;
     this._ownerId = ownerId;
     this._state = state;
     this._players = players;
@@ -80,6 +80,6 @@ export class Room {
   }
 
   public checkPassword(password: RoomPassword): boolean {
-    return password === this._password;
+    return password === this.password;
   }
 }
