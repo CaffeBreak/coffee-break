@@ -6,4 +6,4 @@ import { startServer } from "./server";
 greet();
 
 // start server
-export const server = await startServer();
+startServer();
