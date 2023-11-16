@@ -4,7 +4,7 @@ interface Props {
 }
 
 export const ControlRoom = (props: Props) => {
-  let classValue;
+  let classValue = "";
 
   if (props.type === "end")
     classValue =

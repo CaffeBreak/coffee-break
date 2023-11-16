@@ -1,10 +1,11 @@
 name: dependabot-patch-automerge
 on:
   pull_request:
-    branches: [ "develop" ]
+    branches: ["develop"]
 
 permissions:
   contents: write
+  pullpull-requests: write
 
 jobs:
   merge:
@@ -13,11 +14,25 @@ jobs:
     steps:
       - name: prepare
         id: prepare
-        uses: dependabot/fetch-metadata@v1.1.1
+        uses: dependabot/fetch-metadata@v1
         with:
-          github-token: '${{ secrets.GITHUB_TOKEN }}'
-      - name: Auto merge
-        if: ${{ steps.prepare.outputs.update-type == 'version-update:semver-patch' }}
-        run: gh pr merge --auto --merge ${{github.event.pull_request.html_url}}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: lint and format check if update type is minor
+        id: lint
+        if: ${{ steps.prepare.outputs.update-type == 'version-update:semver-minor' }}
+        uses: ./.github/workflows/lint-and-format.yaml
+
+      - name: Approve a PR
+        if: ${{ steps.prepare.outputs.update-type == 'version-update:semver-patch' || steps.lint.outcome == success() }}
+        run: gh pr review --approve "$PR_URL"
+        env:
+          PR_URL: ${{ github.event.pull_request.html_url }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Auto merge if update type is patch
+        if: ${{ steps.prepare.outputs.update-type == 'version-update:semver-patch' || steps.lint.outcome == success() }}
+        run: |
+          gh pr merge --auto --merge ${{github.event.pull_request.html_url}}
         env:
           GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
