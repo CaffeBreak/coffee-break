@@ -17,9 +17,9 @@ export class LeaveRoomUseCase {
     @inject("PlayerRepository") private playerRepository: IPlayerRepository,
   ) {}
 
-  public execute(playerId: PlayerId): Result<Room, UseCaseError> {
+  public async execute(playerId: PlayerId): Promise<Result<Room, UseCaseError>> {
     // 該当のプレイヤーが存在しないなら退出できない
-    const playerResult = this.playerRepository.findById(playerId);
+    const playerResult = await this.playerRepository.findById(playerId);
     if (playerResult.isErr()) {
       return new Err(new PlayerNotFoundError());
     }
@@ -31,10 +31,10 @@ export class LeaveRoomUseCase {
     }
 
     // 該当の部屋が存在しないなら退出できない
-    const roomResult = this.roomRepository.findById(player.roomId);
+    const roomResult = await this.roomRepository.findById(player.roomId);
     if (roomResult.isErr()) {
       player.leaveRoom();
-      const result = this.playerRepository.save(player);
+      const result = await this.playerRepository.save(player);
       if (result.isErr()) {
         return new Err(new RepositoryOperationError(result.unwrapErr()));
       }
@@ -46,8 +46,8 @@ export class LeaveRoomUseCase {
     // プレイヤーを退出させる
     player.leaveRoom();
     room.leave(player.id);
-    const playerRepoResult = this.playerRepository.save(player);
-    const roomRepoResult = this.roomRepository.save(room);
+    const playerRepoResult = await this.playerRepository.save(player);
+    const roomRepoResult = await this.roomRepository.save(room);
     if (playerRepoResult.isErr()) {
       return new Err(new RepositoryOperationError(playerRepoResult.unwrapErr()));
     }

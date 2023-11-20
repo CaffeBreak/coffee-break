@@ -12,7 +12,7 @@ model Player {
   name         String
   isDead       Boolean     @default(false)
   ownedRoom    Room?       @relation("owner")
-  joinedRoom   Room?       @relation("joinedPlayers", fields: [joinedRoomId], references: [id])
+  joinedRoom   Room?       @relation("joinedPlayers", fields: [joinedRoomId], references: [id], onUpdate: Cascade, onDelete: SetNull)
   joinedRoomId String?
   role         PlayerState @default(PENDING)
 }
@@ -20,7 +20,7 @@ model Player {
 model Room {
   id       String    @id
   password String    @unique
-  owner    Player    @relation("owner", fields: [ownerId], references: [id])
+  owner    Player    @relation("owner", fields: [ownerId], references: [id], onDelete: Cascade)
   ownerId  String    @unique
   players  Player[]  @relation("joinedPlayers")
   state    RoomState @default(BEFORE_START) // 部屋の状態 現在のフェーズとか

@@ -20,9 +20,9 @@ export class DeleteRoomUseCase {
     @inject("PlayerRepository") private playerRepository: IPlayerRepository,
   ) {}
 
-  public execute(id: RoomId, operator: PlayerId): Result<void, UseCaseError> {
+  public async execute(id: RoomId, operator: PlayerId): Promise<Result<void, UseCaseError>> {
     // 該当の部屋が存在しないなら消せない
-    const roomResult = this.roomRepository.findById(id);
+    const roomResult = await this.roomRepository.findById(id);
     if (roomResult.isErr()) {
       return new Err(new RoomNotFoundError());
     }
@@ -34,19 +34,21 @@ export class DeleteRoomUseCase {
     }
 
     // 部屋に参加していたプレイヤーは部屋から退出する
-    const playerRepoResult = room.players.map((playerId) => {
-      const player = this.playerRepository.findById(playerId).unwrap();
-      player.leaveRoom();
+    const playerRepoResult = await Promise.all(
+      room.players.map(async (playerId) => {
+        const player = (await this.playerRepository.findById(playerId)).unwrap();
+        player.leaveRoom();
 
-      return this.playerRepository.save(player);
-    });
+        return await this.playerRepository.save(player);
+      }),
+    );
     const errIndex = playerRepoResult.findIndex((result) => result.isErr());
     if (errIndex !== -1) {
       return new Err(new RepositoryOperationError(playerRepoResult[errIndex].unwrapErr()));
     }
 
     // 部屋を削除する
-    const roomRepoResult = this.roomRepository.delete(room.id);
+    const roomRepoResult = await this.roomRepository.delete(room.id);
     if (roomRepoResult.isErr()) {
       return new Err(new RepositoryOperationError(roomRepoResult.unwrapErr()));
     }

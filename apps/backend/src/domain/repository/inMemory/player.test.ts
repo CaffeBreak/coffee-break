@@ -32,15 +32,15 @@ describe("findById", () => {
     inMemoryPlayerRepository.store = [playerAlice];
   });
 
-  it("プレイヤーIDが一致するプレイヤーが存在する場合、そのプレイヤーを取得できる", () => {
-    const result = inMemoryPlayerRepository.findById(playerAlice.id);
+  it("プレイヤーIDが一致するプレイヤーが存在する場合、そのプレイヤーを取得できる", async () => {
+    const result = await inMemoryPlayerRepository.findById(playerAlice.id);
 
     expect(result.isOk()).toBe(true);
     expect(result.unwrap()).toBe(playerAlice);
   });
 
-  it("プレイヤーIDが一致するプレイヤーが存在しない場合、DataNotFoundErrorを返す", () => {
-    const result = inMemoryPlayerRepository.findById(playerBob.id);
+  it("プレイヤーIDが一致するプレイヤーが存在しない場合、DataNotFoundErrorを返す", async () => {
+    const result = await inMemoryPlayerRepository.findById(playerBob.id);
 
     expect(result.isErr()).toBe(true);
     expect(result.unwrapErr()).toBeInstanceOf(DataNotFoundError);
@@ -81,18 +81,18 @@ describe("findByRoomId", () => {
     inMemoryPlayerRepository.store = [playerAlice, playerBob, playerCffnpwr, playerDiana];
   });
 
-  it("部屋IDが一致する部屋に参加しているプレイヤーを配列で取得できる", () => {
-    const result = inMemoryPlayerRepository.findByRoomId(roomId);
+  it("部屋IDが一致する部屋に参加しているプレイヤーを配列で取得できる", async () => {
+    const result = await inMemoryPlayerRepository.findByRoomId(roomId);
 
     expect(result.isOk()).toBe(true);
     expect(result.unwrap()).toStrictEqual([playerAlice, playerBob, playerDiana]);
   });
 
-  it("部屋IDが一致する部屋に参加しているプレイヤーが存在しないとき、DataNotFoundErrorを返す", () => {
-    const result = inMemoryPlayerRepository.findByRoomId(roomIdSchema.parse("9kzaa4d4g1"));
+  it("部屋IDが一致する部屋に参加しているプレイヤーが存在しないとき、空配列を返す", async () => {
+    const result = await inMemoryPlayerRepository.findByRoomId(roomIdSchema.parse("9kzaa4d4g1"));
 
-    expect(result.isErr()).toBe(true);
-    expect(result.unwrapErr()).toBeInstanceOf(DataNotFoundError);
+    expect(result.isOk()).toBe(true);
+    expect(result.unwrap()).toStrictEqual([]);
   });
 });
 
@@ -114,19 +114,19 @@ describe("save", () => {
     inMemoryPlayerRepository.store = [playerAlice];
   });
 
-  it("新たにプレイヤーを追加できる", () => {
-    const result = inMemoryPlayerRepository.save(playerBob);
+  it("新たにプレイヤーを追加できる", async () => {
+    const result = await inMemoryPlayerRepository.save(playerBob);
 
     expect(result.isOk()).toBe(true);
     expect(result.unwrap()).toBe(playerBob);
     expect(inMemoryPlayerRepository.store).toStrictEqual([playerAlice, playerBob]);
   });
 
-  it("既存プレイヤーのデータを更新できる", () => {
+  it("既存プレイヤーのデータを更新できる", async () => {
     const playerAliceDead = playerAlice;
     playerAliceDead.kill();
 
-    const result = inMemoryPlayerRepository.save(playerAliceDead);
+    const result = await inMemoryPlayerRepository.save(playerAliceDead);
 
     expect(result.isOk()).toBe(true);
     expect(result.unwrap()).toBe(playerAliceDead);
@@ -158,15 +158,15 @@ describe("delete", () => {
     inMemoryPlayerRepository.store = [playerAlice, playerBob];
   });
 
-  it("プレイヤーIDが一致するプレイヤーを削除できる", () => {
-    const result = inMemoryPlayerRepository.delete(playerAlice.id);
+  it("プレイヤーIDが一致するプレイヤーを削除できる", async () => {
+    const result = await inMemoryPlayerRepository.delete(playerAlice.id);
 
     expect(result.isOk()).toBe(true);
     expect(inMemoryPlayerRepository.store).toStrictEqual([playerBob]);
   });
 
-  it("プレイヤーIDが一致するプレイヤーが存在しない場合、DataNotFoundErrorを返す", () => {
-    const result = inMemoryPlayerRepository.delete(playerCffnpwr.id);
+  it("プレイヤーIDが一致するプレイヤーが存在しない場合、DataNotFoundErrorを返す", async () => {
+    const result = await inMemoryPlayerRepository.delete(playerCffnpwr.id);
 
     expect(result.isErr()).toBe(true);
     expect(result.unwrapErr()).toBeInstanceOf(DataNotFoundError);

@@ -1,7 +1,9 @@
-import * as path from "path";
+/* eslint-disable @typescript-eslint/no-unsafe-argument */
+/* eslint-disable @typescript-eslint/no-unsafe-call */
+/* eslint-disable @typescript-eslint/no-unsafe-member-access */
+import path from "path";
 
-export default {
-  "src/**/*.{js,jsx,ts,tsx}": ["pnpm tsc --noEmit --allowJs --checkJs"],
+const config = {
   "src/**/*.{js,jsx,ts,tsx,json,css,scss}":
     "pnpm --filter frontend prettier --write --ignore-path .gitignore",
   "src/**/*.{js,jsx,ts,tsx}": (filenames) => {
@@ -9,6 +11,8 @@ export default {
       .map((f) => path.relative(process.cwd(), f))
       .join(" --file ")}`;
 
-    return [cmdForNextjs];
+    return ["pnpm tsc --noEmit --allowJs --checkJs", cmdForNextjs];
   },
 };
+
+export default config;

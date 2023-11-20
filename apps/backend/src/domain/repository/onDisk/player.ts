@@ -1,8 +1,8 @@
-import { Err, Ok, Result } from "@cffnpwr/ts-results";
+import { Err, Ok, Result } from "@cffnpwr/result-ts";
 import { PlayerState, PrismaClient } from "@prisma/client";
 import { singleton } from "tsyringe";
 
-import { IPlayerRepository } from "./../interface/playerRepository";
+import { IPlayerRepository } from "./../interface/player";
 
 import {
   Player,
@@ -44,13 +44,14 @@ export class InMemoryPlayerRepository implements IPlayerRepository {
       },
     });
     if (!res) {
-      return Err(new PlayerNotFoundError());
+      return new Err(new PlayerNotFoundError());
     }
 
     const player = convertPlayer(res);
 
-    return Ok(player);
+    return new Ok(player);
   }
+
   async findByRoomId(roomId: RoomId): Promise<Result<Player[], RepositoryError>> {
     const res = await prisma.player.findMany({
       where: {
@@ -58,7 +59,7 @@ export class InMemoryPlayerRepository implements IPlayerRepository {
       },
     });
     if (!res) {
-      return Err(new PlayerNotFoundError());
+      return new Err(new PlayerNotFoundError());
     }
 
     const players: Player[] = res.map((player) => convertPlayer(player));
@@ -90,7 +91,7 @@ export class InMemoryPlayerRepository implements IPlayerRepository {
     });
     //型変換して保存したplayerを返す
     const returnplayer: Player = convertPlayer(res);
-    return Ok(returnplayer);
+    return new Ok(returnplayer);
   }
 
   async delete(id: PlayerId): Promise<Result<void, RepositoryError>> {
@@ -100,6 +101,6 @@ export class InMemoryPlayerRepository implements IPlayerRepository {
       },
     }));
 
-    return Ok(voidType);
+    return new Ok(voidType);
   }
 }

@@ -7,8 +7,8 @@ import { playerNameSchema } from "@/domain/entity/player";
 
 const createPlayerUseCase = container.resolve(CreatePlayerUseCase);
 
-it("新しいプレイヤーを作成できる", () => {
-  const result = createPlayerUseCase.execute(playerNameSchema.parse("Alice"));
+it("新しいプレイヤーを作成できる", async () => {
+  const result = await createPlayerUseCase.execute(playerNameSchema.parse("Alice"));
 
   expect(result.isOk()).toBe(true);
   expect(result.unwrap().name).toBe("Alice");

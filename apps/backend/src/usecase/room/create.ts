@@ -17,13 +17,16 @@ export class CreateRoomUseCase {
     @inject("PlayerRepository") private playerRepository: IPlayerRepository,
   ) {}
 
-  public execute(password: RoomPassword, ownerId: PlayerId): Result<Room, UseCaseError> {
+  public async execute(
+    password: RoomPassword,
+    ownerId: PlayerId,
+  ): Promise<Result<Room, UseCaseError>> {
     // 同じ合言葉の部屋は作れない
-    if (this.roomRepository.findByPassword(password).isOk()) {
+    if ((await this.roomRepository.findByPassword(password)).isOk()) {
       return new Err(new RoomPasswordDuplicateError());
     }
 
-    const ownerResult = this.playerRepository.findById(ownerId);
+    const ownerResult = await this.playerRepository.findById(ownerId);
     // 部屋作成者が存在しない場合、部屋は作れない
     if (ownerResult.isErr()) {
       return new Err(new RoomOwnerNotFoundError());
@@ -36,14 +39,14 @@ export class CreateRoomUseCase {
     }
     const newRoom = Room.new(password, ownerId);
 
-    const roomResult = this.roomRepository.save(newRoom);
+    const roomResult = await this.roomRepository.save(newRoom);
     if (roomResult.isErr()) {
       return new Err(new RepositoryOperationError(roomResult.unwrapErr()));
     }
 
     // 部屋作成者は即時に部屋に参加する
     owner.joinRoom(roomResult.unwrap().id);
-    const playerResult = this.playerRepository.save(owner);
+    const playerResult = await this.playerRepository.save(owner);
     if (playerResult.isErr()) {
       return new Err(new RepositoryOperationError(playerResult.unwrapErr()));
     }

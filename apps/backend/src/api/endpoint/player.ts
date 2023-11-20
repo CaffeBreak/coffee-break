@@ -32,13 +32,13 @@ export class PlayerRouter {
       create: publicProcedure
         .input(createPlayerSchema)
         .output(playerObjSchema)
-        .mutation((opts) => {
+        .mutation(async (opts) => {
           const { input } = opts;
 
           const createPlayerResult = this.createPlayerUseCase.execute(
             playerNameSchema.parse(input.name),
           );
-          if (createPlayerResult.isErr()) {
+          if ((await createPlayerResult).isErr()) {
             const errorOpts = ((e: UseCaseError): ConstructorParameters<typeof TRPCError>[0] => {
               if (e instanceof RepositoryOperationError)
                 return {
@@ -47,11 +47,11 @@ export class PlayerRouter {
                   cause: e,
                 };
               else return { message: "Something was happend", code: "INTERNAL_SERVER_ERROR" };
-            })(createPlayerResult.unwrapErr());
+            })((await createPlayerResult).unwrapErr());
             throw new TRPCError(errorOpts);
           }
 
-          const player = createPlayerResult.unwrap();
+          const player = (await createPlayerResult).unwrap();
 
           return {
             id: player.id,

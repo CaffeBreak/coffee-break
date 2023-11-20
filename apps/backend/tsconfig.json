@@ -32,8 +32,7 @@
   },
   "exclude": [
     "node_modules",
-    "dist",
-    "*.config.js"
+    "dist"
   ],
   "ts-node": {
     "esm": true,

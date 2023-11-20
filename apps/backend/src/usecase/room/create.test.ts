@@ -48,23 +48,29 @@ beforeAll(() => {
   roomRepository.store = [roomA];
 });
 
-it("新しい部屋を作成できる", () => {
-  const result = createRoomUseCase.execute(roomPasswordSchema.parse("fugafuga"), playerBob.id);
+it("新しい部屋を作成できる", async () => {
+  const result = await createRoomUseCase.execute(
+    roomPasswordSchema.parse("fugafuga"),
+    playerBob.id,
+  );
 
   expect(result.isOk()).toBe(true);
   expect(result.unwrap().ownerId).toBe(playerBob.id);
-  expect(result.unwrap().id).toBe(playerRepository.findById(playerBob.id).unwrap().roomId);
+  expect(result.unwrap().id).toBe((await playerRepository.findById(playerBob.id)).unwrap().roomId);
 });
 
-it("同じ合言葉の部屋は作れず、RoomPasswordDuplicateErrorを返す", () => {
-  const result = createRoomUseCase.execute(roomPasswordSchema.parse("hogehoge"), playerAlice.id);
+it("同じ合言葉の部屋は作れず、RoomPasswordDuplicateErrorを返す", async () => {
+  const result = await createRoomUseCase.execute(
+    roomPasswordSchema.parse("hogehoge"),
+    playerAlice.id,
+  );
 
   expect(result.isErr()).toBe(true);
   expect(result.unwrapErr()).toBeInstanceOf(RoomPasswordDuplicateError);
 });
 
-it("部屋作成者が存在しない場合、部屋は作れず、RoomOwnerNotFoundErrorを返す", () => {
-  const result = createRoomUseCase.execute(
+it("部屋作成者が存在しない場合、部屋は作れず、RoomOwnerNotFoundErrorを返す", async () => {
+  const result = await createRoomUseCase.execute(
     roomPasswordSchema.parse("cffnpwr"),
     playerIdSchema.parse("9kvyrk2hqb"),
   );
@@ -73,8 +79,8 @@ it("部屋作成者が存在しない場合、部屋は作れず、RoomOwnerNotF
   expect(result.unwrapErr()).toBeInstanceOf(RoomOwnerNotFoundError);
 });
 
-it("部屋作成者がすでに他の部屋に参加している場合、部屋は作れず、AlreadyJoinedOtherRoomErrorを返す", () => {
-  const result = createRoomUseCase.execute(roomPasswordSchema.parse("alice"), playerAlice.id);
+it("部屋作成者がすでに他の部屋に参加している場合、部屋は作れず、AlreadyJoinedOtherRoomErrorを返す", async () => {
+  const result = await createRoomUseCase.execute(roomPasswordSchema.parse("alice"), playerAlice.id);
 
   expect(result.isErr()).toBe(true);
   expect(result.unwrapErr()).toBeInstanceOf(AlreadyJoinedOtherRoomError);

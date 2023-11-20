@@ -12,16 +12,16 @@ import { PlayerNotFoundError } from "@/error/usecase/player";
 export class DeletePlayerUseCase {
   constructor(@inject("PlayerRepository") private playerRepository: IPlayerRepository) {}
 
-  public execute(id: PlayerId): Result<void, UseCaseError> {
+  public async execute(id: PlayerId): Promise<Result<void, UseCaseError>> {
     // 該当のプレイヤーが存在しないなら削除できない
-    const playerResult = this.playerRepository.findById(id);
+    const playerResult = await this.playerRepository.findById(id);
     if (playerResult.isErr()) {
       return new Err(new PlayerNotFoundError());
     }
     const player = playerResult.unwrap();
 
     // プレイヤーを削除する
-    const playerRepoResult = this.playerRepository.delete(player.id);
+    const playerRepoResult = await this.playerRepository.delete(player.id);
     if (playerRepoResult.isErr()) {
       return new Err(new RepositoryOperationError(playerRepoResult.unwrapErr()));
     }

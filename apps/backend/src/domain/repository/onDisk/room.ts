@@ -1,8 +1,8 @@
-import { Err, Ok, Result } from "@cffnpwr/ts-results";
+import { Err, Ok, Result } from "@cffnpwr/result-ts";
 import { Player, PrismaClient, RoomState } from "@prisma/client";
 import { singleton } from "tsyringe";
 
-import { IRoomRepository } from "../interface/roomRepository";
+import { IRoomRepository } from "../interface/room";
 
 import { playerIdSchema } from "@/domain/entity/player";
 import {
@@ -13,11 +13,8 @@ import {
   roomPasswordSchema,
   roomStateSchema,
 } from "@/domain/entity/room";
-import { RepositoryError } from "@/error/repository";
-import { RoomNotFoundError } from "@/error/usecase/room";
+import { DataNotFoundError, RepositoryError } from "@/error/repository";
 import { voidType } from "@/misc/type";
-
-const prisma = new PrismaClient();
 
 const convertRoom = (prismaRoom: {
   id: string;
@@ -35,9 +32,11 @@ const convertRoom = (prismaRoom: {
   );
 
 @singleton()
-export class InMemoryRoomRepository implements IRoomRepository {
+export class OnDiskRoomRepository implements IRoomRepository {
+  constructor(private readonly prismaClient: PrismaClient) {}
+
   async findById(id: RoomId): Promise<Result<Room, RepositoryError>> {
-    const res = await prisma.room.findUnique({
+    const res = await this.prismaClient.room.findUnique({
       where: {
         id: id,
       },
@@ -46,14 +45,14 @@ export class InMemoryRoomRepository implements IRoomRepository {
       },
     });
     if (!res) {
-      return Err(new RoomNotFoundError());
+      return new Err(new DataNotFoundError());
     }
     const room: Room = convertRoom(res);
 
-    return Ok(room);
+    return new Ok(room);
   }
   async findByPassword(password: RoomPassword): Promise<Result<Room, RepositoryError>> {
-    const res = await prisma.room.findUnique({
+    const res = await this.prismaClient.room.findUnique({
       where: {
         password: password,
       },
@@ -62,15 +61,15 @@ export class InMemoryRoomRepository implements IRoomRepository {
       },
     });
     if (!res) {
-      return Err(new RoomNotFoundError());
+      return new Err(new DataNotFoundError());
     }
     const room: Room = convertRoom(res);
 
-    return Ok(room);
+    return new Ok(room);
   }
 
   async save(room: Room): Promise<Result<Room, RepositoryError>> {
-    const res = await prisma.room.upsert({
+    const res = await this.prismaClient.room.upsert({
       where: {
         id: room.id,
       },
@@ -91,15 +90,20 @@ export class InMemoryRoomRepository implements IRoomRepository {
     });
     const createRoom = convertRoom(res);
 
-    return Ok(createRoom);
+    return new Ok(createRoom);
   }
   async delete(id: RoomId): Promise<Result<void, RepositoryError>> {
-    void (await prisma.player.delete({
-      where: {
-        id: id,
-      },
-    }));
+    const deleted = await this.prismaClient.room
+      .delete({
+        where: {
+          id: id,
+        },
+      })
+      .catch(() => null);
+    if (!deleted) {
+      return new Err(new DataNotFoundError());
+    }
 
-    return Ok(voidType);
+    return new Ok(voidType);
   }
 }
