@@ -13,7 +13,7 @@
   },
   "dependencies": {
     "@tanstack/react-query": "^4.35.3",
-    "@trpc/client": "^10.43.2",
+    "@trpc/client": "^10.44.0",
     "@trpc/react-query": "^10.43.2",
     "@trpc/server": "^10.41.0",
     "jotai": "^2.2.3",
