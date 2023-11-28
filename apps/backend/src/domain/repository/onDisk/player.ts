@@ -14,11 +14,8 @@ import {
 } from "@/domain/entity/player";
 import { RoomId, roomIdSchema } from "@/domain/entity/room";
 import { DataNotFoundError, RepositoryError } from "@/error/repository";
-import { PlayerNotFoundError } from "@/error/usecase/player";
 import { OkOrErr } from "@/misc/result";
 import { voidType } from "@/misc/type";
-
-const prisma = new PrismaClient();
 
 const convertPlayer = (prismaPlayer: {
   id: string;
@@ -32,19 +29,21 @@ const convertPlayer = (prismaPlayer: {
     playerNameSchema.parse(prismaPlayer.name),
     playerRoleSchema.parse(prismaPlayer.role),
     playerStatusSchema.parse(prismaPlayer.isDead ? "DEAD" : "ALIVE"),
-    roomIdSchema.parse(prismaPlayer.joinedRoomId),
+    prismaPlayer.joinedRoomId ? roomIdSchema.parse(prismaPlayer.joinedRoomId) : undefined,
   );
 
 @singleton()
-export class InMemoryPlayerRepository implements IPlayerRepository {
+export class OnDiskPlayerRepository implements IPlayerRepository {
+  constructor(private readonly prismaClient: PrismaClient) {}
+
   async findById(id: PlayerId): Promise<Result<Player, RepositoryError>> {
-    const res = await prisma.player.findUnique({
+    const res = await this.prismaClient.player.findUnique({
       where: {
         id: id,
       },
     });
     if (!res) {
-      return new Err(new PlayerNotFoundError());
+      return new Err(new DataNotFoundError());
     }
 
     const player = convertPlayer(res);
@@ -53,13 +52,13 @@ export class InMemoryPlayerRepository implements IPlayerRepository {
   }
 
   async findByRoomId(roomId: RoomId): Promise<Result<Player[], RepositoryError>> {
-    const res = await prisma.player.findMany({
+    const res = await this.prismaClient.player.findMany({
       where: {
         joinedRoomId: roomId,
       },
     });
     if (!res) {
-      return new Err(new PlayerNotFoundError());
+      return new Err(new DataNotFoundError());
     }
 
     const players: Player[] = res.map((player) => convertPlayer(player));
@@ -70,7 +69,7 @@ export class InMemoryPlayerRepository implements IPlayerRepository {
     //2択をToFに変換するアロー関数ぶっちゃけキモい
     //明日くらいに直しておく
     const checkDead = (isD: "ALIVE" | "DEAD") => isD !== "ALIVE";
-    const res = await prisma.player.upsert({
+    const res = await this.prismaClient.player.upsert({
       where: {
         // ここはidが必須
         id: player.id,
@@ -95,11 +94,16 @@ export class InMemoryPlayerRepository implements IPlayerRepository {
   }
 
   async delete(id: PlayerId): Promise<Result<void, RepositoryError>> {
-    void (await prisma.player.delete({
-      where: {
-        id: id,
-      },
-    }));
+    const deleted = await this.prismaClient.player
+      .delete({
+        where: {
+          id: id,
+        },
+      })
+      .catch(() => null);
+    if (!deleted) {
+      return new Err(new DataNotFoundError());
+    }
 
     return new Ok(voidType);
   }
