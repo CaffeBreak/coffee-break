@@ -54,13 +54,16 @@ const Home = () => {
           type="text"
           placeholder="名前を入力"
           className="h-[60px] w-[450px] rounded border-b-8 border-yellow-900 bg-yellow-500 px-2 text-center text-3xl text-white placeholder:text-white"
-          onChange={(event) => setName(event.target.value)}
+          onChange={(event) => {
+            setName(event.target.value);
+            setShowError(false);
+          }}
         />
       </div>
       <div className="flex h-[30px] items-center justify-center text-red-600">
         {showError && `「${name}」は残念ながら炭になりました`}
       </div>
-      <div className="mt-[70px] flex w-full justify-center">
+      <div className="mt-[40px] flex w-full justify-center">
         <button
           onClick={handleClick}
           className="h-[60px] w-[200px] rounded-3xl bg-yellow-500 text-3xl text-white"
