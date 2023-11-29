@@ -1,18 +1,25 @@
 "use client";
 
+import { useAtomValue } from "jotai";
+
+import { Player } from "@/components/atom/Player";
 import { trpc } from "@/utils/trpc";
 
 const IndexPage = () => {
-  const player = trpc.player.create.useMutation();
+  const player = useAtomValue(Player);
+  console.log(player.id);
+
+  const room = trpc.room.create.useMutation();
   const handler = () => {
-    player.mutate({
-      name: "aaaa",
+    room.mutate({
+      password: "aaa",
+      ownerId: "9mbhkp7jez",
     });
   };
 
   return (
     <div>
-      <p>{JSON.stringify(player.data) || "Loading..."}</p>
+      <p>{JSON.stringify(room.data) || "Loading..."}</p>
       <button onClick={handler}>click me!!</button>
     </div>
   );
