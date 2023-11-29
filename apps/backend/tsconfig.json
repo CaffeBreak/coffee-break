@@ -19,10 +19,23 @@
     "strict": true,
     "strictNullChecks": true,
     "moduleResolution": "node",
+    "esModuleInterop": true,
     "paths": {
-      "@/*": ["./src/*"]
+      "@/*": [
+        "./src/*"
+      ]
     },
-    "types": ["reflect-metadata", "node"]
+    "types": [
+      "reflect-metadata",
+      "node"
+    ]
   },
-  "exclude": ["node_modules", "dist", "*.config.js"]
+  "exclude": [
+    "node_modules",
+    "dist"
+  ],
+  "ts-node": {
+    "esm": true,
+    "experimentalSpecifierResolution": "node"
+  }
 }

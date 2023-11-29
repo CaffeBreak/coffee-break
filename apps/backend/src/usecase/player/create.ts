@@ -11,9 +11,9 @@ import { RepositoryOperationError } from "@/error/usecase/common";
 export class CreatePlayerUseCase {
   constructor(@inject("PlayerRepository") private playerRepository: IPlayerRepository) {}
 
-  public execute(name: PlayerName): Result<Player, UseCaseError> {
+  public async execute(name: PlayerName): Promise<Result<Player, UseCaseError>> {
     const newPlayer = Player.new(name);
-    const playerResult = this.playerRepository.save(newPlayer);
+    const playerResult = await this.playerRepository.save(newPlayer);
     if (playerResult.isErr()) {
       return new Err(new RepositoryOperationError(playerResult.unwrapErr()));
     }

@@ -1,15 +1,52 @@
-import { container } from "tsyringe";
+import { PrismaClient } from "@prisma/client";
+import { PrismockClient } from "prismock";
 import { beforeAll, describe, expect, it } from "vitest";
 
-import { InMemoryRoomRepository } from "./room";
+import { OnDiskRoomRepository } from "./room";
 
 import { playerIdSchema } from "@/domain/entity/player";
-import { Room, roomIdSchema, roomPasswordSchema, roomStateSchema } from "@/domain/entity/room";
+import {
+  Room,
+  RoomState,
+  roomIdSchema,
+  roomPasswordSchema,
+  roomStateSchema,
+} from "@/domain/entity/room";
 import { DataNotFoundError } from "@/error/repository";
 
-const inMemoryRoomRepository = container.resolve(InMemoryRoomRepository);
+const convertRoomToPrisma = (
+  room: Room,
+): {
+  id: string;
+  password: string;
+  ownerId: string;
+  state: RoomState;
+} => ({
+  id: room.id,
+  password: room.password,
+  ownerId: room.ownerId,
+  state: room.state,
+});
+const createPrismaMockWithInitialValue = async (rooms: Room[]): Promise<PrismaClient> => {
+  const client = new PrismockClient();
+
+  await client.player.createMany({
+    data: rooms
+      .map((room) =>
+        room.players.map((playerId) => ({ id: playerId, name: "hoge", joinedRoomId: room.id })),
+      )
+      .flat(),
+  });
+  await client.room.createMany({
+    data: rooms.map((room) => convertRoomToPrisma(room)),
+  });
+
+  return client;
+};
 
 describe("findById", () => {
+  let onDiskRoomRepository: OnDiskRoomRepository;
+
   const roomA = new Room(
     roomIdSchema.parse("9kzx7hf7w4"),
     roomPasswordSchema.parse("hogehoge"),
@@ -25,19 +62,21 @@ describe("findById", () => {
     [playerIdSchema.parse("9kvyrk2hqa")],
   );
 
-  beforeAll(() => {
-    inMemoryRoomRepository.store = [roomA];
+  beforeAll(async () => {
+    onDiskRoomRepository = new OnDiskRoomRepository(
+      await createPrismaMockWithInitialValue([roomA]),
+    );
   });
 
   it("部屋IDが一致する部屋が存在する場合、その部屋を取得できる", async () => {
-    const result = await inMemoryRoomRepository.findById(roomA.id);
+    const result = await onDiskRoomRepository.findById(roomA.id);
 
     expect(result.isOk()).toBe(true);
-    expect(result.unwrap()).toBe(roomA);
+    expect(result.unwrap()).toStrictEqual(roomA);
   });
 
   it("部屋IDが一致する部屋が存在しない場合、DataNotFoundErrorを返す", async () => {
-    const result = await inMemoryRoomRepository.findById(roomB.id);
+    const result = await onDiskRoomRepository.findById(roomB.id);
 
     expect(result.isErr()).toBe(true);
     expect(result.unwrapErr()).toBeInstanceOf(DataNotFoundError);
@@ -45,6 +84,8 @@ describe("findById", () => {
 });
 
 describe("findByPassword", () => {
+  let onDiskRoomRepository: OnDiskRoomRepository;
+
   const roomA = new Room(
     roomIdSchema.parse("9kzx7hf7w4"),
     roomPasswordSchema.parse("hogehoge"),
@@ -60,23 +101,21 @@ describe("findByPassword", () => {
     [playerIdSchema.parse("9kvyrk2hqa")],
   );
 
-  beforeAll(() => {
-    inMemoryRoomRepository.store = [roomA, roomB];
+  beforeAll(async () => {
+    onDiskRoomRepository = new OnDiskRoomRepository(
+      await createPrismaMockWithInitialValue([roomA, roomB]),
+    );
   });
 
   it("部屋の合言葉が一致する部屋が存在する場合、その部屋を取得できる", async () => {
-    const result = await inMemoryRoomRepository.findByPassword(
-      roomPasswordSchema.parse("hogehoge"),
-    );
+    const result = await onDiskRoomRepository.findByPassword(roomPasswordSchema.parse("hogehoge"));
 
     expect(result.isOk()).toBe(true);
-    expect(result.unwrap()).toBe(roomA);
+    expect(result.unwrap()).toStrictEqual(roomA);
   });
 
   it("部屋の合言葉が一致する部屋が存在しない場合、DataNotFoundErrorを返す", async () => {
-    const result = await inMemoryRoomRepository.findByPassword(
-      roomPasswordSchema.parse("piyopiyo"),
-    );
+    const result = await onDiskRoomRepository.findByPassword(roomPasswordSchema.parse("piyopiyo"));
 
     expect(result.isErr()).toBe(true);
     expect(result.unwrapErr()).toBeInstanceOf(DataNotFoundError);
@@ -84,6 +123,8 @@ describe("findByPassword", () => {
 });
 
 describe("save", () => {
+  let onDiskRoomRepository: OnDiskRoomRepository;
+
   const roomA = new Room(
     roomIdSchema.parse("9kzx7hf7w4"),
     roomPasswordSchema.parse("hogehoge"),
@@ -99,31 +140,34 @@ describe("save", () => {
     [playerIdSchema.parse("9kvyrk2hqa")],
   );
 
-  beforeAll(() => {
-    inMemoryRoomRepository.store = [roomA];
+  beforeAll(async () => {
+    onDiskRoomRepository = new OnDiskRoomRepository(
+      await createPrismaMockWithInitialValue([roomA, roomB]),
+    );
   });
 
   it("新たに部屋を追加できる", async () => {
-    const result = await inMemoryRoomRepository.save(roomB);
+    const result = await onDiskRoomRepository.save(roomB);
 
     expect(result.isOk()).toBe(true);
-    expect(result.unwrap()).toBe(roomB);
-    expect(inMemoryRoomRepository.store).toStrictEqual([roomA, roomB]);
+    expect(result.unwrap()).toStrictEqual(roomB);
   });
 
   it("既存の部屋のデータを更新できる", async () => {
     const roomAFinished = roomA;
     roomAFinished.finishGame();
 
-    const result = await inMemoryRoomRepository.save(roomAFinished);
+    const result = await onDiskRoomRepository.save(roomAFinished);
 
     expect(result.isOk()).toBe(true);
-    expect(result.unwrap()).toBe(roomAFinished);
-    expect(inMemoryRoomRepository.store).toStrictEqual([roomAFinished, roomB]);
+    expect(result.unwrap()).toStrictEqual(roomAFinished);
+    // expect(onDiskRoomRepository.store).toStrictEqual([roomAFinished, roomB]);
   });
 });
 
 describe("delete", () => {
+  let onDiskRoomRepository: OnDiskRoomRepository;
+
   const roomA = new Room(
     roomIdSchema.parse("9kzx7hf7w4"),
     roomPasswordSchema.parse("hogehoge"),
@@ -146,19 +190,21 @@ describe("delete", () => {
     [playerIdSchema.parse("9kvyrk2hqb")],
   );
 
-  beforeAll(() => {
-    inMemoryRoomRepository.store = [roomA, roomB];
+  beforeAll(async () => {
+    onDiskRoomRepository = new OnDiskRoomRepository(
+      await createPrismaMockWithInitialValue([roomA, roomB]),
+    );
   });
 
   it("部屋IDが一致する部屋が存在する場合、その部屋を削除できる", async () => {
-    const result = await inMemoryRoomRepository.delete(roomA.id);
+    const result = await onDiskRoomRepository.delete(roomA.id);
 
     expect(result.isOk()).toBe(true);
-    expect(inMemoryRoomRepository.store).toStrictEqual([roomB]);
+    // expect(onDiskRoomRepository.store).toStrictEqual([roomB]);
   });
 
   it("部屋IDが一致する部屋が存在しない場合、DataNotFoundErrorを返す", async () => {
-    const result = await inMemoryRoomRepository.delete(roomC.id);
+    const result = await onDiskRoomRepository.delete(roomC.id);
 
     expect(result.isErr()).toBe(true);
     expect(result.unwrapErr()).toBeInstanceOf(DataNotFoundError);

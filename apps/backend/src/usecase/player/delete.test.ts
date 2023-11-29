@@ -33,15 +33,15 @@ beforeAll(() => {
   playerRepository.store = [playerAlice];
 });
 
-it("プレイヤーIDが一致するプレイヤーが存在する場合、該当プレイヤー削除をできる", () => {
-  const result = deletePlayerUseCase.execute(playerAlice.id);
+it("プレイヤーIDが一致するプレイヤーが存在する場合、該当プレイヤー削除をできる", async () => {
+  const result = await deletePlayerUseCase.execute(playerAlice.id);
 
   expect(result.isOk()).toBe(true);
   expect(playerRepository.store).toStrictEqual([]);
 });
 
-it("プレイヤーIDが一致するプレイヤーが存在しない場合、PlayerNotFoundErrorを返す", () => {
-  const result = deletePlayerUseCase.execute(playerBob.id);
+it("プレイヤーIDが一致するプレイヤーが存在しない場合、PlayerNotFoundErrorを返す", async () => {
+  const result = await deletePlayerUseCase.execute(playerBob.id);
 
   expect(result.isErr()).toBe(true);
   expect(result.unwrapErr()).toBeInstanceOf(PlayerNotFoundError);

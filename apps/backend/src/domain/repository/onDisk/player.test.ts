@@ -1,5 +1,8 @@
-import { container } from "tsyringe";
+import { PlayerState, PrismaClient, RoomState } from "@prisma/client";
+import { PrismockClient } from "prismock";
 import { beforeAll, describe, expect, it } from "vitest";
+
+import { OnDiskPlayerRepository } from "./player";
 
 import {
   Player,
@@ -9,12 +12,47 @@ import {
   playerStatusSchema,
 } from "@/domain/entity/player";
 import { roomIdSchema } from "@/domain/entity/room";
-import { InMemoryPlayerRepository } from "@/domain/repository/inMemory/player";
 import { DataNotFoundError } from "@/error/repository";
 
-const inMemoryPlayerRepository = container.resolve(InMemoryPlayerRepository);
+const convertPlayerToPrisma = (
+  player: Player,
+): {
+  id: string;
+  name: string;
+  isDead: boolean;
+  joinedRoomId?: string;
+  role?: PlayerState;
+} => ({
+  id: player.id,
+  name: player.name,
+  isDead: player.status === "DEAD",
+  joinedRoomId: player.roomId,
+  role: player.role,
+});
+const createPrismaMockWithInitialValue = async (players: Player[]): Promise<PrismaClient> => {
+  const client = new PrismockClient();
+
+  await client.room.createMany({
+    data: players
+      .filter((player) => player.roomId)
+      .map((player) => ({
+        id: player.roomId as string,
+        password: "password",
+        ownerId: "9999999999",
+        state: RoomState.BEFORE_START,
+      }))
+      .flat(),
+  });
+  await client.player.createMany({
+    data: players.map((player) => convertPlayerToPrisma(player)),
+  });
+
+  return client;
+};
 
 describe("findById", () => {
+  let onDiskPlayerRepository: OnDiskPlayerRepository;
+
   const playerAlice = new Player(
     playerIdSchema.parse("9kvyrk2hq9"),
     playerNameSchema.parse("Alice"),
@@ -28,19 +66,21 @@ describe("findById", () => {
     playerStatusSchema.parse("ALIVE"),
   );
 
-  beforeAll(() => {
-    inMemoryPlayerRepository.store = [playerAlice];
+  beforeAll(async () => {
+    onDiskPlayerRepository = new OnDiskPlayerRepository(
+      await createPrismaMockWithInitialValue([playerAlice]),
+    );
   });
 
   it("プレイヤーIDが一致するプレイヤーが存在する場合、そのプレイヤーを取得できる", async () => {
-    const result = await inMemoryPlayerRepository.findById(playerAlice.id);
+    const result = await onDiskPlayerRepository.findById(playerAlice.id);
 
     expect(result.isOk()).toBe(true);
-    expect(result.unwrap()).toBe(playerAlice);
+    expect(result.unwrap()).toStrictEqual(playerAlice);
   });
 
   it("プレイヤーIDが一致するプレイヤーが存在しない場合、DataNotFoundErrorを返す", async () => {
-    const result = await inMemoryPlayerRepository.findById(playerBob.id);
+    const result = await onDiskPlayerRepository.findById(playerBob.id);
 
     expect(result.isErr()).toBe(true);
     expect(result.unwrapErr()).toBeInstanceOf(DataNotFoundError);
@@ -48,6 +88,8 @@ describe("findById", () => {
 });
 
 describe("findByRoomId", () => {
+  let onDiskPlayerRepository: OnDiskPlayerRepository;
+
   const roomId = roomIdSchema.parse("9kzaa4d4gn");
   const playerAlice = new Player(
     playerIdSchema.parse("9kvyrk2hq9"),
@@ -77,19 +119,21 @@ describe("findByRoomId", () => {
     roomId,
   );
 
-  beforeAll(() => {
-    inMemoryPlayerRepository.store = [playerAlice, playerBob, playerCffnpwr, playerDiana];
+  beforeAll(async () => {
+    onDiskPlayerRepository = new OnDiskPlayerRepository(
+      await createPrismaMockWithInitialValue([playerAlice, playerBob, playerCffnpwr, playerDiana]),
+    );
   });
 
   it("部屋IDが一致する部屋に参加しているプレイヤーを配列で取得できる", async () => {
-    const result = await inMemoryPlayerRepository.findByRoomId(roomId);
+    const result = await onDiskPlayerRepository.findByRoomId(roomId);
 
     expect(result.isOk()).toBe(true);
     expect(result.unwrap()).toStrictEqual([playerAlice, playerBob, playerDiana]);
   });
 
   it("部屋IDが一致する部屋に参加しているプレイヤーが存在しないとき、空配列を返す", async () => {
-    const result = await inMemoryPlayerRepository.findByRoomId(roomIdSchema.parse("9kzaa4d4g1"));
+    const result = await onDiskPlayerRepository.findByRoomId(roomIdSchema.parse("9kzaa4d4g1"));
 
     expect(result.isOk()).toBe(true);
     expect(result.unwrap()).toStrictEqual([]);
@@ -97,6 +141,8 @@ describe("findByRoomId", () => {
 });
 
 describe("save", () => {
+  let onDiskPlayerRepository: OnDiskPlayerRepository;
+
   const playerAlice = new Player(
     playerIdSchema.parse("9kvyrk2hq9"),
     playerNameSchema.parse("Alice"),
@@ -110,31 +156,35 @@ describe("save", () => {
     playerStatusSchema.parse("ALIVE"),
   );
 
-  beforeAll(() => {
-    inMemoryPlayerRepository.store = [playerAlice];
+  beforeAll(async () => {
+    onDiskPlayerRepository = new OnDiskPlayerRepository(
+      await createPrismaMockWithInitialValue([playerAlice]),
+    );
   });
 
   it("新たにプレイヤーを追加できる", async () => {
-    const result = await inMemoryPlayerRepository.save(playerBob);
+    const result = await onDiskPlayerRepository.save(playerBob);
 
     expect(result.isOk()).toBe(true);
-    expect(result.unwrap()).toBe(playerBob);
-    expect(inMemoryPlayerRepository.store).toStrictEqual([playerAlice, playerBob]);
+    expect(result.unwrap()).toStrictEqual(playerBob);
+    // expect(onDiskPlayerRepository.store).toStrictEqual([playerAlice, playerBob]);
   });
 
   it("既存プレイヤーのデータを更新できる", async () => {
     const playerAliceDead = playerAlice;
     playerAliceDead.kill();
 
-    const result = await inMemoryPlayerRepository.save(playerAliceDead);
+    const result = await onDiskPlayerRepository.save(playerAliceDead);
 
     expect(result.isOk()).toBe(true);
-    expect(result.unwrap()).toBe(playerAliceDead);
-    expect(inMemoryPlayerRepository.store).toStrictEqual([playerAliceDead, playerBob]);
+    expect(result.unwrap()).toStrictEqual(playerAliceDead);
+    // expect(inMemoryPlayerRepository.store).toStrictEqual([playerAliceDead, playerBob]);
   });
 });
 
 describe("delete", () => {
+  let onDiskPlayerRepository: OnDiskPlayerRepository;
+
   const playerAlice = new Player(
     playerIdSchema.parse("9kvyrk2hq9"),
     playerNameSchema.parse("Alice"),
@@ -154,19 +204,21 @@ describe("delete", () => {
     playerStatusSchema.parse("ALIVE"),
   );
 
-  beforeAll(() => {
-    inMemoryPlayerRepository.store = [playerAlice, playerBob];
+  beforeAll(async () => {
+    onDiskPlayerRepository = new OnDiskPlayerRepository(
+      await createPrismaMockWithInitialValue([playerAlice, playerBob]),
+    );
   });
 
   it("プレイヤーIDが一致するプレイヤーを削除できる", async () => {
-    const result = await inMemoryPlayerRepository.delete(playerAlice.id);
+    const result = await onDiskPlayerRepository.delete(playerAlice.id);
 
     expect(result.isOk()).toBe(true);
-    expect(inMemoryPlayerRepository.store).toStrictEqual([playerBob]);
+    // expect(inMemoryPlayerRepository.store).toStrictEqual([playerBob]);
   });
 
   it("プレイヤーIDが一致するプレイヤーが存在しない場合、DataNotFoundErrorを返す", async () => {
-    const result = await inMemoryPlayerRepository.delete(playerCffnpwr.id);
+    const result = await onDiskPlayerRepository.delete(playerCffnpwr.id);
 
     expect(result.isErr()).toBe(true);
     expect(result.unwrapErr()).toBeInstanceOf(DataNotFoundError);

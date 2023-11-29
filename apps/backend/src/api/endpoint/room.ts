@@ -36,10 +36,10 @@ export class RoomRouter {
       create: publicProcedure
         .input(createRoomSchema)
         .output(roomObjSchema)
-        .mutation((opts) => {
+        .mutation(async (opts) => {
           const { input } = opts;
 
-          const createRoomResult = this.createRoomUseCase.execute(
+          const createRoomResult = await this.createRoomUseCase.execute(
             roomPasswordSchema.parse(input.password),
             playerIdSchema.parse(input.ownerId),
           );

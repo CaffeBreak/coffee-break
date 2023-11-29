@@ -12,9 +12,9 @@ export const roomPasswordSchema = z
 export const roomStateSchema = z
   .union([
     z.literal("BEFORE_START"),
-    // z.literal("USING"),
+    z.literal("USING"),
     z.literal("DISCUSSION"),
-    // z.literal("VOTING"),
+    z.literal("VOTING"),
     z.literal("FINISHED"),
   ])
   .brand("roomStatus");

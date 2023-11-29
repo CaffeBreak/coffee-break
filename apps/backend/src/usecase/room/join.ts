@@ -21,20 +21,20 @@ export class JoinRoomUseCase {
     @inject("PlayerRepository") private playerRepository: IPlayerRepository,
   ) {}
 
-  public execute(
+  public async execute(
     roomId: RoomId,
     password: RoomPassword,
     playerId: PlayerId,
-  ): Result<Room, UseCaseError> {
+  ): Promise<Result<Room, UseCaseError>> {
     // 該当の部屋が存在しないなら参加できない
-    const roomResult = this.roomRepository.findById(roomId);
+    const roomResult = await this.roomRepository.findById(roomId);
     if (roomResult.isErr()) {
       return new Err(new RoomNotFoundError());
     }
     const room = roomResult.unwrap();
 
     // 該当のプレイヤーが存在しないなら参加できない
-    const playerResult = this.playerRepository.findById(playerId);
+    const playerResult = await this.playerRepository.findById(playerId);
     if (playerResult.isErr()) {
       return new Err(new PlayerNotFoundError());
     }
@@ -51,7 +51,7 @@ export class JoinRoomUseCase {
     }
 
     // 同じ名前のプレイヤーが同じ部屋に入ることはできない
-    const playersInRoom = this.playerRepository.findByRoomId(room.id).unwrap();
+    const playersInRoom = (await this.playerRepository.findByRoomId(room.id)).unwrap();
     if (playersInRoom.some((p) => p.name === player.name)) {
       return new Err(new PlayerNameDuplicatedError());
     }
@@ -59,8 +59,8 @@ export class JoinRoomUseCase {
     // 部屋に参加する
     room.join(player.id);
     player.joinRoom(room.id);
-    const playerRepoResult = this.playerRepository.save(player);
-    const roomRepoResult = this.roomRepository.save(room);
+    const playerRepoResult = await this.playerRepository.save(player);
+    const roomRepoResult = await this.roomRepository.save(room);
     if (playerRepoResult.isErr()) {
       return new Err(new RepositoryOperationError(playerRepoResult.unwrapErr()));
     }

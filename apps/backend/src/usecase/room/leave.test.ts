@@ -55,8 +55,8 @@ beforeEach(() => {
   roomRepository.store = [roomA];
 });
 
-it("プレイヤーIDに一致するプレイヤーが存在する場合、部屋から退出できる", () => {
-  const result = leaveRoomUseCase.execute(playerAlice.id);
+it("プレイヤーIDに一致するプレイヤーが存在する場合、部屋から退出できる", async () => {
+  const result = await leaveRoomUseCase.execute(playerAlice.id);
 
   expect(result.isOk()).toBe(true);
   expect(result.unwrap().players).not.toContain(playerAlice.id);
@@ -65,22 +65,22 @@ it("プレイヤーIDに一致するプレイヤーが存在する場合、部�
   ).toBeUndefined();
 });
 
-it("プレイヤーIDに一致するプレイヤーが存在しない場合、PlayerNotFoundErrorを返す", () => {
-  const result = leaveRoomUseCase.execute(playerIdSchema.parse("9kvyrk2hqc"));
+it("プレイヤーIDに一致するプレイヤーが存在しない場合、PlayerNotFoundErrorを返す", async () => {
+  const result = await leaveRoomUseCase.execute(playerIdSchema.parse("9kvyrk2hqc"));
 
   expect(result.isErr()).toBe(true);
   expect(result.unwrapErr()).toBeInstanceOf(PlayerNotFoundError);
 });
 
-it("該当のプレイヤーが部屋に参加していない場合、PlayerNotJoinedRoomErrorを返す", () => {
-  const result = leaveRoomUseCase.execute(playerBob.id);
+it("該当のプレイヤーが部屋に参加していない場合、PlayerNotJoinedRoomErrorを返す", async () => {
+  const result = await leaveRoomUseCase.execute(playerBob.id);
 
   expect(result.isErr()).toBe(true);
   expect(result.unwrapErr()).toBeInstanceOf(PlayerNotJoinedRoomError);
 });
 
-it("プレイヤーが部屋に参加しているが、該当の部屋が存在しない場合、RoomNotFoundErrorを返す", () => {
-  const result = leaveRoomUseCase.execute(playerCffnpwr.id);
+it("プレイヤーが部屋に参加しているが、該当の部屋が存在しない場合、RoomNotFoundErrorを返す", async () => {
+  const result = await leaveRoomUseCase.execute(playerCffnpwr.id);
 
   expect(result.isErr()).toBe(true);
   expect(result.unwrapErr()).toBeInstanceOf(RoomNotFoundError);

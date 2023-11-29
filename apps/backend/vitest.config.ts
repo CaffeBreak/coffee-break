@@ -9,6 +9,11 @@ export default defineConfig({
       include: ["src/**"],
       reporter: ["html"],
     },
+    server: {
+      deps: {
+        inline: ["vitest-mock-extended"],
+      },
+    },
   },
   resolve: {
     alias: [{ find: "@/", replacement: "src/" }],

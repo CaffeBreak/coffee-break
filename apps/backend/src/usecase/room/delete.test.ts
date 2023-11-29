@@ -49,23 +49,23 @@ beforeEach(() => {
   roomRepository.store = [roomA];
 });
 
-it("部屋IDに一致する部屋が存在する場合、部屋作成者はそれを削除できる。また、その部屋に参加していた人は部屋から退出する", () => {
-  const result = deleteRoomUseCase.execute(roomA.id, playerAlice.id);
+it("部屋IDに一致する部屋が存在する場合、部屋作成者はそれを削除できる。また、その部屋に参加していた人は部屋から退出する", async () => {
+  const result = await deleteRoomUseCase.execute(roomA.id, playerAlice.id);
 
   expect(result.isOk()).toBe(true);
   expect(roomRepository.store).toStrictEqual([]);
   expect(playerRepository.store).not.toMatchObject([{ _roomId: roomA.id }, { _roomId: roomA.id }]);
 });
 
-it("部屋作成者でなければ部屋を削除することはできず、OperationNotAllowedErrorを返す", () => {
-  const result = deleteRoomUseCase.execute(roomA.id, playerBob.id);
+it("部屋作成者でなければ部屋を削除することはできず、OperationNotAllowedErrorを返す", async () => {
+  const result = await deleteRoomUseCase.execute(roomA.id, playerBob.id);
 
   expect(result.isErr()).toBe(true);
   expect(result.unwrapErr()).toBeInstanceOf(OperationNotAllowedError);
 });
 
-it("部屋IDに一致する部屋が存在しない場合、RoomNotFoundErrorを返す", () => {
-  const result = deleteRoomUseCase.execute(roomIdSchema.parse("9kzx7hf7w5"), playerAlice.id);
+it("部屋IDに一致する部屋が存在しない場合、RoomNotFoundErrorを返す", async () => {
+  const result = await deleteRoomUseCase.execute(roomIdSchema.parse("9kzx7hf7w5"), playerAlice.id);
 
   expect(result.isErr()).toBe(true);
   expect(result.unwrapErr()).toBeInstanceOf(RoomNotFoundError);
