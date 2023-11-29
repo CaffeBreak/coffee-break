@@ -11,7 +11,7 @@ const config = {
       .map((f) => path.relative(process.cwd(), f))
       .join(" --file ")}`;
 
-    return ["pnpm tsc --noEmit --allowJs --checkJs", cmdForNextjs];
+    return ["pnpm --filter frontend tsc --noEmit --allowJs --checkJs", cmdForNextjs];
   },
 };
 
