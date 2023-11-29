@@ -7,7 +7,7 @@
   "license": "UNLICENSED",
   "type": "module",
   "scripts": {
-    "postuninstall": "prisma generate",
+    "postinstall": "prisma generate",
     "build": "swc src -d dist -D",
     "format": "prettier --write --ignore-path .gitignore 'src/**/*.{ts,json}'",
     "lint": "eslint --ignore-path .gitignore 'src/**/*.ts'",
