@@ -15,6 +15,10 @@ const Home = () => {
   const setPlayer = useSetAtom(Player);
 
   const handleClick = () => {
+    if (!name.match(/^[^\s]{1,16}$/)) {
+      setShowError(true);
+      return;
+    }
     player.mutate(
       {
         name: name,

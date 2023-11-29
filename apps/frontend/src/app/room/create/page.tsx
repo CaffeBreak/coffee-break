@@ -9,6 +9,7 @@ import { trpc } from "@/utils/trpc";
 
 const RoomCreate = () => {
   const [pass, setPass] = useState("");
+  const [showError, setShowError] = useState(false);
   const player = useAtomValue(Player);
   const setRoom = useSetAtom(Room);
 
@@ -16,20 +17,31 @@ const RoomCreate = () => {
   const room = trpc.room.create.useMutation();
 
   const handleClick = () => {
-    room.mutate({
-      password: pass,
-      ownerId: player.id,
-    });
-    if (room.data) {
-      setRoom({
-        id: room.data.id,
-        ownerId: room.data.ownerId,
-        password: room.data.password,
-        players: room.data.players,
-        state: room.data.state,
-      });
+    if (!pass.match(/^[^\s]{1,16}$/)) {
+      setShowError(true);
+      return;
     }
-    router.push("/room/create/list");
+    room.mutate(
+      {
+        password: pass,
+        ownerId: player.id,
+      },
+      {
+        onError: () => {
+          setShowError(true);
+        },
+        onSuccess: (data) => {
+          setRoom({
+            id: data.id,
+            ownerId: data.ownerId,
+            password: data.password,
+            players: data.players,
+            state: data.state,
+          });
+          router.push("/room/create/list");
+        },
+      },
+    );
   };
 
   return (
@@ -38,10 +50,14 @@ const RoomCreate = () => {
         type="text"
         placeholder="合言葉を入力"
         className="h-[60px] w-[450px] rounded border-b-8 border-yellow-900 bg-yellow-500 px-2 text-center text-3xl text-white placeholder:text-white"
-        onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-          setPass((e.target as HTMLInputElement).value)
-        }
+        onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+          setPass((e.target as HTMLInputElement).value);
+          setShowError(false);
+        }}
       />
+      <div className="flex h-[30px] items-center justify-center text-red-600">
+        {showError && `「${pass}」は残念ながら爆発しました`}
+      </div>
       <button
         onClick={handleClick}
         className="h-[60px] w-[200px] rounded-3xl bg-yellow-500 text-3xl text-white"
