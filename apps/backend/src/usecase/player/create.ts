@@ -9,7 +9,7 @@ import { RepositoryOperationError } from "@/error/usecase/common";
 
 @injectable()
 export class CreatePlayerUseCase {
-  constructor(@inject("PlayerRepository") private playerRepository: IPlayerRepository) {}
+  constructor(@inject("PlayerRepository") private readonly playerRepository: IPlayerRepository) {}
 
   public async execute(name: PlayerName): Promise<Result<Player, UseCaseError>> {
     const newPlayer = Player.new(name);

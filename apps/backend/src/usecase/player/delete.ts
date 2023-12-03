@@ -10,7 +10,7 @@ import { PlayerNotFoundError } from "@/error/usecase/player";
 
 @injectable()
 export class DeletePlayerUseCase {
-  constructor(@inject("PlayerRepository") private playerRepository: IPlayerRepository) {}
+  constructor(@inject("PlayerRepository") private readonly playerRepository: IPlayerRepository) {}
 
   public async execute(id: PlayerId): Promise<Result<void, UseCaseError>> {
     // 該当のプレイヤーが存在しないなら削除できない

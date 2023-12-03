@@ -33,12 +33,21 @@ export class PlayerRouter {
         .input(createPlayerSchema)
         .output(playerObjSchema)
         .mutation(async (opts) => {
-          const { input } = opts;
+          const { input, ctx } = opts;
+          const { setCookie } = ctx;
 
-          const createPlayerResult = this.createPlayerUseCase.execute(
-            playerNameSchema.parse(input.name),
-          );
-          if ((await createPlayerResult).isErr()) {
+          const nameResult = playerNameSchema.safeParse(input.name);
+          if (!nameResult.success) {
+            const errorOpts: ConstructorParameters<typeof TRPCError>[0] = {
+              code: "BAD_REQUEST",
+              cause: nameResult.error,
+            };
+
+            throw new TRPCError(errorOpts);
+          }
+
+          const createPlayerResult = await this.createPlayerUseCase.execute(nameResult.data);
+          if (createPlayerResult.isErr()) {
             const errorOpts = ((e: UseCaseError): ConstructorParameters<typeof TRPCError>[0] => {
               if (e instanceof RepositoryOperationError)
                 return {
@@ -47,11 +56,13 @@ export class PlayerRouter {
                   cause: e,
                 };
               else return { message: "Something was happend", code: "INTERNAL_SERVER_ERROR" };
-            })((await createPlayerResult).unwrapErr());
+            })(createPlayerResult.unwrapErr());
+
             throw new TRPCError(errorOpts);
           }
 
-          const player = (await createPlayerResult).unwrap();
+          const player = createPlayerResult.unwrap();
+          await setCookie("ogt", player.id, { httpOnly: true });
 
           return {
             id: player.id,

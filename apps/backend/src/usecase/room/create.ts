@@ -13,8 +13,8 @@ import { RoomOwnerNotFoundError, RoomPasswordDuplicateError } from "@/error/usec
 @injectable()
 export class CreateRoomUseCase {
   constructor(
-    @inject("RoomRepository") private roomRepository: IRoomRepository,
-    @inject("PlayerRepository") private playerRepository: IPlayerRepository,
+    @inject("RoomRepository") private readonly roomRepository: IRoomRepository,
+    @inject("PlayerRepository") private readonly playerRepository: IPlayerRepository,
   ) {}
 
   public async execute(

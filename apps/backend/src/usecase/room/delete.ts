@@ -16,8 +16,8 @@ import { RoomNotFoundError } from "@/error/usecase/room";
 @injectable()
 export class DeleteRoomUseCase {
   constructor(
-    @inject("RoomRepository") private roomRepository: IRoomRepository,
-    @inject("PlayerRepository") private playerRepository: IPlayerRepository,
+    @inject("RoomRepository") private readonly roomRepository: IRoomRepository,
+    @inject("PlayerRepository") private readonly playerRepository: IPlayerRepository,
   ) {}
 
   public async execute(id: RoomId, operator: PlayerId): Promise<Result<void, UseCaseError>> {

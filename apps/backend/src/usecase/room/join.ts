@@ -17,8 +17,8 @@ import {
 @injectable()
 export class JoinRoomUseCase {
   constructor(
-    @inject("RoomRepository") private roomRepository: IRoomRepository,
-    @inject("PlayerRepository") private playerRepository: IPlayerRepository,
+    @inject("RoomRepository") private readonly roomRepository: IRoomRepository,
+    @inject("PlayerRepository") private readonly playerRepository: IPlayerRepository,
   ) {}
 
   public async execute(
