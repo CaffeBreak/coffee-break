@@ -13,8 +13,8 @@ import { PlayerNotJoinedRoomError, RoomNotFoundError } from "@/error/usecase/roo
 @injectable()
 export class LeaveRoomUseCase {
   constructor(
-    @inject("RoomRepository") private roomRepository: IRoomRepository,
-    @inject("PlayerRepository") private playerRepository: IPlayerRepository,
+    @inject("RoomRepository") private readonly roomRepository: IRoomRepository,
+    @inject("PlayerRepository") private readonly playerRepository: IPlayerRepository,
   ) {}
 
   public async execute(playerId: PlayerId): Promise<Result<Room, UseCaseError>> {
