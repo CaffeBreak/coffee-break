@@ -63,6 +63,9 @@ importers:
       '@fastify/cors':
         specifier: ^8.4.2
         version: 8.4.2
+      '@fastify/websocket':
+        specifier: ^8.2.0
+        version: 8.2.0
       '@prisma/client':
         specifier: ^5.7.0
         version: 5.7.0(prisma@5.7.0)
@@ -1106,6 +1109,16 @@ packages:
     resolution: {integrity: sha512-aZAXGYo6m22Fk1zZzEUKBvut/CIIQe/BapEORnxiD5Qr0kPHqqI69NtEMCme74h+at72sPhbkb4ZrLd1W3KRLA==}
     dependencies:
       fast-json-stringify: 5.9.1
+    dev: false
+
+  /@fastify/websocket@8.2.0:
+    resolution: {integrity: sha512-B4tlHFBKCX7tenEG9aUcQEpksW2e0+dgRTaH/05+cro1Xsq1+kSj+9IB9Gep7a0KbHZGrat+zBsOas6lRs5dFQ==}
+    dependencies:
+      fastify-plugin: 4.5.1
+      ws: 8.11.0
+    transitivePeerDependencies:
+      - bufferutil
+      - utf-8-validate
     dev: false
 
   /@humanwhocodes/config-array@0.11.13:

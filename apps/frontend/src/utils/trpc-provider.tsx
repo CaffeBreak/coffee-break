@@ -2,7 +2,7 @@
 
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 // import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
-import { httpBatchLink, loggerLink } from "@trpc/client";
+import { createWSClient, httpBatchLink, loggerLink, splitLink, wsLink } from "@trpc/client";
 import { useState } from "react";
 import superjson from "superjson";
 
@@ -16,7 +16,10 @@ export const TrpcProvider: React.FC<{ children: React.ReactNode }> = (props) => 
       }),
   );
 
-  const url = "http://localhost:5555/trpc/";
+  const url = "http://localhost:5555/trpc";
+  const wsClient = createWSClient({
+    url: "ws://localhost:5555/trpc",
+  });
 
   const [trpcClient] = useState(() =>
     trpc.createClient({
@@ -24,15 +27,14 @@ export const TrpcProvider: React.FC<{ children: React.ReactNode }> = (props) => 
         loggerLink({
           enabled: () => true,
         }),
-        httpBatchLink({
-          url,
-          // fetch: async (input, init?) => {
-          //   const fetch = getFetch();
-          //   return fetch(input, {
-          //     ...init,
-          //     credentials: "include",
-          //   });
-          // },
+        splitLink({
+          condition: (op) => op.type === "subscription",
+          true: wsLink({
+            client: wsClient,
+          }),
+          false: httpBatchLink({
+            url,
+          }),
         }),
       ],
       transformer: superjson,

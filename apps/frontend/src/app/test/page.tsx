@@ -9,17 +9,22 @@ const IndexPage = () => {
   const player = useAtomValue(Player);
   console.log(player.id);
 
-  const room = trpc.room.create.useMutation();
+  const start = trpc.game.start.useMutation();
   const handler = () => {
-    room.mutate({
-      password: "aaa",
-      ownerId: "9mbhkp7jez",
+    start.mutate({
+      playerId: "9mbhkp7jez",
+      roomId: "9mbhkp7jez",
     });
   };
+  trpc.game.gameStream.useSubscription(undefined, {
+    onData(data) {
+      console.log(data);
+    },
+  });
 
   return (
     <div>
-      <p>{JSON.stringify(room.data) || "Loading..."}</p>
+      {/* <p>{JSON.stringify(.data) || "Loading..."}</p> */}
       <button onClick={handler}>click me!!</button>
     </div>
   );
