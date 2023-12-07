@@ -22,7 +22,7 @@
     "@cffnpwr/result-ts": "^0.0.0",
     "@fastify/cookie": "^9.2.0",
     "@fastify/cors": "^8.4.1",
-    "@prisma/client": "^5.6.0",
+    "@prisma/client": "^5.7.0",
     "@swc/helpers": "^0.5.3",
     "@trpc/server": "^10.44.1",
     "autobind-decorator": "^2.4.0",
