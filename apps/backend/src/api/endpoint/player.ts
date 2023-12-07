@@ -33,8 +33,7 @@ export class PlayerRouter {
         .input(createPlayerSchema)
         .output(playerObjSchema)
         .mutation(async (opts) => {
-          const { input, ctx } = opts;
-          const { setCookie } = ctx;
+          const { input } = opts;
 
           const nameResult = playerNameSchema.safeParse(input.name);
           if (!nameResult.success) {
@@ -62,7 +61,6 @@ export class PlayerRouter {
           }
 
           const player = createPlayerResult.unwrap();
-          await setCookie("ogt", player.id, { httpOnly: true });
 
           return {
             id: player.id,
