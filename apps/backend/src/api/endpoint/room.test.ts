@@ -1,12 +1,11 @@
 import { Ok, Result } from "@cffnpwr/result-ts";
-import { CookieSerializeOptions } from "@fastify/cookie";
 import { TRPCError } from "@trpc/server";
 import { container } from "tsyringe";
-import { describe, expect, it, vi } from "vitest";
+import { describe, expect, it } from "vitest";
 
 import { AppRouter } from "../trpc";
 
-import { PlayerId, playerIdSchema } from "@/domain/entity/player";
+import { PlayerId } from "@/domain/entity/player";
 import {
   Room,
   RoomId,
@@ -74,60 +73,35 @@ class MockedLeaveRoomuseCase extends LeaveRoomUseCase {
   }
 }
 
-const fakeSetCookie = vi.fn((name: string, value: string) => ({ name, value }));
-
 describe("room API", () => {
   container.register(CreateRoomUseCase, MockedCreateRoomUseCase);
   container.register(JoinRoomUseCase, MockedJoinRoomUseCase);
   container.register(LeaveRoomUseCase, MockedLeaveRoomuseCase);
 
   const router = container.resolve(AppRouter).execute();
-  const caller = router.createCaller({
-    ogt: undefined,
-    // これはモックなので許容
-    // eslint-disable-next-line @typescript-eslint/require-await
-    setCookie: async (name: string, value: string, _options?: CookieSerializeOptions) => {
-      fakeSetCookie(name, value);
-    },
-  });
-  const callerWithOGT = router.createCaller({
-    ogt: playerIdSchema.parse(genId()),
-    // これはモックなので許容
-    // eslint-disable-next-line @typescript-eslint/require-await
-    setCookie: async (name: string, value: string, _options?: CookieSerializeOptions) => {
-      fakeSetCookie(name, value);
-    },
-  });
+  const caller = router.createCaller({});
 
   describe("create", () => {
-    it("OGTを持っていなければ部屋は作れず、UNAUTHORIZEDを返す", async () => {
-      const password = "hogehoge";
-
-      const error = await caller.room
-        .create({
-          password,
-        })
-        .catch((error) => error as Error);
-
-      expect(error).toBeInstanceOf(TRPCError);
-      expect((error as TRPCError).code).toBe("UNAUTHORIZED");
-    });
-
     it("部屋を作れる", async () => {
+      const playerId = genId();
       const password = "hogehoge";
 
-      const created = await callerWithOGT.room.create({
+      const created = await caller.room.create({
+        playerId,
         password,
       });
 
+      expect(created.ownerId).toBe(playerId);
       expect(created.password).toBe(password);
     });
 
     it("空白以外の1~16文字でない合言葉ではBad Requestで弾かれる", async () => {
+      const playerId = genId();
       const password = "12345678901234567890";
 
-      const error = await callerWithOGT.room
+      const error = await caller.room
         .create({
+          playerId,
           password,
         })
         .catch((error) => error as Error);
@@ -137,10 +111,12 @@ describe("room API", () => {
     });
 
     it("合言葉に空白を入れるとBad Requestで弾かれる", async () => {
+      const playerId = genId();
       const password = "aaa bbb";
 
-      const error = await callerWithOGT.room
+      const error = await caller.room
         .create({
+          playerId,
           password,
         })
         .catch((error) => error as Error);
@@ -151,22 +127,12 @@ describe("room API", () => {
   });
 
   describe("join", () => {
-    it("OGTを持っていなければ部屋に参加できず、UNAUTHORIZEDを返す", async () => {
-      const error = await caller.room
-        .join({
-          roomId: genId(),
-          password: "asdfghjkl",
-        })
-        .catch((error) => error as Error);
-
-      expect(error).toBeInstanceOf(TRPCError);
-      expect((error as TRPCError).code).toBe("UNAUTHORIZED");
-    });
-
     it("部屋に参加できる", async () => {
+      const playerId = genId();
       const roomId = genId();
 
-      const joined = await callerWithOGT.room.join({
+      const joined = await caller.room.join({
+        playerId,
         roomId,
         password: "hogehoge",
       });
@@ -175,10 +141,12 @@ describe("room API", () => {
     });
 
     it("空白以外の1~16文字でない合言葉ではBad Requestで弾かれる", async () => {
+      const playerId = genId();
       const password = "12345678901234567890";
 
-      const error = await callerWithOGT.room
+      const error = await caller.room
         .join({
+          playerId,
           roomId: genId(),
           password,
         })
@@ -189,10 +157,12 @@ describe("room API", () => {
     });
 
     it("合言葉に空白を入れるとBad Requestで弾かれる", async () => {
+      const playerId = genId();
       const password = "aaa bbb";
 
-      const error = await callerWithOGT.room
+      const error = await caller.room
         .join({
+          playerId,
           roomId: genId(),
           password,
         })
@@ -203,8 +173,11 @@ describe("room API", () => {
     });
 
     it("IDとして正しくない形式はBad Requestで弾かれる", async () => {
-      const error = await callerWithOGT.room
+      const playerId = genId();
+
+      const error = await caller.room
         .join({
+          playerId,
           roomId: "hogehoge",
           password: "aaaaa",
         })
@@ -216,15 +189,10 @@ describe("room API", () => {
   });
 
   describe("leave", () => {
-    it("OGTを持っていなければ部屋から退出できず、UNAUTHORIZEDを返す", async () => {
-      const error = await caller.room.leave().catch((error) => error as Error);
-
-      expect(error).toBeInstanceOf(TRPCError);
-      expect((error as TRPCError).code).toBe("UNAUTHORIZED");
-    });
-
     it("部屋から退出できる", async () => {
-      const leaved = await callerWithOGT.room.leave();
+      const playerId = genId();
+
+      const leaved = await caller.room.leave({ playerId });
 
       expect(leaved).not.toBeInstanceOf(Error);
     });
