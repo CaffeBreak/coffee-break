@@ -1,8 +1,7 @@
 import { Ok, Result } from "@cffnpwr/result-ts";
-import { CookieSerializeOptions } from "@fastify/cookie";
 import { TRPCError } from "@trpc/server";
 import { container } from "tsyringe";
-import { describe, expect, it, vi } from "vitest";
+import { describe, expect, it } from "vitest";
 
 import { AppRouter } from "../trpc";
 
@@ -32,16 +31,8 @@ class MockedCreatePlayerUseCase extends CreatePlayerUseCase {
 describe("player API", () => {
   container.register(CreatePlayerUseCase, MockedCreatePlayerUseCase);
 
-  const fakeSetCookie = vi.fn((name: string, value: string) => ({ name, value }));
   const router = container.resolve(AppRouter).execute();
-  const caller = router.createCaller({
-    ogt: undefined,
-    // これはモックなので許容
-    // eslint-disable-next-line @typescript-eslint/require-await
-    setCookie: async (name: string, value: string, _options?: CookieSerializeOptions) => {
-      fakeSetCookie(name, value);
-    },
-  });
+  const caller = router.createCaller({});
 
   describe("create", () => {
     it("新しいプレイヤーを作れる", async () => {
@@ -52,11 +43,6 @@ describe("player API", () => {
       });
 
       expect(created.name).toBe(name);
-      expect(fakeSetCookie).toHaveBeenCalledOnce();
-      expect(fakeSetCookie).toHaveReturnedWith({
-        name: "ogt",
-        value: created.id,
-      });
     });
 
     it("空白以外の1~16文字でない名前ではBad Requestで弾かれる", async () => {
