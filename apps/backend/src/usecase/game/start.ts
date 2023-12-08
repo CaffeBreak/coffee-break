@@ -47,21 +47,66 @@ export class StartGameUseCase {
   }
 
   private async startGameRoutine() {
-    // ゲーム開始するよ
-    ee.emit(changePhaseEE, {
-      eventType: "changePhase",
-      phase: "DISCUSSION",
-      day: 255,
-    });
+    let day = 0;
 
-    // 10秒待つよ
-    await setTimeout(10000);
+    // eslint-disable-next-line no-constant-condition
+    while (true) {
+      // ゲーム開始するよ
+      ee.emit(changePhaseEE, {
+        eventType: "changePhase",
+        phase: "DISCUSSION",
+        day,
+      });
+
+      // 10秒待つよ
+      await setTimeout(10000);
+
+      // 投票するよ
+      ee.emit(changePhaseEE, {
+        eventType: "changePhase",
+        phase: "VOTING",
+        day,
+      });
+
+      // 10秒待つよ
+      await setTimeout(10000);
+
+      // 追放するよ
+      ee.emit(changePhaseEE, {
+        eventType: "changePhase",
+        phase: "EXPULSION",
+        day,
+      });
+
+      if ((Math.random() | (0 * 100)) % 2 === 0) break;
+
+      // カード使うよ
+      ee.emit(changePhaseEE, {
+        eventType: "changePhase",
+        phase: "USING",
+        day,
+      });
+
+      // 10秒待つよ
+      await setTimeout(10000);
+
+      day += 1;
+
+      // グエー死んだンゴ
+      ee.emit(changePhaseEE, {
+        eventType: "changePhase",
+        phase: "KILLED",
+        day: 255,
+      });
+
+      if ((Math.random() | (0 * 100)) % 2 === 0) break;
+    }
 
     // ゲームおわり
     ee.emit(changePhaseEE, {
       eventType: "changePhase",
       phase: "FINISHED",
-      day: 255,
+      day,
     });
   }
 }
