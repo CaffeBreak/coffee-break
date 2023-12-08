@@ -1,7 +1,7 @@
 import { injectable } from "tsyringe";
 import { z } from "zod";
 
-import { ee } from "../stream";
+import { changePhaseEE, ee } from "../stream";
 import { publicProcedure, router } from "../trpc";
 
 const startGameSchema = z.object({
@@ -13,14 +13,12 @@ const startGameSchema = z.object({
 export class GameRouter {
   public execute() {
     return router({
-      start: publicProcedure.input(startGameSchema).mutation((opts) => {
-        ee.emit("changePhase", {
+      start: publicProcedure.input(startGameSchema).mutation((_opts) => {
+        ee.emit(changePhaseEE, {
           eventType: "changePhase",
-          phase: "finished",
-          day: 0,
+          phase: "FINISHED",
+          day: 255,
         });
-
-        return opts.input;
       }),
     });
   }

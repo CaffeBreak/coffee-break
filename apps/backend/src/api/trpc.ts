@@ -29,7 +29,8 @@ export class AppRouter {
     return router({
       player: this.playerRouter.execute(),
       room: this.roomRouter.execute(),
-      game: mergeRouters(this.stramRouter.execute(), this.gameRouter.execute()),
+      game: this.gameRouter.execute(),
+      stream: this.stramRouter.execute(),
     });
   }
 }

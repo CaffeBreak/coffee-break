@@ -2,53 +2,46 @@ import { observable } from "@trpc/server/observable";
 import { injectable } from "tsyringe";
 import { z } from "zod";
 
-import { ee } from "../stream";
+import { roomObjSchema } from "../endpoint/room";
+import { changePhaseEE, roomUpdateEE } from "../stream";
 import { publicProcedure, router } from "../trpc";
 
 const changePhaseEventSchema = z.object({
   eventType: z.literal("changePhase"),
-  phase: z.union([
-    z.literal("beforeStart"),
-    z.literal("discussion"),
-    z.literal("voting"),
-    z.literal("expulsion"),
-    z.literal("usingCard"),
-    z.literal("killed"),
-    z.literal("finished"),
-  ]),
+  phase: z.union([z.literal("EXPULSION"), z.literal("KILLED")]).or(roomObjSchema.shape.state),
   day: z.number().int().nonnegative(),
 });
+const roomUpdateEventSchema = z
+  .object({
+    eventType: z.literal("roomUpdate"),
+  })
+  .and(roomObjSchema);
 const tmpEventSchema = z.object({});
 const gameStreamSchema = z.union([changePhaseEventSchema, tmpEventSchema]);
 
-type changePhaseEventPayload = z.infer<typeof changePhaseEventSchema>;
-type gameStreamPayload = z.infer<typeof gameStreamSchema>;
+export type ChangePhaseEventPayload = z.infer<typeof changePhaseEventSchema>;
+export type RoomUpdateEventPayload = z.infer<typeof roomUpdateEventSchema>;
+type GameStreamPayload = z.infer<typeof gameStreamSchema>;
 
 @injectable()
 export class GameStream {
   public execute() {
     return router({
       gameStream: publicProcedure.subscription(() =>
-        observable<gameStreamPayload>((emit) => {
-          const onChangePhase = (data: changePhaseEventPayload) => {
+        observable<GameStreamPayload>((emit) => {
+          const onChangePhase = (data: ChangePhaseEventPayload) => {
+            emit.next(data);
+          };
+          const onRoomUpdate = (data: RoomUpdateEventPayload) => {
             emit.next(data);
           };
 
-          const timer = setInterval(() => {
-            emit.next({
-              eventType: "changePhase",
-              phase: "beforeStart",
-              day: Math.random(),
-            });
-          }, 1000);
-          return () => {
-            clearInterval(timer);
-          };
-
-          ee.on("changePhase", onChangePhase);
+          changePhaseEE.on(onChangePhase);
+          roomUpdateEE.on(onRoomUpdate);
 
           return () => {
-            ee.off("changePhase", onChangePhase);
+            changePhaseEE.off(onChangePhase);
+            roomUpdateEE.off(onRoomUpdate);
           };
         }),
       ),

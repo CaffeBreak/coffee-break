@@ -1,14 +1,8 @@
 "use client";
 
-import { useAtomValue } from "jotai";
-
-import { Player } from "@/components/atom/Player";
 import { trpc } from "@/utils/trpc";
 
 const IndexPage = () => {
-  const player = useAtomValue(Player);
-  console.log(player.id);
-
   const start = trpc.game.start.useMutation();
   const handler = () => {
     start.mutate({
@@ -16,10 +10,8 @@ const IndexPage = () => {
       roomId: "9mbhkp7jez",
     });
   };
-  trpc.game.gameStream.useSubscription(undefined, {
-    onData(data) {
-      console.log(data);
-    },
+  trpc.stream.gameStream.useSubscription(undefined, {
+    onData: () => {},
   });
 
   return (

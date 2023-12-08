@@ -24,7 +24,7 @@ const RoomCreate = () => {
     room.mutate(
       {
         password: pass,
-        ownerId: player.id,
+        playerId: player.id,
       },
       {
         onError: () => {
