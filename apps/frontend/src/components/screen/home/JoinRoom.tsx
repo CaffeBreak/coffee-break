@@ -29,7 +29,7 @@ export const JoinRoom = () => {
       return;
     }
     room.mutate(
-      { password: password, playerId: playerObject.id, roomId: playerObject.roomId },
+      { password: password, playerId: playerObject.id },
       {
         onError: () => {
           setShowError(true);
@@ -38,9 +38,10 @@ export const JoinRoom = () => {
           setRoomObject({
             id: data.id,
             ownerId: data.ownerId,
+            phase: data.phase,
             password: data.password,
             players: data.players,
-            state: data.state,
+            day: data.day,
           });
           setScreenState("Home-MathcingRoom");
         },
