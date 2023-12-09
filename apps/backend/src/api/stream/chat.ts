@@ -2,7 +2,7 @@ import { observable } from "@trpc/server/observable";
 import { injectable } from "tsyringe";
 import { z } from "zod";
 
-import { ee } from "../stream";
+import { chatReceiveEE } from "../stream";
 import { publicProcedure, router } from "../trpc";
 
 export const comessageSchema = z.object({
@@ -23,10 +23,10 @@ export class ChatStream {
           const onReceiveChat = (message: messagetype) => {
             emit.next(message);
           };
-          ee.on("chatReceive", onReceiveChat);
+          chatReceiveEE.on(onReceiveChat);
 
           return () => {
-            ee.off("chatReceive", onReceiveChat);
+            chatReceiveEE.off(onReceiveChat);
           };
         }),
       ),

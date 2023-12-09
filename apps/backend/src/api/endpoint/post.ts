@@ -3,9 +3,9 @@ import { inject, injectable } from "tsyringe";
 import { z } from "zod";
 
 import { CreatePostUseCase } from "../../usecase/post/createpost";
-import { ee } from "../stream";
 import { publicProcedure, router } from "../trpc";
 
+import { chatReceiveEE, ee } from "@/api/stream";
 import { playerIdSchema } from "@/domain/entity/player";
 import { roomIdSchema } from "@/domain/entity/room";
 import { RepositoryOperationError, UseCaseError } from "@/error/usecase/common";
@@ -44,9 +44,9 @@ export class ChatRouter {
         }
 
         const createPostResult = await this.createPostUseCase.execute(
-          playerIdSchema.parse(input.playerid),
-          input.message,
-          roomIdSchema.parse(input.roomId),
+          playerIdSchema.parse(postResilt.data.playerid),
+          postResilt.data.message,
+          roomIdSchema.parse(postResilt.data.roomId),
         );
         if (createPostResult.isErr()) {
           const errorOpts = ((e: UseCaseError): ConstructorParameters<typeof TRPCError>[0] => {
@@ -64,9 +64,9 @@ export class ChatRouter {
 
         const post = createPostResult.unwrap();
 
-        ee.emit("chatReceive", {
+        ee.emit(chatReceiveEE, {
           type: "co",
-          cardType: "test",
+          cardtype: "test",
         });
 
         return {
