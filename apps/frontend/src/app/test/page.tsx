@@ -1,31 +1,32 @@
 "use client";
 
-import { useAtomValue } from "jotai";
+import { useState } from "react";
 
-import { Player } from "@/components/atom/Player";
 import { trpc } from "@/utils/trpc";
 
 const IndexPage = () => {
-  const player = useAtomValue(Player);
-  console.log(player.id);
-
+  const [status, setStatus] = useState("");
+  // const player = trpc.player.create.useMutation();
+  // const roomCreate = trpc.room.create.useMutation();
   const start = trpc.game.start.useMutation();
-  const handler = () => {
+
+  const startGameHandler = () => {
     start.mutate({
-      playerId: "9mbhkp7jez",
-      roomId: "9mbhkp7jez",
+      playerId: "9mzygems3j",
+      roomId: "9mzygiym3k",
     });
   };
-  trpc.game.gameStream.useSubscription(undefined, {
-    onData(data) {
-      console.log(data);
+  trpc.stream.gameStream.useSubscription(undefined, {
+    onData: (data) => {
+      setStatus(data.phase);
     },
   });
 
   return (
     <div>
-      {/* <p>{JSON.stringify(.data) || "Loading..."}</p> */}
-      <button onClick={handler}>click me!!</button>
+      <p>{status === "FINISHED" && "おわり"}</p>
+      {/* <button onClick={joinRoomHandler}>join room!!</button> */}
+      <button onClick={startGameHandler}>game start!!</button>
     </div>
   );
 };

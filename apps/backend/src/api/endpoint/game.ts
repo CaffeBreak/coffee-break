@@ -1,8 +1,11 @@
-import { injectable } from "tsyringe";
+import { inject, injectable } from "tsyringe";
 import { z } from "zod";
 
-import { ee } from "../stream";
 import { publicProcedure, router } from "../trpc";
+
+import { playerIdSchema } from "@/domain/entity/player";
+import { roomIdSchema } from "@/domain/entity/room";
+import { StartGameUseCase } from "@/usecase/game/start";
 
 const startGameSchema = z.object({
   playerId: z.string().regex(/^[0-9a-z]{10}$/),
@@ -11,16 +14,19 @@ const startGameSchema = z.object({
 
 @injectable()
 export class GameRouter {
+  constructor(@inject(StartGameUseCase) private readonly startGameUseCase: StartGameUseCase) {}
+
   public execute() {
     return router({
-      start: publicProcedure.input(startGameSchema).mutation((opts) => {
-        ee.emit("changePhase", {
-          eventType: "changePhase",
-          phase: "finished",
-          day: 0,
-        });
+      start: publicProcedure.input(startGameSchema).mutation(async (opts) => {
+        const { input } = opts;
+        const { playerId, roomId } = input;
+        const result = await this.startGameUseCase.execute(
+          playerIdSchema.parse(playerId),
+          roomIdSchema.parse(roomId),
+        );
 
-        return opts.input;
+        return result.isOk();
       }),
     });
   }

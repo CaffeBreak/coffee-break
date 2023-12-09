@@ -3,6 +3,7 @@ import { inject, injectable } from "tsyringe";
 import { SafeParseError, z } from "zod";
 
 import { JoinRoomUseCase } from "./../../usecase/room/join";
+import { ee, roomUpdateEE } from "../stream";
 import { publicProcedure, router } from "../trpc";
 
 import { playerIdSchema } from "@/domain/entity/player";
@@ -11,7 +12,7 @@ import { RepositoryOperationError, UseCaseError } from "@/error/usecase/common";
 import { CreateRoomUseCase } from "@/usecase/room/create";
 import { LeaveRoomUseCase } from "@/usecase/room/leave";
 
-const roomObjSchema = z.object({
+export const roomObjSchema = z.object({
   id: z.string().regex(/^[0-9a-z]{10}$/),
   password: z.string().regex(/^[^\s]{1,16}$/),
   ownerId: z.string().regex(/^[0-9a-z]{10}$/),
@@ -136,14 +137,20 @@ export class RoomRouter {
           }
 
           const room = joinRoomResult.unwrap();
-
-          return {
+          const roomObj = {
             id: room.id,
             password: room.password,
             ownerId: room.ownerId,
             state: room.state,
             players: room.players,
           };
+
+          ee.emit(roomUpdateEE, {
+            eventType: "roomUpdate",
+            ...roomObj,
+          });
+
+          return roomObj;
         }),
       leave: publicProcedure
         .input(leaveRoomSchema)
@@ -174,14 +181,20 @@ export class RoomRouter {
           }
 
           const room = leaveRoomResult.unwrap();
-
-          return {
+          const roomObj = {
             id: room.id,
             password: room.password,
             ownerId: room.ownerId,
             state: room.state,
             players: room.players,
           };
+
+          ee.emit(roomUpdateEE, {
+            eventType: "roomUpdate",
+            ...roomObj,
+          });
+
+          return roomObj;
         }),
     });
   }
