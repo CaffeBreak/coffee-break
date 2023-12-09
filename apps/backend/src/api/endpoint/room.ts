@@ -3,7 +3,6 @@ import { inject, injectable } from "tsyringe";
 import { SafeParseError, z } from "zod";
 
 import { JoinRoomUseCase } from "./../../usecase/room/join";
-import { playerObjSchema } from "./player";
 import { roomUpdateEE } from "../stream/game";
 import { publicProcedure, router } from "../trpc";
 
@@ -28,7 +27,14 @@ export const roomObjSchema = z.object({
     z.literal("VOTING"),
     z.literal("FINISHED"),
   ]),
-  players: z.array(playerObjSchema),
+  players: z.array(
+    z.object({
+      id: z.string().regex(/^[0-9a-z]{10}$/),
+      name: z.string().regex(/^[^\s]{1,16}$/),
+      role: z.union([z.literal("PENDING"), z.literal("VILLAGER"), z.literal("WEREWOLF")]),
+      status: z.union([z.literal("ALIVE"), z.literal("DEAD")]),
+    }),
+  ),
   day: z.number().int().nonnegative(),
 });
 const createRoomSchema = z.object({
