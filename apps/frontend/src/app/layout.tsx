@@ -6,8 +6,6 @@ import React from "react";
 import "./globals.css";
 import { TrpcProvider } from "@/utils/trpc-provider";
 
-import { Header } from "../components/ui/global/header";
-
 const inter = Inter({ subsets: ["latin"] });
 
 const RootLayout: React.FC<{ children: React.ReactNode }> = (props) => {
@@ -15,12 +13,7 @@ const RootLayout: React.FC<{ children: React.ReactNode }> = (props) => {
     <html lang="ja">
       <JotaiProvider>
         <TrpcProvider>
-          <body className={inter.className}>
-            <div className="h-screen w-screen">
-              <Header />
-              {props.children}
-            </div>
-          </body>
+          <body className={inter.className}>{props.children}</body>
         </TrpcProvider>
       </JotaiProvider>
     </html>

@@ -4,7 +4,7 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "WATCHPACK_POLLING=true next dev",
+    "dev": "next dev",
     "build": "next build",
     "start": "next start",
     "lint": "next lint --ignore-path .gitignore",
