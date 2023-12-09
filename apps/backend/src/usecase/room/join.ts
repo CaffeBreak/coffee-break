@@ -8,10 +8,7 @@ import { PlayerId } from "@/domain/entity/player";
 import { Room, RoomPassword } from "@/domain/entity/room";
 import { RepositoryOperationError, UseCaseError } from "@/error/usecase/common";
 import { AlreadyJoinedOtherRoomError, PlayerNotFoundError } from "@/error/usecase/player";
-import {
-  PlayerNameDuplicatedError,
-  RoomNotFoundError,
-} from "@/error/usecase/room";
+import { PlayerNameDuplicatedError, RoomNotFoundError } from "@/error/usecase/room";
 
 @injectable()
 export class JoinRoomUseCase {
@@ -50,7 +47,7 @@ export class JoinRoomUseCase {
     }
 
     // 部屋に参加する
-    room.join(player.id);
+    room.join(player);
     player.joinRoom(room.id);
     const playerRepoResult = await this.playerRepository.save(player);
     const roomRepoResult = await this.roomRepository.save(room);

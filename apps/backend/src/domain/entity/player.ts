@@ -9,12 +9,12 @@ export const playerNameSchema = z
   .string()
   .regex(/^[^\s]{1,16}$/)
   .brand("playerName");
-export const playerRoleSchema = z
-  .union([z.literal("PENDING"), z.literal("VILLAGER"), z.literal("WEREWOLF")])
-  .brand("playerRole");
-export const playerStatusSchema = z
-  .union([z.literal("ALIVE"), z.literal("DEAD")])
-  .brand("playerStatus");
+export const playerRoleSchema = z.union([
+  z.literal("PENDING"),
+  z.literal("VILLAGER"),
+  z.literal("WEREWOLF"),
+]);
+export const playerStatusSchema = z.union([z.literal("ALIVE"), z.literal("DEAD")]);
 
 export type PlayerId = z.infer<typeof playerIdSchema>;
 export type PlayerName = z.infer<typeof playerNameSchema>;

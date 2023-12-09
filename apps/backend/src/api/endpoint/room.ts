@@ -3,27 +3,33 @@ import { inject, injectable } from "tsyringe";
 import { SafeParseError, z } from "zod";
 
 import { JoinRoomUseCase } from "./../../usecase/room/join";
-import { ee, roomUpdateEE } from "../stream";
+import { playerObjSchema } from "./player";
+import { roomUpdateEE } from "../stream/game";
 import { publicProcedure, router } from "../trpc";
 
 import { playerIdSchema } from "@/domain/entity/player";
-import { roomPasswordSchema } from "@/domain/entity/room";
+import { roomIdSchema, roomPasswordSchema } from "@/domain/entity/room";
 import { RepositoryOperationError, UseCaseError } from "@/error/usecase/common";
+import { ee } from "@/event/common";
 import { CreateRoomUseCase } from "@/usecase/room/create";
+import { DeleteRoomUseCase } from "@/usecase/room/delete";
 import { LeaveRoomUseCase } from "@/usecase/room/leave";
 
 export const roomObjSchema = z.object({
   id: z.string().regex(/^[0-9a-z]{10}$/),
   password: z.string().regex(/^[^\s]{1,16}$/),
   ownerId: z.string().regex(/^[0-9a-z]{10}$/),
-  state: z.union([
+  phase: z.union([
+    z.literal("EXPULSION"),
+    z.literal("KILLED"),
     z.literal("BEFORE_START"),
     z.literal("USING"),
     z.literal("DISCUSSION"),
     z.literal("VOTING"),
     z.literal("FINISHED"),
   ]),
-  players: z.array(z.string().regex(/^[0-9a-z]{10}$/)),
+  players: z.array(playerObjSchema),
+  day: z.number().int().nonnegative(),
 });
 const createRoomSchema = z.object({
   playerId: z.string().regex(/^[0-9a-z]{10}$/),
@@ -39,12 +45,18 @@ const leaveRoomSchema = z.object({
   playerId: z.string().regex(/^[0-9a-z]{10}$/),
 });
 
+const deleteRoomSchema = z.object({
+  playerId: z.string().regex(/^[0-9a-z]{10}$/),
+  roomId: z.string().regex(/^[0-9a-z]{10}$/),
+});
+
 @injectable()
 export class RoomRouter {
   constructor(
     @inject(CreateRoomUseCase) private readonly createRoomUseCase: CreateRoomUseCase,
     @inject(JoinRoomUseCase) private readonly joinRoomUseCase: JoinRoomUseCase,
     @inject(LeaveRoomUseCase) private readonly leaveRoomUseCase: LeaveRoomUseCase,
+    @inject(DeleteRoomUseCase) private readonly deleteRoomUseCase: DeleteRoomUseCase,
   ) {}
 
   public execute() {
@@ -91,10 +103,48 @@ export class RoomRouter {
             id: room.id,
             password: room.password,
             ownerId: room.ownerId,
-            state: room.state,
+            phase: room.phase,
             players: room.players,
+            day: room.day,
           };
         }),
+      delete: publicProcedure.input(deleteRoomSchema).mutation(async (opts) => {
+        const { input } = opts;
+
+        const playerIdResult = playerIdSchema.safeParse(input.playerId);
+        const roomIdResult = roomIdSchema.safeParse(input.roomId);
+        if (!playerIdResult.success || !roomIdResult.success) {
+          const errorOpts: ConstructorParameters<typeof TRPCError>[0] = {
+            code: "BAD_REQUEST",
+            cause: !playerIdResult.success
+              ? playerIdResult.error
+              : (roomIdResult as SafeParseError<string>).error,
+          };
+
+          throw new TRPCError(errorOpts);
+        }
+
+        const deleteRoomResult = await this.deleteRoomUseCase.execute(
+          roomIdResult.data,
+          playerIdResult.data,
+        );
+
+        if (deleteRoomResult.isErr()) {
+          const errorOpts = ((e: UseCaseError): ConstructorParameters<typeof TRPCError>[0] => {
+            if (e instanceof RepositoryOperationError)
+              return {
+                message: "Repository operation error",
+                code: "INTERNAL_SERVER_ERROR",
+                cause: e,
+              };
+            else return { message: "Something was happend", code: "INTERNAL_SERVER_ERROR" };
+          })(deleteRoomResult.unwrapErr());
+
+          throw new TRPCError(errorOpts);
+        }
+
+        return;
+      }),
       join: publicProcedure
         .input(joinRoomSchema)
         .output(roomObjSchema)
@@ -136,8 +186,9 @@ export class RoomRouter {
             id: room.id,
             password: room.password,
             ownerId: room.ownerId,
-            state: room.state,
+            phase: room.phase,
             players: room.players,
+            day: room.day,
           };
 
           ee.emit(roomUpdateEE, {
@@ -180,8 +231,9 @@ export class RoomRouter {
             id: room.id,
             password: room.password,
             ownerId: room.ownerId,
-            state: room.state,
+            phase: room.phase,
             players: room.players,
+            day: room.day,
           };
 
           ee.emit(roomUpdateEE, {

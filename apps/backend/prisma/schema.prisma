@@ -8,13 +8,13 @@ datasource db {
 }
 
 model Player {
-  id           String      @id
+  id           String     @id
   name         String
-  isDead       Boolean     @default(false)
-  ownedRoom    Room?       @relation("owner")
-  joinedRoom   Room?       @relation("joinedPlayers", fields: [joinedRoomId], references: [id], onUpdate: Cascade, onDelete: SetNull)
+  isDead       Boolean    @default(false)
+  ownedRoom    Room?      @relation("owner")
+  joinedRoom   Room?      @relation("joinedPlayers", fields: [joinedRoomId], references: [id], onUpdate: Cascade, onDelete: SetNull)
   joinedRoomId String?
-  role         PlayerState @default(PENDING)
+  role         PlayerRole @default(PENDING)
 }
 
 model Room {
@@ -23,18 +23,21 @@ model Room {
   owner    Player    @relation("owner", fields: [ownerId], references: [id], onDelete: Cascade)
   ownerId  String    @unique
   players  Player[]  @relation("joinedPlayers")
-  state    RoomState @default(BEFORE_START) // 部屋の状態 現在のフェーズとか
+  phase    RoomPhase @default(BEFORE_START) // 部屋の状態 現在のフェーズとか
+  day      Int
 }
 
-enum RoomState {
+enum RoomPhase {
   BEFORE_START // 参加者待ち
   USING // カード行使
   DISCUSSION // 議論
   VOTING // 投票中
   FINISHED // ゲーム終了後
+  KILLED // 人狼に殺された人発表
+  EXPULSION // 追放
 }
 
-enum PlayerState {
+enum PlayerRole {
   VILLAGER //村人
   WEREWOLF //人狼
   PENDING //決まっていない

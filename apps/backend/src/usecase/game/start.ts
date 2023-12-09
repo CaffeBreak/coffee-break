@@ -1,17 +1,20 @@
-import { setTimeout } from "timers/promises";
-
 import { Err, Ok, Result } from "@cffnpwr/result-ts";
 import { inject, injectable } from "tsyringe";
 
 import type { IPlayerRepository } from "@/domain/repository/interface/player";
 import type { IRoomRepository } from "@/domain/repository/interface/room";
 
-import { changePhaseEE, ee } from "@/api/stream";
 import { PlayerId } from "@/domain/entity/player";
 import { RoomId } from "@/domain/entity/room";
-import { OperationNotAllowedError, UseCaseError } from "@/error/usecase/common";
+import {
+  OperationNotAllowedError,
+  RepositoryOperationError,
+  UseCaseError,
+} from "@/error/usecase/common";
 import { PlayerNotFoundError } from "@/error/usecase/player";
 import { RoomNotFoundError } from "@/error/usecase/room";
+import { changePhaseEE } from "@/event/changePhase";
+import { ee } from "@/event/common";
 import { voidType } from "@/misc/type";
 
 @injectable()
@@ -41,72 +44,19 @@ export class StartGameUseCase {
       return new Err(new OperationNotAllowedError());
     }
 
-    void this.startGameRoutine();
-
-    return new Ok(voidType);
-  }
-
-  private async startGameRoutine() {
-    let day = 0;
-
-    // eslint-disable-next-line no-constant-condition
-    while (true) {
-      // ゲーム開始するよ
-      ee.emit(changePhaseEE, {
-        eventType: "changePhase",
-        phase: "DISCUSSION",
-        day,
-      });
-
-      // 10秒待つよ
-      await setTimeout(10000);
-
-      // 投票するよ
-      ee.emit(changePhaseEE, {
-        eventType: "changePhase",
-        phase: "VOTING",
-        day,
-      });
-
-      // 10秒待つよ
-      await setTimeout(10000);
-
-      // 追放するよ
-      ee.emit(changePhaseEE, {
-        eventType: "changePhase",
-        phase: "EXPULSION",
-        day,
-      });
-
-      if ((Math.random() | (0 * 100)) % 2 === 0) break;
-
-      // カード使うよ
-      ee.emit(changePhaseEE, {
-        eventType: "changePhase",
-        phase: "USING",
-        day,
-      });
-
-      // 10秒待つよ
-      await setTimeout(10000);
-
-      day += 1;
-
-      // グエー死んだンゴ
-      ee.emit(changePhaseEE, {
-        eventType: "changePhase",
-        phase: "KILLED",
-        day: 255,
-      });
-
-      if ((Math.random() | (0 * 100)) % 2 === 0) break;
+    const phase = room.nextPhase();
+    const roomRepoResult = await this.roomRepository.save(room);
+    if (roomRepoResult.isErr()) {
+      return new Err(new RepositoryOperationError(roomRepoResult.unwrapErr()));
     }
 
-    // ゲームおわり
     ee.emit(changePhaseEE, {
       eventType: "changePhase",
-      phase: "FINISHED",
-      day,
+      roomId: room.id,
+      phase,
+      day: room.day,
     });
+
+    return new Ok(voidType);
   }
 }

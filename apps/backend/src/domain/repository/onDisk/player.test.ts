@@ -1,4 +1,4 @@
-import { PlayerState, PrismaClient, RoomState } from "@prisma/client";
+import { PlayerRole, PrismaClient, RoomPhase } from "@prisma/client";
 import { PrismockClient } from "prismock";
 import { beforeAll, describe, expect, it } from "vitest";
 
@@ -21,7 +21,7 @@ const convertPlayerToPrisma = (
   name: string;
   isDead: boolean;
   joinedRoomId?: string;
-  role?: PlayerState;
+  role?: PlayerRole;
 } => ({
   id: player.id,
   name: player.name,
@@ -39,7 +39,8 @@ const createPrismaMockWithInitialValue = async (players: Player[]): Promise<Pris
         id: player.roomId as string,
         password: "password",
         ownerId: "9999999999",
-        state: RoomState.BEFORE_START,
+        phase: RoomPhase.BEFORE_START,
+        day: 0,
       }))
       .flat(),
   });

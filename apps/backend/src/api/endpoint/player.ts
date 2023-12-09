@@ -9,7 +9,7 @@ import { playerNameSchema } from "@/domain/entity/player";
 import { UseCaseError } from "@/error/usecase/common";
 import { RepositoryOperationError } from "@/error/usecase/common";
 
-const playerObjSchema = z.object({
+export const playerObjSchema = z.object({
   id: z.string().regex(/^[0-9a-z]{10}$/),
   name: z.string().regex(/^[^\s]{1,16}$/),
   role: z.union([z.literal("PENDING"), z.literal("VILLAGER"), z.literal("WEREWOLF")]),

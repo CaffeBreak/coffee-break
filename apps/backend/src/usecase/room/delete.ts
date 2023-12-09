@@ -35,8 +35,8 @@ export class DeleteRoomUseCase {
 
     // 部屋に参加していたプレイヤーは部屋から退出する
     const playerRepoResult = await Promise.all(
-      room.players.map(async (playerId) => {
-        const player = (await this.playerRepository.findById(playerId)).unwrap();
+      room.players.map(async (p) => {
+        const player = (await this.playerRepository.findById(p.id)).unwrap();
         player.leaveRoom();
 
         return await this.playerRepository.save(player);

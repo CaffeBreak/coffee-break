@@ -37,7 +37,7 @@ export class CreateRoomUseCase {
     if (ownerResult.unwrap().roomId) {
       return new Err(new AlreadyJoinedOtherRoomError());
     }
-    const newRoom = Room.new(password, ownerId);
+    const newRoom = Room.new(password, owner);
 
     const roomResult = await this.roomRepository.save(newRoom);
     if (roomResult.isErr()) {

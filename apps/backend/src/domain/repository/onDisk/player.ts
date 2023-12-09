@@ -1,5 +1,5 @@
 import { Err, Ok, Result } from "@cffnpwr/result-ts";
-import { PlayerState, PrismaClient } from "@prisma/client";
+import { PlayerRole, PrismaClient } from "@prisma/client";
 import { singleton } from "tsyringe";
 
 import { IPlayerRepository } from "./../interface/player";
@@ -17,12 +17,12 @@ import { DataNotFoundError, RepositoryError } from "@/error/repository";
 import { OkOrErr } from "@/misc/result";
 import { voidType } from "@/misc/type";
 
-const convertPlayer = (prismaPlayer: {
+export const convertPlayer = (prismaPlayer: {
   id: string;
   name: string;
   isDead: boolean;
   joinedRoomId: string | null;
-  role: PlayerState;
+  role: PlayerRole;
 }) =>
   new Player(
     playerIdSchema.parse(prismaPlayer.id),

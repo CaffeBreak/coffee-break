@@ -45,7 +45,7 @@ export class LeaveRoomUseCase {
 
     // プレイヤーを退出させる
     player.leaveRoom();
-    room.leave(player.id);
+    room.leave(player);
     const playerRepoResult = await this.playerRepository.save(player);
     const roomRepoResult = await this.roomRepository.save(room);
     if (playerRepoResult.isErr()) {

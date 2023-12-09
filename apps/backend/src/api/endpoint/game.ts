@@ -11,6 +11,9 @@ const startGameSchema = z.object({
   playerId: z.string().regex(/^[0-9a-z]{10}$/),
   roomId: z.string().regex(/^[0-9a-z]{10}$/),
 });
+const skipPhaseSchema = z.object({
+  playerId: z.string().regex(/^[0-9a-z]{10}$/),
+});
 
 @injectable()
 export class GameRouter {
@@ -21,6 +24,7 @@ export class GameRouter {
       start: publicProcedure.input(startGameSchema).mutation(async (opts) => {
         const { input } = opts;
         const { playerId, roomId } = input;
+
         const result = await this.startGameUseCase.execute(
           playerIdSchema.parse(playerId),
           roomIdSchema.parse(roomId),
@@ -28,6 +32,10 @@ export class GameRouter {
 
         return result.isOk();
       }),
+      // skipPhase: publicProcedure.input(skipPhaseSchema).mutation(async (opts) => {
+      //   const { input } = opts;
+      //   const { playerId } = input;
+      // }),
     });
   }
 }

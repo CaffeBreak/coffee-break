@@ -5,6 +5,7 @@ import fastify from "fastify";
 import { container } from "tsyringe";
 
 import { AppRouter } from "./api/trpc";
+import { EventUseCase } from "./usecase/event/game";
 
 const server = fastify({
   maxParamLength: 5000,
@@ -23,6 +24,7 @@ const server = fastify({
 
 export const startServer = () => {
   const router = container.resolve(AppRouter).execute();
+  container.resolve(EventUseCase).execute();
 
   void server.register(cors, {
     origin: "*",
