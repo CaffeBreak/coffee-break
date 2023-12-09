@@ -5,14 +5,26 @@ import { z } from "zod";
 import { chatReceiveEE } from "../stream";
 import { publicProcedure, router } from "../trpc";
 
+const idSchema = z
+  .string()
+  .regex(/^[0-9a-z]{10}$/)
+  .brand("id");
+
+const playerIdSchema = idSchema.brand("playerId");
+
 export const comessageSchema = z.object({
   type: z.literal("co"),
   cardtype: z.literal("test"),
 });
 
-type messagetype = z.infer<typeof comessageSchema>;
+export const protectmessageSchema = z.object({
+  type: z.literal("protect"),
+  target: playerIdSchema,
+});
 
-// const chatSchema = z.;
+export const messageSchema = z.union([comessageSchema, protectmessageSchema]);
+
+export type messagetype = z.infer<typeof messageSchema>;
 
 @injectable()
 export class ChatStream {

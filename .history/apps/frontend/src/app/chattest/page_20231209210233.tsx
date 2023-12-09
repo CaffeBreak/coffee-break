@@ -19,8 +19,7 @@ const IndexPage = () => {
   };
   trpc.stream.chatStream.useSubscription(undefined, {
     onData: (data) => {
-
-      console.log(data.type);
+      console.log(data);
     },
   });
 

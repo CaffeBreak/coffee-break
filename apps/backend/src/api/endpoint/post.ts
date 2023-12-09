@@ -6,18 +6,31 @@ import { CreatePostUseCase } from "../../usecase/post/createpost";
 import { publicProcedure, router } from "../trpc";
 
 import { chatReceiveEE, ee } from "@/api/stream";
-import { playerIdSchema } from "@/domain/entity/player";
 import { roomIdSchema } from "@/domain/entity/room";
 import { RepositoryOperationError, UseCaseError } from "@/error/usecase/common";
 
-const comessageSchema = z.object({
+const idSchema = z
+  .string()
+  .regex(/^[0-9a-z]{10}$/)
+  .brand("id");
+
+const playerIdSchema = idSchema.brand("playerId");
+
+export const comessageSchema = z.object({
   type: z.literal("co"),
   cardtype: z.literal("test"),
 });
 
+export const protectmessageSchema = z.object({
+  type: z.literal("protect"),
+  target: playerIdSchema,
+});
+
+export const messageSchema = z.union([comessageSchema, protectmessageSchema]);
+type messagetype = z.infer<typeof messageSchema>;
 const postSchema = z.object({
   playerid: z.string().regex(/^[0-9a-z]{10}$/),
-  message: comessageSchema,
+  message: messageSchema,
   roomId: z
     .string()
     .regex(/^[0-9a-z]{10}$/)
@@ -64,13 +77,10 @@ export class ChatRouter {
 
         const post = createPostResult.unwrap();
 
-        ee.emit(chatReceiveEE, {
-          type: "co",
-          cardtype: "test",
-        });
+        ee.emit(chatReceiveEE, post.message as messagetype);
 
         return {
-          message: post._message,
+          message: post.message,
         };
       }),
     });

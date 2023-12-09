@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-import { PlayerId } from "./player";
+import { PlayerId, playerIdSchema } from "./player";
 import { RoomId } from "./room";
 
 export const comessageSchema = z.object({
@@ -8,16 +8,23 @@ export const comessageSchema = z.object({
   cardtype: z.literal("test"),
 });
 
-export type messagetype = z.infer<typeof comessageSchema>;
+export const protectmessageSchema = z.object({
+  type: z.literal("protect"),
+  target: playerIdSchema,
+});
+
+export const messageSchema = z.union([comessageSchema, protectmessageSchema]);
+
+export type messagetype = z.infer<typeof messageSchema>;
 
 export class Post {
   public _playerId: PlayerId;
-  public _message: messagetype;
+  public message: messagetype;
   public _roomId: RoomId;
 
   constructor(playerid: PlayerId, message: messagetype, roomId: RoomId) {
     this._playerId = playerid;
-    this._message = message;
+    this.message = message;
     this._roomId = roomId;
   }
 }
