@@ -110,7 +110,13 @@ export class RoomRouter {
             password: room.password,
             ownerId: room.ownerId,
             phase: room.phase,
-            players: room.players,
+            players: room.players.map((player) => ({
+              id: player.id,
+              name: player.name,
+              role: player.role,
+              status: player.status,
+              roomId: player.roomId,
+            })),
             day: room.day,
           };
         }),
@@ -193,7 +199,13 @@ export class RoomRouter {
             password: room.password,
             ownerId: room.ownerId,
             phase: room.phase,
-            players: room.players,
+            players: room.players.map((player) => ({
+              id: player.id,
+              name: player.name,
+              role: player.role,
+              status: player.status,
+              roomId: player.roomId,
+            })),
             day: room.day,
           };
 
@@ -238,7 +250,13 @@ export class RoomRouter {
             password: room.password,
             ownerId: room.ownerId,
             phase: room.phase,
-            players: room.players,
+            players: room.players.map((player) => ({
+              id: player.id,
+              name: player.name,
+              role: player.role,
+              status: player.status,
+              roomId: player.roomId,
+            })),
             day: room.day,
           };
 
