@@ -5,11 +5,10 @@ import type { IPlayerRepository } from "@/domain/repository/interface/player";
 import type { IRoomRepository } from "@/domain/repository/interface/room";
 
 import { PlayerId } from "@/domain/entity/player";
-import { Room, RoomId, RoomPassword } from "@/domain/entity/room";
+import { Room, RoomPassword } from "@/domain/entity/room";
 import { RepositoryOperationError, UseCaseError } from "@/error/usecase/common";
 import { AlreadyJoinedOtherRoomError, PlayerNotFoundError } from "@/error/usecase/player";
 import {
-  PasswordMismatchError,
   PlayerNameDuplicatedError,
   RoomNotFoundError,
 } from "@/error/usecase/room";
@@ -22,12 +21,11 @@ export class JoinRoomUseCase {
   ) {}
 
   public async execute(
-    roomId: RoomId,
     password: RoomPassword,
     playerId: PlayerId,
   ): Promise<Result<Room, UseCaseError>> {
     // 該当の部屋が存在しないなら参加できない
-    const roomResult = await this.roomRepository.findById(roomId);
+    const roomResult = await this.roomRepository.findByPassword(password);
     if (roomResult.isErr()) {
       return new Err(new RoomNotFoundError());
     }
@@ -43,11 +41,6 @@ export class JoinRoomUseCase {
     // 該当のプレイヤーが既に部屋に参加している場合は参加できない
     if (player.roomId) {
       return new Err(new AlreadyJoinedOtherRoomError());
-    }
-
-    // 合言葉が一致しなければ参加できない
-    if (!room.checkPassword(password)) {
-      return new Err(new PasswordMismatchError());
     }
 
     // 同じ名前のプレイヤーが同じ部屋に入ることはできない

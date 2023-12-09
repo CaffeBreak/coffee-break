@@ -7,7 +7,7 @@ import { ee, roomUpdateEE } from "../stream";
 import { publicProcedure, router } from "../trpc";
 
 import { playerIdSchema } from "@/domain/entity/player";
-import { roomIdSchema, roomPasswordSchema } from "@/domain/entity/room";
+import { roomPasswordSchema } from "@/domain/entity/room";
 import { RepositoryOperationError, UseCaseError } from "@/error/usecase/common";
 import { CreateRoomUseCase } from "@/usecase/room/create";
 import { LeaveRoomUseCase } from "@/usecase/room/leave";
@@ -32,7 +32,6 @@ const createRoomSchema = z.object({
 
 const joinRoomSchema = z.object({
   playerId: z.string().regex(/^[0-9a-z]{10}$/),
-  roomId: z.string().regex(/^[0-9a-z]{10}$/),
   password: z.string().regex(/^[^\s]{1,16}$/),
 });
 
@@ -103,22 +102,18 @@ export class RoomRouter {
           const { input } = opts;
 
           const playerIdResult = playerIdSchema.safeParse(input.playerId);
-          const roomIdResult = roomIdSchema.safeParse(input.roomId);
           const passwordResult = roomPasswordSchema.safeParse(input.password);
-          if (!playerIdResult.success || !roomIdResult.success || !passwordResult.success) {
+          if (!playerIdResult.success || !passwordResult.success) {
             const errorOpts: ConstructorParameters<typeof TRPCError>[0] = {
               code: "BAD_REQUEST",
               cause: !playerIdResult.success
                 ? playerIdResult.error
-                : !roomIdResult.success
-                  ? roomIdResult.error
-                  : (passwordResult as SafeParseError<string>).error,
+                : (passwordResult as SafeParseError<string>).error,
             };
 
             throw new TRPCError(errorOpts);
           }
           const joinRoomResult = await this.joinRoomUseCase.execute(
-            roomIdResult.data,
             passwordResult.data,
             playerIdResult.data,
           );
