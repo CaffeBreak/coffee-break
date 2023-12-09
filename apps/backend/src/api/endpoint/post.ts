@@ -2,13 +2,13 @@ import { TRPCError } from "@trpc/server";
 import { inject, injectable } from "tsyringe";
 import { z } from "zod";
 
-import { publicProcedure, router } from "./../trpc";
+import { CreatePostUseCase } from "../../usecase/post/createpost";
 import { ee } from "../stream";
+import { publicProcedure, router } from "../trpc";
 
 import { playerIdSchema } from "@/domain/entity/player";
 import { roomIdSchema } from "@/domain/entity/room";
 import { RepositoryOperationError, UseCaseError } from "@/error/usecase/common";
-import { CreatePostUseCase } from "@/usecase/post/createpost";
 
 const comessageSchema = z.object({
   type: z.literal("co"),
@@ -62,14 +62,16 @@ export class ChatRouter {
           throw new TRPCError(errorOpts);
         }
 
-        // const post = createPostResult.unwrap();
+        const post = createPostResult.unwrap();
 
         ee.emit("chatReceive", {
           type: "co",
           cardType: "test",
         });
 
-        return {};
+        return {
+          message: post._message,
+        };
       }),
     });
   }

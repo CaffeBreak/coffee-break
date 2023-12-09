@@ -4,6 +4,7 @@ import { inject, injectable } from "tsyringe";
 
 import { GameRouter } from "./endpoint/game";
 import { PlayerRouter } from "./endpoint/player";
+import { ChatRouter } from "./endpoint/post";
 import { RoomRouter } from "./endpoint/room";
 import { StreamRouter } from "./stream";
 
@@ -22,6 +23,7 @@ export class AppRouter {
     @inject(PlayerRouter) private readonly playerRouter: PlayerRouter,
     @inject(RoomRouter) private readonly roomRouter: RoomRouter,
     @inject(GameRouter) private readonly gameRouter: GameRouter,
+    @inject(ChatRouter) private readonly chatRouter: ChatRouter,
     @inject(StreamRouter) private readonly stramRouter: StreamRouter,
   ) {}
 
@@ -29,7 +31,9 @@ export class AppRouter {
     return router({
       player: this.playerRouter.execute(),
       room: this.roomRouter.execute(),
-      game: mergeRouters(this.stramRouter.execute(), this.gameRouter.execute()),
+      game: this.gameRouter.execute(),
+      chat: this.chatRouter.execute(),
+      stream: this.stramRouter.execute(),
     });
   }
 }

@@ -11,13 +11,13 @@ export const comessageSchema = z.object({
 export type messagetype = z.infer<typeof comessageSchema>;
 
 export class Post {
-  public readonly playerid: PlayerId;
-  public readonly message: messagetype;
-  public readonly roomID: RoomId;
+  public _playerId: PlayerId;
+  public _message: messagetype;
+  public _roomId: RoomId;
 
-  constructor(playerid: PlayerId, message: messagetype, roomID: RoomId) {
-    this.playerid = playerid;
-    this.message = message;
-    this.roomID = roomID;
+  constructor(playerid: PlayerId, message: messagetype, roomId: RoomId) {
+    this._playerId = playerid;
+    this._message = message;
+    this._roomId = roomId;
   }
 }
