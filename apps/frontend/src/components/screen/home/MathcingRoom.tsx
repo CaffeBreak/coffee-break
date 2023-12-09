@@ -51,7 +51,7 @@ export const MathcingRoom = () => {
     startGame.mutate({ playerId: playerObject.id, roomId: roomObject.id });
   };
 
-  trpc.stream.gameStream.useSubscription(undefined, {
+  trpc.stream.gameStream.useSubscription(roomObject.id, {
     onData: (data) => {
       if (data.eventType === "roomUpdate") {
         setRoomObject(data);

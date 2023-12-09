@@ -1,12 +1,12 @@
 import { observable } from "@trpc/server/observable";
-import { injectable } from "tsyringe";
+import { inject, injectable } from "tsyringe";
 import { z } from "zod";
 
 import { publicProcedure, router } from "../trpc";
 
-import { changePhaseEE } from "@/event/changePhase";
-import { ee } from "@/event/common";
+import { ee } from "@/event";
 import { EventPort } from "@/misc/event";
+import { GameEvent } from "@/usecase/game/event";
 
 const roomUpdateEventSchema = z.object({
   eventType: z.literal("roomUpdate"),
@@ -53,17 +53,27 @@ export type ChangePhaseEventPayload = z.infer<typeof changePhaseEventSchema>;
 export type RoomUpdateEventPayload = z.infer<typeof roomUpdateEventSchema>;
 type GameStreamPayload = z.infer<typeof gameStreamSchema>;
 
-export const roomUpdateEE: EventPort<(payload: RoomUpdateEventPayload) => void> = new EventPort(
-  "roomUpdate",
-  ee,
-);
-
 @injectable()
 export class GameStream {
+  constructor(@inject(GameEvent) private readonly gameEvent: GameEvent) {}
+
   public execute() {
     return router({
-      gameStream: publicProcedure.subscription(() =>
-        observable<GameStreamPayload>((emit) => {
+      gameStream: publicProcedure.input(z.string().regex(/^[0-9a-z]{10}$/)).subscription((opts) => {
+        const { input } = opts;
+
+        const changePhaseEE: EventPort<(payload: ChangePhaseEventPayload) => void> = new EventPort(
+          `changePhase-${input}`,
+          ee,
+        );
+        const roomUpdateEE: EventPort<(payload: RoomUpdateEventPayload) => void> = new EventPort(
+          `roomUpdate-${input}`,
+          ee,
+        );
+
+        this.gameEvent.execute(changePhaseEE);
+
+        return observable<GameStreamPayload>((emit) => {
           const onChangePhase = (data: ChangePhaseEventPayload) => {
             emit.next(data);
           };
@@ -78,8 +88,8 @@ export class GameStream {
             changePhaseEE.off(onChangePhase);
             roomUpdateEE.off(onRoomUpdate);
           };
-        }),
-      ),
+        });
+      }),
     });
   }
 }

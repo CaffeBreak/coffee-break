@@ -3,13 +3,14 @@ import { inject, injectable } from "tsyringe";
 import { SafeParseError, z } from "zod";
 
 import { JoinRoomUseCase } from "./../../usecase/room/join";
-import { roomUpdateEE } from "../stream/game";
+import { RoomUpdateEventPayload } from "../stream/game";
 import { publicProcedure, router } from "../trpc";
 
 import { playerIdSchema } from "@/domain/entity/player";
 import { roomIdSchema, roomPasswordSchema } from "@/domain/entity/room";
 import { RepositoryOperationError, UseCaseError } from "@/error/usecase/common";
-import { ee } from "@/event/common";
+import { ee } from "@/event";
+import { EventPort } from "@/misc/event";
 import { CreateRoomUseCase } from "@/usecase/room/create";
 import { DeleteRoomUseCase } from "@/usecase/room/delete";
 import { LeaveRoomUseCase } from "@/usecase/room/leave";
@@ -209,6 +210,11 @@ export class RoomRouter {
             day: room.day,
           };
 
+          const roomUpdateEE: EventPort<(payload: RoomUpdateEventPayload) => void> = new EventPort(
+            `roomUpdate-${room.id}`,
+            ee,
+          );
+
           ee.emit(roomUpdateEE, {
             eventType: "roomUpdate",
             ...roomObj,
@@ -259,6 +265,11 @@ export class RoomRouter {
             })),
             day: room.day,
           };
+
+          const roomUpdateEE: EventPort<(payload: RoomUpdateEventPayload) => void> = new EventPort(
+            `roomUpdate-${room.id}`,
+            ee,
+          );
 
           ee.emit(roomUpdateEE, {
             eventType: "roomUpdate",
