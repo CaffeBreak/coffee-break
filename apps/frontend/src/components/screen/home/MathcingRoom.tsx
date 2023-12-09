@@ -21,27 +21,43 @@ export const MathcingRoom = () => {
     playerObject.id === roomObject.ownerId ? setRoomOwner(true) : setRoomOwner(false);
   }, [playerObject.id, roomObject.ownerId]);
 
-  const deleteRoom = "";
+  const deleteRoom = trpc.room.delete.useMutation();
   const leaveRoom = trpc.room.leave.useMutation();
   const startGame = trpc.game.start.useMutation();
 
   const roomDeletingProcess = () => {
-    console.log(deleteRoom);
+    deleteRoom.mutate(
+      { playerId: playerObject.id, roomId: roomObject.id },
+      {
+        onSuccess: () => {
+          setScreenState("Home-SelectAction");
+        },
+      },
+    );
   };
 
   const roomLeavingProcess = () => {
-    console.log(leaveRoom);
+    leaveRoom.mutate(
+      { playerId: playerObject.id },
+      {
+        onSuccess: () => {
+          setScreenState("Home-SelectAction");
+        },
+      },
+    );
   };
 
   const gameStartingProcess = () => {
-    setScreenState("");
-    console.log(startGame);
+    startGame.mutate({ playerId: playerObject.id, roomId: roomObject.id });
   };
 
   trpc.stream.gameStream.useSubscription(undefined, {
     onData: (data) => {
       if (data.eventType === "roomUpdate") {
         setRoomObject(data);
+      } else if (data.phase === "DISCUSSION") {
+        setRoomObject((prev) => ({ ...prev, phase: data.phase, day: data.day }));
+        setScreenState("Game-ViewRole");
       }
     },
   });

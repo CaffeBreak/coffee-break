@@ -35,14 +35,7 @@ export const CreateRoom = () => {
           setShowError(true);
         },
         onSuccess: (data) => {
-          setRoomObject({
-            id: data.id,
-            ownerId: data.ownerId,
-            phase: data.phase,
-            password: data.password,
-            players: data.players,
-            day: data.day,
-          });
+          setRoomObject(data);
           setScreenState("Home-MathcingRoom");
         },
       },
