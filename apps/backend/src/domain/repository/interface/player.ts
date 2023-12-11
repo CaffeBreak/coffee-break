@@ -9,5 +9,6 @@ export interface IPlayerRepository {
   findById(id: PlayerId): Promise<Result<Player, RepositoryError>>;
   findByRoomId(roomId: RoomId): Promise<Result<Player[], RepositoryError>>;
   save(player: Player): Promise<Result<Player, RepositoryError>>;
+  saveMany(players: Player[]): Promise<Result<Player[], RepositoryError>>;
   delete(id: PlayerId): Promise<Result<void, RepositoryError>>;
 }

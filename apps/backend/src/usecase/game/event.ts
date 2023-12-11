@@ -1,6 +1,3 @@
-import { setTimeout } from "timers/promises";
-
-import { match } from "ts-pattern";
 import { inject, injectable } from "tsyringe";
 import { z } from "zod";
 
@@ -35,6 +32,8 @@ export class GameEvent {
       const room = (await this.roomRepository.findById(roomIdSchema.parse(roomId))).unwrap();
       const nextPhase = room.nextPhase();
 
+      console.log(`next phase: ${nextPhase}`);
+
       await this.roomRepository.save(room);
 
       ee.emit(changePhaseEE, {
@@ -46,17 +45,11 @@ export class GameEvent {
     };
 
     changePhaseEE.on((payload) => {
-      match(payload.phase)
-        .when(
-          (phase) => phase === "DISCUSSION" || phase === "USING" || phase === "VOTING",
-          async () => {
-            await setTimeout(1 * 60 * 1000);
-          },
-        )
-        .otherwise(async () => {})
-        .catch(() => {});
+      const phase = payload.phase;
+      const waitTime =
+        phase === "DISCUSSION" || phase === "USING" || phase === "VOTING" ? 1 * 60 * 1000 : 0;
 
-      changePhase(payload.roomId).catch(() => {});
+      setTimeout(() => void changePhase(payload.roomId), waitTime);
     });
   }
 }

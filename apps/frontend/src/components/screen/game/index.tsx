@@ -1,4 +1,4 @@
-import { useAtomValue, useSetAtom } from "jotai";
+import { useAtom, useAtomValue } from "jotai";
 
 import { RoomStateAtom } from "@/components/atoms/RoomState";
 import { ScreenStateAtom } from "@/components/atoms/ScreenState";
@@ -8,9 +8,9 @@ import { ViewRole } from "./ViewRole";
 
 export const GameScreen = () => {
   const screenState = useAtomValue(ScreenStateAtom);
-  const setRoomObject = useSetAtom(RoomStateAtom);
+  const [roomObject, setRoomObject] = useAtom(RoomStateAtom);
 
-  trpc.stream.gameStream.useSubscription(undefined, {
+  trpc.stream.gameStream.useSubscription(roomObject.id, {
     onData: (data) => {
       if (data.eventType === "changePhase") {
         setRoomObject((prev) => ({ ...prev, phase: data.phase, day: data.day }));

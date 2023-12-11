@@ -14,7 +14,7 @@ import {
   UseCaseError,
 } from "@/error/usecase/common";
 import { PlayerNotFoundError } from "@/error/usecase/player";
-import { RoomNotFoundError } from "@/error/usecase/room";
+import { NotEnoughPlayersError, RoomNotFoundError } from "@/error/usecase/room";
 import { ee } from "@/event";
 import { EventPort } from "@/misc/event";
 import { voidType } from "@/misc/type";
@@ -46,10 +46,36 @@ export class StartGameUseCase {
       return new Err(new OperationNotAllowedError());
     }
 
+    // 部屋に参加してる人が7人じゃなければ開始できない
+    if (room.players.length !== 7) {
+      return new Err(new NotEnoughPlayersError());
+    }
+
+    // 部屋内のすべてのプレイヤーに役職を割り当てする
+    const playersResult = await this.playerRepository.findByRoomId(room.id);
+    if (playersResult.isErr()) {
+      return new Err(new RepositoryOperationError(playersResult.unwrapErr()));
+    }
+    const players = playersResult.unwrap();
+
+    // 役職を割り振る 人狼2 村人5
+    const indexes = [...Array<number>(players.length)].map((_, i) => i);
+    const werewolves = [
+      ...indexes.splice(Math.floor(Math.random() * indexes.length), 1),
+      ...indexes.splice(Math.floor(Math.random() * (indexes.length - 1))),
+    ];
+    players.map((player, index) => {
+      player.role = index === werewolves[0] || index === werewolves[1] ? "WEREWOLF" : "VILLAGER";
+    });
+
     const phase = room.nextPhase();
     const roomRepoResult = await this.roomRepository.save(room);
+    const playerRepoResult = await this.playerRepository.saveMany(players);
     if (roomRepoResult.isErr()) {
       return new Err(new RepositoryOperationError(roomRepoResult.unwrapErr()));
+    }
+    if (playerRepoResult.isErr()) {
+      return new Err(new RepositoryOperationError(playerRepoResult.unwrapErr()));
     }
 
     const changePhaseEE: EventPort<(payload: ChangePhaseEventPayload) => void> = new EventPort(
