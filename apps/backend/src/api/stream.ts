@@ -26,7 +26,16 @@ const protectmessageSchema = z.object({
 
 const messageSchema = z.union([comessageSchema, protectmessageSchema]);
 
-type messagetype = z.infer<typeof messageSchema>;
+const postSchema = z.object({
+  playerId: z.string().regex(/^[0-9a-z]{10}$/),
+  message: messageSchema,
+  roomId: z
+    .string()
+    .regex(/^[0-9a-z]{10}$/)
+    .optional(),
+});
+
+export type messagetype = z.infer<typeof postSchema>;
 
 export const ee = new EventEmitter();
 export const changePhaseEE: EventPort<(payload: ChangePhaseEventPayload) => void> = new EventPort(

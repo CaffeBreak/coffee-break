@@ -5,7 +5,7 @@ import { z } from "zod";
 import { CreatePostUseCase } from "../../usecase/post/createpost";
 import { publicProcedure, router } from "../trpc";
 
-import { chatReceiveEE, ee } from "@/api/stream";
+// import { chatReceiveEE, ee } from "@/api/event";
 import { roomIdSchema } from "@/domain/entity/room";
 import { RepositoryOperationError, UseCaseError } from "@/error/usecase/common";
 
@@ -23,11 +23,14 @@ export const comessageSchema = z.object({
 
 export const protectmessageSchema = z.object({
   type: z.literal("protect"),
-  target: playerIdSchema,
+  target: z
+    .string()
+    .regex(/^[0-9a-z]{10}$/)
+    .brand("id")
+    .brand("playerId"),
 });
 
 export const messageSchema = z.union([comessageSchema, protectmessageSchema]);
-type messagetype = z.infer<typeof messageSchema>;
 const postSchema = z.object({
   playerid: z.string().regex(/^[0-9a-z]{10}$/),
   message: messageSchema,
@@ -36,6 +39,8 @@ const postSchema = z.object({
     .regex(/^[0-9a-z]{10}$/)
     .optional(),
 });
+
+// type messagetype = z.infer<typeof postSchema>;
 
 @injectable()
 export class ChatRouter {
@@ -77,7 +82,11 @@ export class ChatRouter {
 
         const post = createPostResult.unwrap();
 
-        ee.emit(chatReceiveEE, post.message as messagetype);
+        // ee.emit(chatReceiveEE, post,{
+        //   eventType: "chatReceive",
+        //   roomId: post.roomId,
+        // });
+        // ee.emit(chatReceiveEE, post as unknown as messagetype);
 
         return {
           message: post.message,

@@ -18,13 +18,13 @@ export const messageSchema = z.union([comessageSchema, protectmessageSchema]);
 export type messagetype = z.infer<typeof messageSchema>;
 
 export class Post {
-  public _playerId: PlayerId;
+  public playerId: PlayerId;
   public message: messagetype;
-  public _roomId: RoomId;
+  public roomId: RoomId;
 
   constructor(playerid: PlayerId, message: messagetype, roomId: RoomId) {
-    this._playerId = playerid;
+    this.playerId = playerid;
     this.message = message;
-    this._roomId = roomId;
+    this.roomId = roomId;
   }
 }
