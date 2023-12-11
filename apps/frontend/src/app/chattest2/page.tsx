@@ -14,14 +14,14 @@ const IndexPage = () => {
   const handlerco = () => {
     post.mutate({
       message: { type: "co", cardtype: "test" },
-      playerid: "9mbhkp7jez",
+      playerId: "9mbhkp7jez",
       roomId: "9mbhkp7jez",
     });
   };
   const handlerprotect = () => {
     post.mutate({
       message: { type: "protect", target: "9mbhkp7jez" },
-      playerid: "9mbhkp7jez",
+      playerId: "9mbhkp7jez",
       roomId: "9mbhkp7jez",
     });
   };

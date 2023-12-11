@@ -13,15 +13,15 @@ const IndexPage = () => {
   >([]);
   const handlerco = () => {
     post.mutate({
+      playerId: "9mzygems3j",
       message: { type: "co", cardtype: "test" },
-      playerid: "9mbhkp7jef",
       roomId: "9mbhkp7jef",
     });
   };
   const handlerprotect = () => {
     post.mutate({
       message: { type: "protect", target: "9mbhkp7jef" },
-      playerid: "9mbhkp7jef",
+      playerId: "9mbhkp7jef",
       roomId: "9mbhkp7jef",
     });
   };

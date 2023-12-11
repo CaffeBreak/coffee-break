@@ -3,11 +3,13 @@ import { inject, injectable } from "tsyringe";
 import { z } from "zod";
 
 import { CreatePostUseCase } from "../../usecase/post/createpost";
+// import { chatReceiveEE } from "../stream/chat"
 import { publicProcedure, router } from "../trpc";
 
-// import { chatReceiveEE, ee } from "@/api/event";
 import { roomIdSchema } from "@/domain/entity/room";
 import { RepositoryOperationError, UseCaseError } from "@/error/usecase/common";
+import { ee } from "@/event";
+import { EventPort } from "@/misc/event";
 
 const idSchema = z
   .string()
@@ -32,7 +34,7 @@ export const protectmessageSchema = z.object({
 
 export const messageSchema = z.union([comessageSchema, protectmessageSchema]);
 const postSchema = z.object({
-  playerid: z.string().regex(/^[0-9a-z]{10}$/),
+  playerId: z.string().regex(/^[0-9a-z]{10}$/),
   message: messageSchema,
   roomId: z
     .string()
@@ -40,7 +42,7 @@ const postSchema = z.object({
     .optional(),
 });
 
-// type messagetype = z.infer<typeof postSchema>;
+type messagetype = z.infer<typeof postSchema>;
 
 @injectable()
 export class ChatRouter {
@@ -62,7 +64,7 @@ export class ChatRouter {
         }
 
         const createPostResult = await this.createPostUseCase.execute(
-          playerIdSchema.parse(postResilt.data.playerid),
+          playerIdSchema.parse(postResilt.data.playerId),
           postResilt.data.message,
           roomIdSchema.parse(postResilt.data.roomId),
         );
@@ -82,11 +84,16 @@ export class ChatRouter {
 
         const post = createPostResult.unwrap();
 
-        // ee.emit(chatReceiveEE, post,{
-        //   eventType: "chatReceive",
-        //   roomId: post.roomId,
-        // });
-        // ee.emit(chatReceiveEE, post as unknown as messagetype);
+        const chatReceiveEE: EventPort<(message: messagetype) => void> = new EventPort(
+          `chatReceive-${post.roomId}`,
+          ee,
+        );
+
+        ee.emit(chatReceiveEE, {
+          playerId: post.playerId,
+          roomId: post.roomId,
+          message: post.message,
+        });
 
         return {
           message: post.message,
