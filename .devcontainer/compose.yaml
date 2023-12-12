@@ -3,15 +3,25 @@ version: "3"
 services:
   web:
     build:
-      context: .
-      dockerfile: Dockerfile.dev
+      context: ..
+      dockerfile: .devcontainer/node/Dockerfile
     init: true
     tty: true
     ports:
-      - 5000:5000
+      - 5555:5555
       - 3000:3000
     volumes:
-      - .:/caffe
+      - ..:/caffe
+    working_dir: /caffe
+
+  npc:
+    build:
+      context: ..
+      dockerfile: .devcontainer/npc/Dockerfile
+    init: true
+    tty: true
+    volumes:
+      - ..:/caffe
     working_dir: /caffe
 
   db:

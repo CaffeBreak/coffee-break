@@ -1,10 +1,12 @@
 {
-  "name": "Existing Docker Compose (Extend)",
-  "dockerComposeFile": ["../compose.yaml"],
+  "name": "Caffe Break frontend & backend",
+  "dockerComposeFile": [
+    "../compose.yaml"
+  ],
   "service": "web",
   "workspaceFolder": "/caffe",
   "remoteUser": "node",
-  "postCreateCommand": "sudo git config --system --add safe.directory /caffe && sudo git config --global gpg.program /usr/bin/gpg2",
+  "postCreateCommand": "sudo git config --system --add safe.directory /caffe && sudo git config --global gpg.program /usr/bin/gpg2 && pnpm i",
   "customizations": {
     "vscode": {
       "extensions": [
