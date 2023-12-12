@@ -1,5 +1,6 @@
 import { initTRPC } from "@trpc/server";
 import superjson from "superjson";
+import { OpenApiMeta } from "trpc-openapi";
 import { inject, injectable } from "tsyringe";
 
 import { GameRouter } from "./endpoint/game";
@@ -7,7 +8,7 @@ import { PlayerRouter } from "./endpoint/player";
 import { RoomRouter } from "./endpoint/room";
 import { StreamRouter } from "./stream";
 
-const t = initTRPC.create({
+const t = initTRPC.meta<OpenApiMeta>().create({
   transformer: superjson,
 });
 

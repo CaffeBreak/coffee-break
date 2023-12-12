@@ -69,6 +69,7 @@ export class RoomRouter {
   public execute() {
     return router({
       create: publicProcedure
+        .meta({ openapi: { method: "POST", path: "/room" } })
         .input(createRoomSchema)
         .output(roomObjSchema)
         .mutation(async (opts) => {
@@ -121,44 +122,49 @@ export class RoomRouter {
             day: room.day,
           };
         }),
-      delete: publicProcedure.input(deleteRoomSchema).mutation(async (opts) => {
-        const { input } = opts;
+      delete: publicProcedure
+        .meta({ openapi: { method: "DELETE", path: "/room/{roomId}" } })
+        .input(deleteRoomSchema)
+        .output(z.void())
+        .mutation(async (opts) => {
+          const { input } = opts;
 
-        const playerIdResult = playerIdSchema.safeParse(input.playerId);
-        const roomIdResult = roomIdSchema.safeParse(input.roomId);
-        if (!playerIdResult.success || !roomIdResult.success) {
-          const errorOpts: ConstructorParameters<typeof TRPCError>[0] = {
-            code: "BAD_REQUEST",
-            cause: !playerIdResult.success
-              ? playerIdResult.error
-              : (roomIdResult as SafeParseError<string>).error,
-          };
+          const playerIdResult = playerIdSchema.safeParse(input.playerId);
+          const roomIdResult = roomIdSchema.safeParse(input.roomId);
+          if (!playerIdResult.success || !roomIdResult.success) {
+            const errorOpts: ConstructorParameters<typeof TRPCError>[0] = {
+              code: "BAD_REQUEST",
+              cause: !playerIdResult.success
+                ? playerIdResult.error
+                : (roomIdResult as SafeParseError<string>).error,
+            };
 
-          throw new TRPCError(errorOpts);
-        }
+            throw new TRPCError(errorOpts);
+          }
 
-        const deleteRoomResult = await this.deleteRoomUseCase.execute(
-          roomIdResult.data,
-          playerIdResult.data,
-        );
+          const deleteRoomResult = await this.deleteRoomUseCase.execute(
+            roomIdResult.data,
+            playerIdResult.data,
+          );
 
-        if (deleteRoomResult.isErr()) {
-          const errorOpts = ((e: UseCaseError): ConstructorParameters<typeof TRPCError>[0] => {
-            if (e instanceof RepositoryOperationError)
-              return {
-                message: "Repository operation error",
-                code: "INTERNAL_SERVER_ERROR",
-                cause: e,
-              };
-            else return { message: "Something was happend", code: "INTERNAL_SERVER_ERROR" };
-          })(deleteRoomResult.unwrapErr());
+          if (deleteRoomResult.isErr()) {
+            const errorOpts = ((e: UseCaseError): ConstructorParameters<typeof TRPCError>[0] => {
+              if (e instanceof RepositoryOperationError)
+                return {
+                  message: "Repository operation error",
+                  code: "INTERNAL_SERVER_ERROR",
+                  cause: e,
+                };
+              else return { message: "Something was happend", code: "INTERNAL_SERVER_ERROR" };
+            })(deleteRoomResult.unwrapErr());
 
-          throw new TRPCError(errorOpts);
-        }
+            throw new TRPCError(errorOpts);
+          }
 
-        return;
-      }),
+          return;
+        }),
       join: publicProcedure
+        .meta({ openapi: { method: "POST", path: "/room/join" } })
         .input(joinRoomSchema)
         .output(roomObjSchema)
         .mutation(async (opts) => {
@@ -223,6 +229,7 @@ export class RoomRouter {
           return roomObj;
         }),
       leave: publicProcedure
+        .meta({ openapi: { method: "POST", path: "/room/leave" } })
         .input(leaveRoomSchema)
         .output(roomObjSchema)
         .mutation(async (opts) => {

@@ -51,16 +51,19 @@ export const MathcingRoom = () => {
     startGame.mutate({ playerId: playerObject.id, roomId: roomObject.id });
   };
 
-  trpc.stream.gameStream.useSubscription(roomObject.id, {
-    onData: (data) => {
-      if (data.eventType === "roomUpdate") {
-        setRoomObject(data);
-      } else if (data.phase === "DISCUSSION") {
-        setRoomObject((prev) => ({ ...prev, phase: data.phase, day: data.day }));
-        setScreenState("Game-ViewRole");
-      }
+  trpc.stream.gameStream.useSubscription(
+    { roomId: roomObject.id },
+    {
+      onData: (data) => {
+        if (data.eventType === "roomUpdate") {
+          setRoomObject(data);
+        } else if (data.phase === "DISCUSSION") {
+          setRoomObject((prev) => ({ ...prev, phase: data.phase, day: data.day }));
+          setScreenState("Game-ViewRole");
+        }
+      },
     },
-  });
+  );
 
   return (
     <div className="mt-[70px] flex w-screen items-center">

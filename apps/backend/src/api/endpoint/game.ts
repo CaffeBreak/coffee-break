@@ -23,40 +23,47 @@ export class GameRouter {
 
   public execute() {
     return router({
-      start: publicProcedure.input(startGameSchema).mutation(async (opts) => {
-        const { input } = opts;
-        const { playerId, roomId } = input;
+      start: publicProcedure
+        .meta({ openapi: { method: "POST", path: "/game/{roomId}" } })
+        .input(startGameSchema)
+        .output(z.object({}))
+        .mutation(async (opts) => {
+          const { input } = opts;
+          const { playerId, roomId } = input;
 
-        const playerIdResult = playerIdSchema.safeParse(playerId);
-        const roomIdResult = roomIdSchema.safeParse(roomId);
-        if (!playerIdResult.success || !roomIdResult.success) {
-          const errorOpts: ConstructorParameters<typeof TRPCError>[0] = {
-            code: "BAD_REQUEST",
-            cause: !playerIdResult.success
-              ? playerIdResult.error
-              : (roomIdResult as SafeParseError<string>).error,
-          };
+          const playerIdResult = playerIdSchema.safeParse(playerId);
+          const roomIdResult = roomIdSchema.safeParse(roomId);
+          if (!playerIdResult.success || !roomIdResult.success) {
+            const errorOpts: ConstructorParameters<typeof TRPCError>[0] = {
+              code: "BAD_REQUEST",
+              cause: !playerIdResult.success
+                ? playerIdResult.error
+                : (roomIdResult as SafeParseError<string>).error,
+            };
 
-          throw new TRPCError(errorOpts);
-        }
+            throw new TRPCError(errorOpts);
+          }
 
-        const result = await this.startGameUseCase.execute(playerIdResult.data, roomIdResult.data);
-        if (result.isErr()) {
-          const errorOpts = ((e: UseCaseError): ConstructorParameters<typeof TRPCError>[0] => {
-            if (e instanceof RepositoryOperationError)
-              return {
-                message: "Repository operation error",
-                code: "INTERNAL_SERVER_ERROR",
-                cause: e,
-              };
-            else return { message: e.message, code: "INTERNAL_SERVER_ERROR", cause: e };
-          })(result.unwrapErr());
+          const result = await this.startGameUseCase.execute(
+            playerIdResult.data,
+            roomIdResult.data,
+          );
+          if (result.isErr()) {
+            const errorOpts = ((e: UseCaseError): ConstructorParameters<typeof TRPCError>[0] => {
+              if (e instanceof RepositoryOperationError)
+                return {
+                  message: "Repository operation error",
+                  code: "INTERNAL_SERVER_ERROR",
+                  cause: e,
+                };
+              else return { message: e.message, code: "INTERNAL_SERVER_ERROR", cause: e };
+            })(result.unwrapErr());
 
-          throw new TRPCError(errorOpts);
-        }
+            throw new TRPCError(errorOpts);
+          }
 
-        return {};
-      }),
+          return {};
+        }),
       // skipPhase: publicProcedure.input(skipPhaseSchema).mutation(async (opts) => {
       //   const { input } = opts;
       //   const { playerId } = input;

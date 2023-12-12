@@ -30,6 +30,7 @@ export class PlayerRouter {
   public execute() {
     return router({
       create: publicProcedure
+        .meta({ openapi: { method: "POST", path: "/player" } })
         .input(createPlayerSchema)
         .output(playerObjSchema)
         .mutation(async (opts) => {

@@ -8,6 +8,10 @@ import { ee } from "@/event";
 import { EventPort } from "@/misc/event";
 import { GameEvent } from "@/usecase/game/event";
 
+const gameStartSchema = z.object({
+  roomId: z.string().regex(/^[0-9a-z]{10}$/),
+});
+
 const roomUpdateEventSchema = z.object({
   eventType: z.literal("roomUpdate"),
   id: z.string().regex(/^[0-9a-z]{10}$/),
@@ -59,15 +63,16 @@ export class GameStream {
 
   public execute() {
     return router({
-      gameStream: publicProcedure.input(z.string().regex(/^[0-9a-z]{10}$/)).subscription((opts) => {
+      gameStream: publicProcedure.input(gameStartSchema).subscription((opts) => {
         const { input } = opts;
+        const { roomId } = input;
 
         const changePhaseEE: EventPort<(payload: ChangePhaseEventPayload) => void> = new EventPort(
-          `changePhase-${input}`,
+          `changePhase-${roomId}`,
           ee,
         );
         const roomUpdateEE: EventPort<(payload: RoomUpdateEventPayload) => void> = new EventPort(
-          `roomUpdate-${input}`,
+          `roomUpdate-${roomId}`,
           ee,
         );
 
