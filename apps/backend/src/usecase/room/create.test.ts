@@ -10,7 +10,7 @@ import {
   playerRoleSchema,
   playerStatusSchema,
 } from "@/domain/entity/player";
-import { Room, roomIdSchema, roomPasswordSchema, roomStateSchema } from "@/domain/entity/room";
+import { Room, roomIdSchema, roomPasswordSchema, roomPhaseSchema } from "@/domain/entity/room";
 import { InMemoryPlayerRepository } from "@/domain/repository/inMemory/player";
 import { InMemoryRoomRepository } from "@/domain/repository/inMemory/room";
 import { AlreadyJoinedOtherRoomError } from "@/error/usecase/player";
@@ -38,9 +38,10 @@ const playerBob = new Player(
 const roomA = new Room(
   roomIdSchema.parse("9kzx7hf7w4"),
   roomPasswordSchema.parse("hogehoge"),
-  playerIdSchema.parse("9kvyrk2hq9"),
-  roomStateSchema.parse("BEFORE_START"),
-  [playerIdSchema.parse("9kvyrk2hq9")],
+  playerAlice.id,
+  roomPhaseSchema.parse("BEFORE_START"),
+  [playerAlice],
+  0,
 );
 
 beforeAll(() => {

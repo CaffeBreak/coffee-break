@@ -1,5 +1,5 @@
 import { Err, Ok, Result } from "@cffnpwr/result-ts";
-import { PlayerState, PrismaClient } from "@prisma/client";
+import { PlayerRole, PrismaClient } from "@prisma/client";
 import { singleton } from "tsyringe";
 
 import { IPlayerRepository } from "./../interface/player";
@@ -13,16 +13,16 @@ import {
   playerStatusSchema,
 } from "@/domain/entity/player";
 import { RoomId, roomIdSchema } from "@/domain/entity/room";
-import { DataNotFoundError, RepositoryError } from "@/error/repository";
+import { DataNotFoundError, DataSaveError, RepositoryError } from "@/error/repository";
 import { OkOrErr } from "@/misc/result";
 import { voidType } from "@/misc/type";
 
-const convertPlayer = (prismaPlayer: {
+export const convertPlayer = (prismaPlayer: {
   id: string;
   name: string;
   isDead: boolean;
   joinedRoomId: string | null;
-  role: PlayerState;
+  role: PlayerRole;
 }) =>
   new Player(
     playerIdSchema.parse(prismaPlayer.id),
@@ -91,6 +91,37 @@ export class OnDiskPlayerRepository implements IPlayerRepository {
     //型変換して保存したplayerを返す
     const returnplayer: Player = convertPlayer(res);
     return new Ok(returnplayer);
+  }
+
+  async saveMany(players: Player[]): Promise<Result<Player[], RepositoryError>> {
+    const checkDead = (isD: "ALIVE" | "DEAD") => isD !== "ALIVE";
+    const query = players.map((player) =>
+      this.prismaClient.player.upsert({
+        where: {
+          id: player.id,
+        },
+
+        update: {
+          name: player.name,
+          isDead: checkDead(player.status),
+          joinedRoomId: player.roomId,
+          role: player.role,
+        },
+        create: {
+          id: player.id,
+          name: player.name,
+          isDead: checkDead(player.status),
+          role: player.role,
+        },
+      }),
+    );
+
+    const result = await this.prismaClient
+      .$transaction(query)
+      .then((result) => new Ok(result.map((r) => convertPlayer(r))))
+      .catch((error: Error) => new Err(new DataSaveError(error)));
+
+    return result;
   }
 
   async delete(id: PlayerId): Promise<Result<void, RepositoryError>> {

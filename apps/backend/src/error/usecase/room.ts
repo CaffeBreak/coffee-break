@@ -95,3 +95,19 @@ export class PlayerNotJoinedRoomError extends UseCaseError {
     Object.setPrototypeOf(this, PlayerNotJoinedRoomError.prototype);
   }
 }
+
+export class NotEnoughPlayersError extends UseCaseError {
+  static {
+    this.prototype.name = "NotEnoughPlayersError";
+  }
+  constructor() {
+    super("Not enough players are joined in this room");
+
+    // Error.captureStackTraceはV8 Engineのみに存在する
+    // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
+    if (Error.captureStackTrace) {
+      Error.captureStackTrace(this, this.constructor);
+    }
+    Object.setPrototypeOf(this, NotEnoughPlayersError.prototype);
+  }
+}

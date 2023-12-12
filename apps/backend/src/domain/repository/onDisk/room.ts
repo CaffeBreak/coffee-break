@@ -1,7 +1,8 @@
 import { Err, Ok, Result } from "@cffnpwr/result-ts";
-import { Player, PrismaClient, RoomState } from "@prisma/client";
+import { Player, PrismaClient, RoomPhase } from "@prisma/client";
 import { singleton } from "tsyringe";
 
+import { convertPlayer } from "./player";
 import { IRoomRepository } from "../interface/room";
 
 import { playerIdSchema } from "@/domain/entity/player";
@@ -11,7 +12,7 @@ import {
   RoomPassword,
   roomIdSchema,
   roomPasswordSchema,
-  roomStateSchema,
+  roomPhaseSchema,
 } from "@/domain/entity/room";
 import { DataNotFoundError, RepositoryError } from "@/error/repository";
 import { voidType } from "@/misc/type";
@@ -20,15 +21,17 @@ const convertRoom = (prismaRoom: {
   id: string;
   password: string;
   ownerId: string;
-  state: RoomState;
+  phase: RoomPhase;
   players: Player[];
+  day: number;
 }) =>
   new Room(
     roomIdSchema.parse(prismaRoom.id),
     roomPasswordSchema.parse(prismaRoom.password),
     playerIdSchema.parse(prismaRoom.ownerId),
-    roomStateSchema.parse(prismaRoom.state),
-    prismaRoom.players.map((player) => playerIdSchema.parse(player.id)),
+    roomPhaseSchema.parse(prismaRoom.phase),
+    prismaRoom.players.map((player) => convertPlayer(player)),
+    prismaRoom.day,
   );
 
 @singleton()
@@ -77,15 +80,17 @@ export class OnDiskRoomRepository implements IRoomRepository {
         players: true,
       },
       update: {
-        state: room.state,
+        phase: room.phase,
         password: room.password,
         ownerId: room.ownerId,
+        day: room.day,
       },
       create: {
         id: room.id,
-        state: room.state,
+        phase: room.phase,
         password: room.password,
         ownerId: room.ownerId,
+        day: room.day,
       },
     });
     const createRoom = convertRoom(res);

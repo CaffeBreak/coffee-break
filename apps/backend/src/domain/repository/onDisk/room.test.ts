@@ -4,13 +4,13 @@ import { beforeAll, describe, expect, it } from "vitest";
 
 import { OnDiskRoomRepository } from "./room";
 
-import { playerIdSchema } from "@/domain/entity/player";
+import { Player, playerNameSchema } from "@/domain/entity/player";
 import {
   Room,
-  RoomState,
+  RoomPhase,
   roomIdSchema,
   roomPasswordSchema,
-  roomStateSchema,
+  roomPhaseSchema,
 } from "@/domain/entity/room";
 import { DataNotFoundError } from "@/error/repository";
 
@@ -20,12 +20,14 @@ const convertRoomToPrisma = (
   id: string;
   password: string;
   ownerId: string;
-  state: RoomState;
+  phase: RoomPhase;
+  day: number;
 } => ({
   id: room.id,
   password: room.password,
   ownerId: room.ownerId,
-  state: room.state,
+  phase: room.phase,
+  day: room.day,
 });
 const createPrismaMockWithInitialValue = async (rooms: Room[]): Promise<PrismaClient> => {
   const client = new PrismockClient();
@@ -33,7 +35,7 @@ const createPrismaMockWithInitialValue = async (rooms: Room[]): Promise<PrismaCl
   await client.player.createMany({
     data: rooms
       .map((room) =>
-        room.players.map((playerId) => ({ id: playerId, name: "hoge", joinedRoomId: room.id })),
+        room.players.map((player) => ({ id: player.id, name: player.name, joinedRoomId: room.id })),
       )
       .flat(),
   });
@@ -44,22 +46,32 @@ const createPrismaMockWithInitialValue = async (rooms: Room[]): Promise<PrismaCl
   return client;
 };
 
+const playerAlice = Player.new(playerNameSchema.parse("Alice"));
+const playerBob = Player.new(playerNameSchema.parse("Bob"));
+const playerCffnpwr = Player.new(playerNameSchema.parse("cffnpwr"));
+
+playerAlice.joinRoom(roomIdSchema.parse("9kzx7hf7w4"));
+playerBob.joinRoom(roomIdSchema.parse("9kzx7hf7w5"));
+playerCffnpwr.joinRoom(roomIdSchema.parse("9kzx7hf7w6"));
+
 describe("findById", () => {
   let onDiskRoomRepository: OnDiskRoomRepository;
 
   const roomA = new Room(
     roomIdSchema.parse("9kzx7hf7w4"),
     roomPasswordSchema.parse("hogehoge"),
-    playerIdSchema.parse("9kvyrk2hq9"),
-    roomStateSchema.parse("BEFORE_START"),
-    [playerIdSchema.parse("9kvyrk2hq9")],
+    playerAlice.id,
+    roomPhaseSchema.parse("BEFORE_START"),
+    [playerAlice],
+    0,
   );
   const roomB = new Room(
     roomIdSchema.parse("9kzx7hf7w5"),
     roomPasswordSchema.parse("fugafuga"),
-    playerIdSchema.parse("9kvyrk2hqa"),
-    roomStateSchema.parse("BEFORE_START"),
-    [playerIdSchema.parse("9kvyrk2hqa")],
+    playerBob.id,
+    roomPhaseSchema.parse("BEFORE_START"),
+    [playerBob],
+    0,
   );
 
   beforeAll(async () => {
@@ -89,16 +101,18 @@ describe("findByPassword", () => {
   const roomA = new Room(
     roomIdSchema.parse("9kzx7hf7w4"),
     roomPasswordSchema.parse("hogehoge"),
-    playerIdSchema.parse("9kvyrk2hq9"),
-    roomStateSchema.parse("BEFORE_START"),
-    [playerIdSchema.parse("9kvyrk2hq9")],
+    playerAlice.id,
+    roomPhaseSchema.parse("BEFORE_START"),
+    [playerAlice],
+    0,
   );
   const roomB = new Room(
     roomIdSchema.parse("9kzx7hf7w5"),
     roomPasswordSchema.parse("fugafuga"),
-    playerIdSchema.parse("9kvyrk2hqa"),
-    roomStateSchema.parse("BEFORE_START"),
-    [playerIdSchema.parse("9kvyrk2hqa")],
+    playerBob.id,
+    roomPhaseSchema.parse("BEFORE_START"),
+    [playerBob],
+    0,
   );
 
   beforeAll(async () => {
@@ -128,16 +142,18 @@ describe("save", () => {
   const roomA = new Room(
     roomIdSchema.parse("9kzx7hf7w4"),
     roomPasswordSchema.parse("hogehoge"),
-    playerIdSchema.parse("9kvyrk2hq9"),
-    roomStateSchema.parse("BEFORE_START"),
-    [playerIdSchema.parse("9kvyrk2hq9")],
+    playerAlice.id,
+    roomPhaseSchema.parse("BEFORE_START"),
+    [playerAlice],
+    0,
   );
   const roomB = new Room(
     roomIdSchema.parse("9kzx7hf7w5"),
     roomPasswordSchema.parse("fugafuga"),
-    playerIdSchema.parse("9kvyrk2hqa"),
-    roomStateSchema.parse("BEFORE_START"),
-    [playerIdSchema.parse("9kvyrk2hqa")],
+    playerBob.id,
+    roomPhaseSchema.parse("BEFORE_START"),
+    [playerBob],
+    0,
   );
 
   beforeAll(async () => {
@@ -154,13 +170,13 @@ describe("save", () => {
   });
 
   it("既存の部屋のデータを更新できる", async () => {
-    const roomAFinished = roomA;
-    roomAFinished.finishGame();
+    const roomAStarted = roomA;
+    roomAStarted.nextPhase();
 
-    const result = await onDiskRoomRepository.save(roomAFinished);
+    const result = await onDiskRoomRepository.save(roomAStarted);
 
     expect(result.isOk()).toBe(true);
-    expect(result.unwrap()).toStrictEqual(roomAFinished);
+    expect(result.unwrap()).toStrictEqual(roomAStarted);
     // expect(onDiskRoomRepository.store).toStrictEqual([roomAFinished, roomB]);
   });
 });
@@ -171,23 +187,26 @@ describe("delete", () => {
   const roomA = new Room(
     roomIdSchema.parse("9kzx7hf7w4"),
     roomPasswordSchema.parse("hogehoge"),
-    playerIdSchema.parse("9kvyrk2hq9"),
-    roomStateSchema.parse("BEFORE_START"),
-    [playerIdSchema.parse("9kvyrk2hq9")],
+    playerAlice.id,
+    roomPhaseSchema.parse("BEFORE_START"),
+    [playerAlice],
+    0,
   );
   const roomB = new Room(
     roomIdSchema.parse("9kzx7hf7w5"),
     roomPasswordSchema.parse("fugafuga"),
-    playerIdSchema.parse("9kvyrk2hqa"),
-    roomStateSchema.parse("BEFORE_START"),
-    [playerIdSchema.parse("9kvyrk2hqa")],
+    playerBob.id,
+    roomPhaseSchema.parse("BEFORE_START"),
+    [playerBob],
+    0,
   );
   const roomC = new Room(
     roomIdSchema.parse("9kzx7hf7w6"),
-    roomPasswordSchema.parse("piyopiyo"),
-    playerIdSchema.parse("9kvyrk2hqb"),
-    roomStateSchema.parse("BEFORE_START"),
-    [playerIdSchema.parse("9kvyrk2hqb")],
+    roomPasswordSchema.parse("hogehoge"),
+    playerCffnpwr.id,
+    roomPhaseSchema.parse("BEFORE_START"),
+    [playerCffnpwr],
+    0,
   );
 
   beforeAll(async () => {

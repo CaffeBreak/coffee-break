@@ -11,15 +11,11 @@ import {
   playerRoleSchema,
   playerStatusSchema,
 } from "@/domain/entity/player";
-import { Room, roomIdSchema, roomPasswordSchema, roomStateSchema } from "@/domain/entity/room";
+import { Room, roomIdSchema, roomPasswordSchema, roomPhaseSchema } from "@/domain/entity/room";
 import { InMemoryPlayerRepository } from "@/domain/repository/inMemory/player";
 import { InMemoryRoomRepository } from "@/domain/repository/inMemory/room";
 import { AlreadyJoinedOtherRoomError, PlayerNotFoundError } from "@/error/usecase/player";
-import {
-  PasswordMismatchError,
-  PlayerNameDuplicatedError,
-  RoomNotFoundError,
-} from "@/error/usecase/room";
+import { PasswordMismatchError, PlayerNameDuplicatedError } from "@/error/usecase/room";
 
 const playerRepository = container.resolve<InMemoryPlayerRepository>("PlayerRepository");
 const roomRepository = container.resolve<InMemoryRoomRepository>("RoomRepository");
@@ -49,9 +45,10 @@ const playerAlice2 = new Player(
 const roomA = new Room(
   roomIdSchema.parse("9kzx7hf7w4"),
   roomPasswordSchema.parse("hogehoge"),
-  playerIdSchema.parse("9kvyrk2hq9"),
-  roomStateSchema.parse("BEFORE_START"),
-  [playerIdSchema.parse("9kvyrk2hq9")],
+  playerAlice.id,
+  roomPhaseSchema.parse("BEFORE_START"),
+  [playerAlice],
+  0,
 );
 
 beforeEach(() => {
@@ -60,34 +57,18 @@ beforeEach(() => {
 });
 
 it("部屋IDに一致する部屋が存在し、合言葉が一致する場合、部屋に参加できる", async () => {
-  const result = await joinRoomUseCase.execute(
-    roomA.id,
-    roomPasswordSchema.parse("hogehoge"),
-    playerBob.id,
-  );
+  const result = await joinRoomUseCase.execute(roomPasswordSchema.parse("hogehoge"), playerBob.id);
 
   expect(result.isOk()).toBe(true);
   expect(result.unwrap()).toBe(roomA);
   expect(playerRepository.store[1]).toMatchObject({
     roomId: roomA.id,
   });
-  expect(roomRepository.store[0].players).toStrictEqual([playerAlice.id, playerBob.id]);
-});
-
-it("部屋IDに一致する部屋が存在しない場合、RoomNotFoundErrorを返す", async () => {
-  const result = await joinRoomUseCase.execute(
-    roomIdSchema.parse("9kzx7hf7w5"),
-    roomPasswordSchema.parse("hogehoge"),
-    playerBob.id,
-  );
-
-  expect(result.isErr()).toBe(true);
-  expect(result.unwrapErr()).toBeInstanceOf(RoomNotFoundError);
+  expect(roomRepository.store[0].players).toStrictEqual([playerAlice, playerBob]);
 });
 
 it("プレイヤーIDに一致するプレイヤーが存在しない場合、PlayerNotFoundErrorを返す", async () => {
   const result = await joinRoomUseCase.execute(
-    roomA.id,
     roomPasswordSchema.parse("hogehoge"),
     playerIdSchema.parse("9kvyrk2hqc"),
   );
@@ -98,7 +79,6 @@ it("プレイヤーIDに一致するプレイヤーが存在しない場合、Pl
 
 it("プレイヤーIDに一致するプレイヤーが既に他の部屋に参加している場合、AlreadyJoinedOtherRoomErrorを返す", async () => {
   const result = await joinRoomUseCase.execute(
-    roomA.id,
     roomPasswordSchema.parse("hogehoge"),
     playerAlice.id,
   );
@@ -109,7 +89,6 @@ it("プレイヤーIDに一致するプレイヤーが既に他の部屋に参�
 
 it("合言葉が一致しなければ、PasswordMismatchErrorを返す", async () => {
   const result = await joinRoomUseCase.execute(
-    roomA.id,
     roomPasswordSchema.parse("fugafuga"),
     playerAlice2.id,
   );
@@ -120,7 +99,6 @@ it("合言葉が一致しなければ、PasswordMismatchErrorを返す", async (
 
 it("同じ名前のプレイヤーが同じ部屋に入ることはできず、PlayerNameDuplicateErrorを返す", async () => {
   const result = await joinRoomUseCase.execute(
-    roomA.id,
     roomPasswordSchema.parse("hogehoge"),
     playerAlice2.id,
   );

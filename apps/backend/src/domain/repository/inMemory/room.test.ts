@@ -3,26 +3,32 @@ import { beforeAll, describe, expect, it } from "vitest";
 
 import { InMemoryRoomRepository } from "./room";
 
-import { playerIdSchema } from "@/domain/entity/player";
-import { Room, roomIdSchema, roomPasswordSchema, roomStateSchema } from "@/domain/entity/room";
+import { Player, playerNameSchema } from "@/domain/entity/player";
+import { Room, roomIdSchema, roomPasswordSchema, roomPhaseSchema } from "@/domain/entity/room";
 import { DataNotFoundError } from "@/error/repository";
 
 const inMemoryRoomRepository = container.resolve(InMemoryRoomRepository);
+
+const playerAlice = Player.new(playerNameSchema.parse("Alice"));
+const playerBob = Player.new(playerNameSchema.parse("Bob"));
+const playerCffnpwr = Player.new(playerNameSchema.parse("cffnpwr"));
 
 describe("findById", () => {
   const roomA = new Room(
     roomIdSchema.parse("9kzx7hf7w4"),
     roomPasswordSchema.parse("hogehoge"),
-    playerIdSchema.parse("9kvyrk2hq9"),
-    roomStateSchema.parse("BEFORE_START"),
-    [playerIdSchema.parse("9kvyrk2hq9")],
+    playerAlice.id,
+    roomPhaseSchema.parse("BEFORE_START"),
+    [playerAlice],
+    0,
   );
   const roomB = new Room(
     roomIdSchema.parse("9kzx7hf7w5"),
     roomPasswordSchema.parse("fugafuga"),
-    playerIdSchema.parse("9kvyrk2hqa"),
-    roomStateSchema.parse("BEFORE_START"),
-    [playerIdSchema.parse("9kvyrk2hqa")],
+    playerBob.id,
+    roomPhaseSchema.parse("BEFORE_START"),
+    [playerBob],
+    0,
   );
 
   beforeAll(() => {
@@ -48,16 +54,18 @@ describe("findByPassword", () => {
   const roomA = new Room(
     roomIdSchema.parse("9kzx7hf7w4"),
     roomPasswordSchema.parse("hogehoge"),
-    playerIdSchema.parse("9kvyrk2hq9"),
-    roomStateSchema.parse("BEFORE_START"),
-    [playerIdSchema.parse("9kvyrk2hq9")],
+    playerAlice.id,
+    roomPhaseSchema.parse("BEFORE_START"),
+    [playerAlice],
+    0,
   );
   const roomB = new Room(
     roomIdSchema.parse("9kzx7hf7w5"),
     roomPasswordSchema.parse("fugafuga"),
-    playerIdSchema.parse("9kvyrk2hqa"),
-    roomStateSchema.parse("BEFORE_START"),
-    [playerIdSchema.parse("9kvyrk2hqa")],
+    playerBob.id,
+    roomPhaseSchema.parse("BEFORE_START"),
+    [playerBob],
+    0,
   );
 
   beforeAll(() => {
@@ -87,16 +95,18 @@ describe("save", () => {
   const roomA = new Room(
     roomIdSchema.parse("9kzx7hf7w4"),
     roomPasswordSchema.parse("hogehoge"),
-    playerIdSchema.parse("9kvyrk2hq9"),
-    roomStateSchema.parse("BEFORE_START"),
-    [playerIdSchema.parse("9kvyrk2hq9")],
+    playerAlice.id,
+    roomPhaseSchema.parse("BEFORE_START"),
+    [playerAlice],
+    0,
   );
   const roomB = new Room(
     roomIdSchema.parse("9kzx7hf7w5"),
     roomPasswordSchema.parse("fugafuga"),
-    playerIdSchema.parse("9kvyrk2hqa"),
-    roomStateSchema.parse("BEFORE_START"),
-    [playerIdSchema.parse("9kvyrk2hqa")],
+    playerBob.id,
+    roomPhaseSchema.parse("BEFORE_START"),
+    [playerBob],
+    0,
   );
 
   beforeAll(() => {
@@ -112,14 +122,14 @@ describe("save", () => {
   });
 
   it("既存の部屋のデータを更新できる", async () => {
-    const roomAFinished = roomA;
-    roomAFinished.finishGame();
+    const roomAStarted = roomA;
+    roomAStarted.nextPhase();
 
-    const result = await inMemoryRoomRepository.save(roomAFinished);
+    const result = await inMemoryRoomRepository.save(roomAStarted);
 
     expect(result.isOk()).toBe(true);
-    expect(result.unwrap()).toBe(roomAFinished);
-    expect(inMemoryRoomRepository.store).toStrictEqual([roomAFinished, roomB]);
+    expect(result.unwrap()).toBe(roomAStarted);
+    expect(inMemoryRoomRepository.store).toStrictEqual([roomAStarted, roomB]);
   });
 });
 
@@ -127,23 +137,26 @@ describe("delete", () => {
   const roomA = new Room(
     roomIdSchema.parse("9kzx7hf7w4"),
     roomPasswordSchema.parse("hogehoge"),
-    playerIdSchema.parse("9kvyrk2hq9"),
-    roomStateSchema.parse("BEFORE_START"),
-    [playerIdSchema.parse("9kvyrk2hq9")],
+    playerAlice.id,
+    roomPhaseSchema.parse("BEFORE_START"),
+    [playerAlice],
+    0,
   );
   const roomB = new Room(
     roomIdSchema.parse("9kzx7hf7w5"),
     roomPasswordSchema.parse("fugafuga"),
-    playerIdSchema.parse("9kvyrk2hqa"),
-    roomStateSchema.parse("BEFORE_START"),
-    [playerIdSchema.parse("9kvyrk2hqa")],
+    playerBob.id,
+    roomPhaseSchema.parse("BEFORE_START"),
+    [playerBob],
+    0,
   );
   const roomC = new Room(
     roomIdSchema.parse("9kzx7hf7w6"),
-    roomPasswordSchema.parse("piyopiyo"),
-    playerIdSchema.parse("9kvyrk2hqb"),
-    roomStateSchema.parse("BEFORE_START"),
-    [playerIdSchema.parse("9kvyrk2hqb")],
+    roomPasswordSchema.parse("hogehoge"),
+    playerCffnpwr.id,
+    roomPhaseSchema.parse("BEFORE_START"),
+    [playerCffnpwr],
+    0,
   );
 
   beforeAll(() => {

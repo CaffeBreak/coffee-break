@@ -1,0 +1,22 @@
+{
+  "name": "Caffe Break NPC",
+  "dockerComposeFile": [
+    "../compose.yaml"
+  ],
+  "service": "npc",
+  "workspaceFolder": "/caffe",
+  "postAttachCommand": "cd apps/npc && poetry install && echo \"source $(poetry env info -p)/bin/activate\" >> ~/.bashrc",
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "ms-azuretools.vscode-docker",
+        "yzhang.markdown-all-in-one",
+        "EditorConfig.EditorConfig",
+        "tamasfe.even-better-toml",
+        "VisualStudioExptTeam.vscodeintellicode",
+        "ms-python.python",
+        "ms-python.vscode-pylance"
+      ]
+    }
+  }
+}

@@ -1,0 +1,34 @@
+{
+  "name": "Caffe Break frontend & backend",
+  "dockerComposeFile": [
+    "../compose.yaml"
+  ],
+  "service": "web",
+  "workspaceFolder": "/caffe",
+  "remoteUser": "node",
+  "postCreateCommand": "sudo git config --system --add safe.directory /caffe && sudo git config --global gpg.program /usr/bin/gpg2 && pnpm i",
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "dsznajder.es7-react-js-snippets",
+        "foxundermoon.next-js",
+        "pulkitgangwar.nextjs-snippets",
+        "editorconfig.editorconfig",
+        "dbaeumer.vscode-eslint",
+        "esbenp.prettier-vscode",
+        "prisma.prisma",
+        "formulahendry.auto-close-tag",
+        "formulahendry.auto-rename-tag",
+        "christian-kohler.path-intellisense",
+        "steoates.autoimport",
+        "VisualStudioExptTeam.vscodeintellicode",
+        "VisualStudioExptTeam.vscodeintellicode-completions",
+        "oderwat.indent-rainbow",
+        "bradgashler.htmltagwrap",
+        "ms-azuretools.vscode-docker",
+        "GitHub.vscode-github-actions",
+        "ZixuanChen.vitest-explorer"
+      ]
+    }
+  }
+}

@@ -16,14 +16,19 @@
     "keepClassNames": true,
     "baseUrl": "./",
     "paths": {
-      "@/*": ["./src/*"]
+      "@/*": [
+        "./src/*"
+      ]
     },
     "experimental": {
       "plugins": [
         [
           "swc-plugin-import-extension-resolver",
           {
-            "aliases": ["@/*", "$/*"]
+            "aliases": [
+              "@/*",
+              "$/*"
+            ]
           }
         ]
       ]
@@ -33,5 +38,7 @@
   "module": {
     "type": "es6"
   },
-  "exclude": ["^.+\\.test\\.ts$"]
+  "exclude": [
+    "^.+\\.test\\.ts$"
+  ]
 }

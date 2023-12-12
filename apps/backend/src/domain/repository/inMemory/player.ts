@@ -52,6 +52,27 @@ export class InMemoryPlayerRepository implements IPlayerRepository {
     });
   }
 
+  saveMany(players: Player[]): Promise<Result<Player[], RepositoryError>> {
+    return new Promise((resolve) =>
+      resolve(
+        new Ok(
+          players.map((player) => {
+            const index = this.store.findIndex((p) => p.id === player.id);
+            if (index !== -1) {
+              this.store[index] = player;
+
+              return this.store[index];
+            }
+
+            const newIndex = this.store.push(player) - 1;
+
+            return this.store[newIndex];
+          }),
+        ),
+      ),
+    );
+  }
+
   delete(id: PlayerId): Promise<Result<void, RepositoryError>> {
     const index = this.store.findIndex((p) => p.id === id);
     if (index === -1) {
