@@ -6,7 +6,7 @@ import { createWSClient, httpBatchLink, loggerLink, splitLink, wsLink } from "@t
 import { useState } from "react";
 import superjson from "superjson";
 
-import { trpc } from "./trpc";
+import { trpc, trpcSWR } from "./trpc";
 
 export const TrpcProvider: React.FC<{ children: React.ReactNode }> = (props) => {
   const [queryClient] = useState(
@@ -40,12 +40,16 @@ export const TrpcProvider: React.FC<{ children: React.ReactNode }> = (props) => 
       transformer: superjson,
     }),
   );
+
+  const [trpcClientSWR] = useState(() => trpcSWR.createClient());
   return (
-    <trpc.Provider client={trpcClient} queryClient={queryClient}>
-      <QueryClientProvider client={queryClient}>
-        {props.children}
-        {/* <ReactQueryDevtools /> */}
-      </QueryClientProvider>
-    </trpc.Provider>
+    <QueryClientProvider client={queryClient}>
+      <trpcSWR.Provider client={trpcClientSWR}>
+        <trpc.Provider client={trpcClient} queryClient={queryClient}>
+          {props.children}
+          {/* <ReactQueryDevtools /> */}
+        </trpc.Provider>
+      </trpcSWR.Provider>
+    </QueryClientProvider>
   );
 };

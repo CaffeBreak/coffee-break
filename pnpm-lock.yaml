@@ -196,8 +196,11 @@ importers:
       '@tanstack/react-query':
         specifier: ^4.35.3
         version: 4.36.1(react-dom@18.2.0)(react@18.2.0)
+      '@trpc-swr/client':
+        specifier: ^2.0.1
+        version: 2.0.1(@trpc/client@10.44.1)(@trpc/server@10.44.1)(react@18.2.0)(swr@2.2.4)
       '@trpc/client':
-        specifier: ^10.43.6
+        specifier: ^10.44.1
         version: 10.44.1(@trpc/server@10.44.1)
       '@trpc/react-query':
         specifier: ^10.44.1
@@ -220,6 +223,9 @@ importers:
       superjson:
         specifier: ^2.2.1
         version: 2.2.1
+      swr:
+        specifier: ^2.2.4
+        version: 2.2.4(react@18.2.0)
     devDependencies:
       '@types/react':
         specifier: ^18.2.42
@@ -2049,6 +2055,20 @@ packages:
   /@tootallnate/quickjs-emscripten@0.23.0:
     resolution: {integrity: sha512-C5Mc6rdnsaJDjO3UpGW/CQTHtCKaYlScZTly4JIu97Jxo/odCiH0ITnDXSJPTOrEKk/ycSZ0AOgTmkDtkOsvIA==}
     dev: true
+
+  /@trpc-swr/client@2.0.1(@trpc/client@10.44.1)(@trpc/server@10.44.1)(react@18.2.0)(swr@2.2.4):
+    resolution: {integrity: sha512-KLAk3p5OKP7I2WSrF94FZrUdxUqNa/v82zeD3bCoTFS2dYXKYpzt7W5ngYyxAM9S1L0toI2RETr6sjFh+2YqGQ==}
+    peerDependencies:
+      '@trpc/client': ^10.32.0
+      '@trpc/server': ^10.32.0
+      react: ^18.2.0
+      swr: ^2.2.0
+    dependencies:
+      '@trpc/client': 10.44.1(@trpc/server@10.44.1)
+      '@trpc/server': 10.44.1
+      react: 18.2.0
+      swr: 2.2.4(react@18.2.0)
+    dev: false
 
   /@trpc/client@10.44.1(@trpc/server@10.44.1):
     resolution: {integrity: sha512-vTWsykNcgz1LnwePVl2fKZnhvzP9N3GaaLYPkfGINo314ZOS0OBqe9x0ytB2LLUnRVTAAZ2WoONzARd8nHiqrA==}
@@ -9446,6 +9466,16 @@ packages:
   /swc-plugin-import-extension-resolver@0.2.3:
     resolution: {integrity: sha512-9XQHYTK23Q2JfwoS/kX5/QyKmJiQ5Atb7Gu0bdFXf2thAZw9Bb9eKfvGKVja6yEo7k0Bx39y0lx13sJYRtFDIw==}
     dev: true
+
+  /swr@2.2.4(react@18.2.0):
+    resolution: {integrity: sha512-njiZ/4RiIhoOlAaLYDqwz5qH/KZXVilRLvomrx83HjzCWTfa+InyfAjv05PSFxnmLzZkNO9ZfvgoqzAaEI4sGQ==}
+    peerDependencies:
+      react: ^16.11.0 || ^17.0.0 || ^18.0.0
+    dependencies:
+      client-only: 0.0.1
+      react: 18.2.0
+      use-sync-external-store: 1.2.0(react@18.2.0)
+    dev: false
 
   /synckit@0.8.5:
     resolution: {integrity: sha512-L1dapNV6vu2s/4Sputv8xGsCdAVlb5nRDMFU/E27D44l5U6cw1g0dGd45uLc+OXjNMmF4ntiMdCimzcjFKQI8Q==}

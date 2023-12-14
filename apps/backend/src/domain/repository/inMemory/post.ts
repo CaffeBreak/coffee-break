@@ -4,24 +4,24 @@ import { singleton } from "tsyringe";
 import type { IPostRepository } from "./../interface/post";
 
 import { Post } from "@/domain/entity/post";
-// import { RoomId } from "@/domain/entity/room";
-import { RepositoryError } from "@/error/repository";
-// import { OkOrErr } from "@/misc/result";
+import { RoomId } from "@/domain/entity/room";
+import { DataNotFoundError, RepositoryError } from "@/error/repository";
+import { OkOrErr } from "@/misc/result";
 
 @singleton()
 export class InMemoryPostRepository implements IPostRepository {
   public store: Post[] = [];
 
-  // getpost(roomid: RoomId): Promise<Result<Post[], RepositoryError>> {
-  //   return new Promise((resolve) => {
-  //     resolve(
-  //       OkOrErr(
-  //         this.store.filter((post) => post._roomId === roomid),
-  //         new DataNotFoundError(),
-  //       ),
-  //     );
-  //   });
-  // }
+  getpost(roomid: RoomId): Promise<Result<Post[], RepositoryError>> {
+    return new Promise((resolve) => {
+      resolve(
+        OkOrErr(
+          this.store.filter((post) => post.roomId === roomid),
+          new DataNotFoundError(),
+        ),
+      );
+    });
+  }
 
   save(post: Post): Promise<Result<Post, RepositoryError>> {
     const index = this.store.findIndex((p) => p === post);
