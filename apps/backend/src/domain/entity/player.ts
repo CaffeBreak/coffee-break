@@ -15,11 +15,13 @@ export const playerRoleSchema = z.union([
   z.literal("WEREWOLF"),
 ]);
 export const playerStatusSchema = z.union([z.literal("ALIVE"), z.literal("DEAD")]);
+const skipFlagSchema = z.boolean();
 
 export type PlayerId = z.infer<typeof playerIdSchema>;
 export type PlayerName = z.infer<typeof playerNameSchema>;
 type PlayerRole = z.infer<typeof playerRoleSchema>;
 type PlayerStatus = z.infer<typeof playerStatusSchema>;
+type SkipFlag = z.infer<typeof skipFlagSchema>;
 
 export class Player {
   // IDは外部から触らせても良さそう
@@ -28,18 +30,21 @@ export class Player {
   private _role: PlayerRole;
   private _status: PlayerStatus;
   private _roomId?: RoomId;
+  private _skipFlag: SkipFlag;
 
   constructor(
     id: PlayerId,
     name: PlayerName,
     role: PlayerRole,
     status: PlayerStatus,
+    skipFlag: SkipFlag,
     roomId?: RoomId,
   ) {
     this.id = id;
     this._name = name;
     this._role = role;
     this._status = status;
+    this._skipFlag = skipFlag;
     this._roomId = roomId;
   }
 
@@ -65,6 +70,10 @@ export class Player {
     return this._roomId;
   }
 
+  get skipFlag() {
+    return this._skipFlag;
+  }
+
   public kill() {
     this._status = playerStatusSchema.parse("DEAD");
   }
@@ -77,12 +86,21 @@ export class Player {
     this._roomId = undefined;
   }
 
+  public setSkipFlag() {
+    this._skipFlag = true;
+  }
+
+  public resetSkipFlag() {
+    this._skipFlag = false;
+  }
+
   public static new(name: PlayerName): Player {
     return new Player(
       genId(),
       name,
       playerRoleSchema.parse("PENDING"),
       playerStatusSchema.parse("ALIVE"),
+      false,
     );
   }
 }
