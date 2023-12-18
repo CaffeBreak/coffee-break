@@ -15,6 +15,8 @@ toml = "^0.10.2"
 openapi-client = {path = "lib/caffe-break-api"}
 caffe-break-client = {path = "lib/caffe-break-api"}
 returns = "^0.22.0"
+websockets = "^12.0"
+numpy = "^1.26.2"
 
 
 [build-system]
