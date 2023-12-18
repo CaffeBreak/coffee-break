@@ -68,37 +68,41 @@ export class GameRouter {
 
           return {};
         }),
-      skipPhase: publicProcedure.input(skipPhaseSchema).mutation(async (opts) => {
-        const { input } = opts;
-        const { playerId } = input;
+      skipPhase: publicProcedure
+        .meta({ openapi: { method: "POST", path: "/game/skipPhase" } })
+        .input(skipPhaseSchema)
+        .output(z.object({}))
+        .mutation(async (opts) => {
+          const { input } = opts;
+          const { playerId } = input;
 
-        const playerIdResult = playerIdSchema.safeParse(playerId);
-        if (!playerIdResult.success) {
-          const errorOpts: ConstructorParameters<typeof TRPCError>[0] = {
-            code: "BAD_REQUEST",
-            cause: playerIdResult.error,
-          };
+          const playerIdResult = playerIdSchema.safeParse(playerId);
+          if (!playerIdResult.success) {
+            const errorOpts: ConstructorParameters<typeof TRPCError>[0] = {
+              code: "BAD_REQUEST",
+              cause: playerIdResult.error,
+            };
 
-          throw new TRPCError(errorOpts);
-        }
+            throw new TRPCError(errorOpts);
+          }
 
-        const result = await this.skipPhaseUseCase.execute(playerIdResult.data);
-        if (result.isErr()) {
-          const errorOpts = ((e: UseCaseError): ConstructorParameters<typeof TRPCError>[0] => {
-            if (e instanceof RepositoryOperationError)
-              return {
-                message: "Repository operation error",
-                code: "INTERNAL_SERVER_ERROR",
-                cause: e,
-              };
-            else return { message: e.message, code: "INTERNAL_SERVER_ERROR", cause: e };
-          })(result.unwrapErr());
+          const result = await this.skipPhaseUseCase.execute(playerIdResult.data);
+          if (result.isErr()) {
+            const errorOpts = ((e: UseCaseError): ConstructorParameters<typeof TRPCError>[0] => {
+              if (e instanceof RepositoryOperationError)
+                return {
+                  message: "Repository operation error",
+                  code: "INTERNAL_SERVER_ERROR",
+                  cause: e,
+                };
+              else return { message: e.message, code: "INTERNAL_SERVER_ERROR", cause: e };
+            })(result.unwrapErr());
 
-          throw new TRPCError(errorOpts);
-        }
+            throw new TRPCError(errorOpts);
+          }
 
-        return {};
-      }),
+          return {};
+        }),
     });
   }
 }

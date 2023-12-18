@@ -28,8 +28,13 @@ server.addHook("preHandler", (req, _, done) => {
   done();
 });
 server.addHook("onSend", (_, res, payload, done) => {
-  log("tRPC", pc.cyan(`<<< Sent response: ${res.statusCode}`));
-  if (payload && typeof payload === "string") {
+  log("tRPC", pc.cyan(`>>> Sent response: ${res.statusCode}`));
+  if (
+    payload &&
+    typeof payload === "string" &&
+    res.hasHeader("content-type") &&
+    res.getHeader("content-type") === "application/json"
+  ) {
     log("DEBUG", pc.dim(`Response body:\n${String(JSON.stringify(JSON.parse(payload), null, 2))}`));
   }
   done();
