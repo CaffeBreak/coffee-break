@@ -3,6 +3,10 @@ from urllib import response
 import websockets
 import json, sys, datetime
 
+from multiprocessing import Process
+from time import sleep
+from os import getpid, getppid
+
 from pprint import pprint
 from caffe_break_client.api_client import ApiClient
 from caffe_break_client.api.default_api import DefaultApi
@@ -33,33 +37,41 @@ async def roomWebSocket(roomId: str):
     print(response)
   return response
 
-if __name__ == "__main__":
-  with ApiClient(CONFIG.api_config) as client:
-    instance = DefaultApi(client)
-      # 引数0=1の処理
-    args = sys.argv
-    if(len(args) == 1):
-      print("合言葉を入れてください")
-      sys.exit(1)
-
-    elif(len(args) == 2):
-        playerCount:int = 1
-    else:
-        playerCount:int = int(args[2])
-    # create player
-    players = []
-    for p in range(playerCount):
-
+def playGame(playerName:str, roomId:str):
+    with ApiClient(CONFIG.api_config) as client:
+      instance = DefaultApi(client)
       player_result = create_player(instance, f"cffnpwr{str(p)}")
       if is_successful(player_result):
         player = player_result.unwrap()
-        players.append(player)
 
         room = join_room(instance, player["id"], str(args[1]))
         pprint(room)
       else:
         pprint(player_result.failure())
         exit(1)
-        asyncio.get_event_loop().run_until_complete(roomWebSocket(room.id))
-    pprint(players)
 
+      asyncio.get_event_loop().run_until_complete(roomWebSocket(room.id))
+
+if __name__ == "__main__":
+  # 引数1 合言葉 2 人数
+    # 引数0=1の処理
+  args = sys.argv
+  if(len(args) == 1):
+    print("合言葉を入れてください")
+    sys.exit(1)
+
+  elif(len(args) == 2):
+      playerCount:int = 1
+  elif(int(args[2]) > 7):
+      playerCount:int = 7
+  else:
+      playerCount:int = int(args[2])
+
+  players = []
+  # playerの生成
+  for p in range(playerCount):
+    players.append(Process(target=playGame, args=(f"cffnpwr{p}", args[1])))
+    players[p].start()
+
+  for p in range(playerCount):
+    players[p].join()

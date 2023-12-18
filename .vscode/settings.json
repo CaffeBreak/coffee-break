@@ -23,5 +23,5 @@
   ],
   "vitest.enable": true,
   "python.analysis.typeCheckingMode": "basic",
-  "python.analysis.autoImportCompletions": true
+  "python.analysis.autoImportCompletions": false
 }
