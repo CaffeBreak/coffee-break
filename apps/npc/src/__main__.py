@@ -50,11 +50,13 @@ def playGame(playerName:str, roomId:str):
         pprint(player_result.failure())
         exit(1)
 
-      asyncio.get_event_loop().run_until_complete(roomWebSocket(room.id))
+      while(1==1):
+        res = asyncio.get_event_loop().run_until_complete(roomWebSocket(room.id))
+        print(res)
 
 if __name__ == "__main__":
   # 引数1 合言葉 2 人数
-    # 引数0=1の処理
+  # 引数0=1の処理
   args = sys.argv
   if(len(args) == 1):
     print("合言葉を入れてください")
@@ -68,7 +70,7 @@ if __name__ == "__main__":
       playerCount:int = int(args[2])
 
   players = []
-  # playerの生成
+  # playerの生成 正直キモい
   for p in range(playerCount):
     players.append(Process(target=playGame, args=(f"cffnpwr{p}", args[1])))
     players[p].start()
