@@ -6,7 +6,6 @@ import { CreatePlayerUseCase } from "./../../usecase/player/create";
 import { publicProcedure, router } from "../trpc";
 
 import { playerNameSchema } from "@/domain/entity/player";
-import { UseCaseError } from "@/error/usecase/common";
 import { RepositoryOperationError } from "@/error/usecase/common";
 
 export const playerObjSchema = z.object({
@@ -48,14 +47,20 @@ export class PlayerRouter {
 
           const createPlayerResult = await this.createPlayerUseCase.execute(nameResult.data);
           if (createPlayerResult.isErr()) {
-            const errorOpts = ((e: UseCaseError): ConstructorParameters<typeof TRPCError>[0] => {
-              if (e instanceof RepositoryOperationError)
+            const errorOpts = ((e): ConstructorParameters<typeof TRPCError>[0] => {
+              if (e instanceof RepositoryOperationError) {
                 return {
-                  message: "Repository operation error",
+                  message: e.message,
                   code: "INTERNAL_SERVER_ERROR",
                   cause: e,
                 };
-              else return { message: "Something was happend", code: "INTERNAL_SERVER_ERROR" };
+              } else {
+                return {
+                  message: "Someting went wrong.",
+                  code: "INTERNAL_SERVER_ERROR",
+                  cause: e,
+                };
+              }
             })(createPlayerResult.unwrapErr());
 
             throw new TRPCError(errorOpts);

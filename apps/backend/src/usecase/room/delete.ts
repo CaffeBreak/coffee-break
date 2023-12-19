@@ -34,17 +34,12 @@ export class DeleteRoomUseCase {
     }
 
     // 部屋に参加していたプレイヤーは部屋から退出する
-    const playerRepoResult = await Promise.all(
-      room.players.map(async (p) => {
-        const player = (await this.playerRepository.findById(p.id)).unwrap();
-        player.leaveRoom();
-
-        return await this.playerRepository.save(player);
-      }),
-    );
-    const errIndex = playerRepoResult.findIndex((result) => result.isErr());
-    if (errIndex !== -1) {
-      return new Err(new RepositoryOperationError(playerRepoResult[errIndex].unwrapErr()));
+    room.players.map((p) => {
+      p.leaveRoom();
+    });
+    const playerRepoResult = await this.playerRepository.saveMany(room.players);
+    if (playerRepoResult.isErr()) {
+      return new Err(new RepositoryOperationError(playerRepoResult.unwrapErr()));
     }
 
     // 部屋を削除する

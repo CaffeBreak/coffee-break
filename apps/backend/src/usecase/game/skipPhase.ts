@@ -5,7 +5,7 @@ import type { IPlayerRepository } from "@/domain/repository/interface/player";
 import type { IRoomRepository } from "@/domain/repository/interface/room";
 
 import { PlayerId } from "@/domain/entity/player";
-import { OperationNotAllowedError } from "@/error/usecase/common";
+import { OperationNotAllowedError, RepositoryOperationError } from "@/error/usecase/common";
 import { PlayerNotFoundError } from "@/error/usecase/player";
 import { PlayerNotJoinedRoomError, RoomNotFoundError } from "@/error/usecase/room";
 import { ee } from "@/event";
@@ -45,7 +45,10 @@ export class SkipPhaseUseCase {
 
     // スキップフラグを有効化する
     player.setSkipFlag();
-    await this.playerRepository.save(player);
+    const saveResult = await this.playerRepository.save(player);
+    if (saveResult.isErr()) {
+      return new Err(new RepositoryOperationError(saveResult.unwrapErr()));
+    }
     const index = room.players.findIndex((player) => player.id === playerId);
     room.players[index] = player;
 

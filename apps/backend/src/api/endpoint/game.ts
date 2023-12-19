@@ -6,7 +6,17 @@ import { publicProcedure, router } from "../trpc";
 
 import { playerIdSchema } from "@/domain/entity/player";
 import { roomIdSchema } from "@/domain/entity/room";
-import { RepositoryOperationError, UseCaseError } from "@/error/usecase/common";
+import {
+  OperationNotAllowedError,
+  RepositoryOperationError,
+  UseCaseError,
+} from "@/error/usecase/common";
+import { PlayerNotFoundError } from "@/error/usecase/player";
+import {
+  NotEnoughPlayersError,
+  PlayerNotJoinedRoomError,
+  RoomNotFoundError,
+} from "@/error/usecase/room";
 import { SkipPhaseUseCase } from "@/usecase/game/skipPhase";
 import { StartGameUseCase } from "@/usecase/game/start";
 
@@ -54,13 +64,31 @@ export class GameRouter {
           );
           if (result.isErr()) {
             const errorOpts = ((e: UseCaseError): ConstructorParameters<typeof TRPCError>[0] => {
-              if (e instanceof RepositoryOperationError)
+              if (e instanceof RepositoryOperationError) {
                 return {
                   message: "Repository operation error",
                   code: "INTERNAL_SERVER_ERROR",
                   cause: e,
                 };
-              else return { message: e.message, code: "INTERNAL_SERVER_ERROR", cause: e };
+              } else if (
+                e instanceof RoomNotFoundError ||
+                e instanceof PlayerNotFoundError ||
+                e instanceof OperationNotAllowedError
+              ) {
+                return {
+                  message: e.message,
+                  code: "BAD_REQUEST",
+                  cause: e,
+                };
+              } else if (e instanceof NotEnoughPlayersError) {
+                return {
+                  message: e.message,
+                  code: "METHOD_NOT_SUPPORTED",
+                  cause: e,
+                };
+              } else {
+                return { message: e.message, code: "INTERNAL_SERVER_ERROR", cause: e };
+              }
             })(result.unwrapErr());
 
             throw new TRPCError(errorOpts);
@@ -89,13 +117,30 @@ export class GameRouter {
           const result = await this.skipPhaseUseCase.execute(playerIdResult.data);
           if (result.isErr()) {
             const errorOpts = ((e: UseCaseError): ConstructorParameters<typeof TRPCError>[0] => {
-              if (e instanceof RepositoryOperationError)
+              if (e instanceof RepositoryOperationError) {
                 return {
-                  message: "Repository operation error",
+                  message: e.message,
                   code: "INTERNAL_SERVER_ERROR",
                   cause: e,
                 };
-              else return { message: e.message, code: "INTERNAL_SERVER_ERROR", cause: e };
+              } else if (
+                e instanceof PlayerNotFoundError ||
+                e instanceof OperationNotAllowedError ||
+                e instanceof RoomNotFoundError ||
+                e instanceof PlayerNotJoinedRoomError
+              ) {
+                return {
+                  message: e.message,
+                  code: "BAD_REQUEST",
+                  cause: e,
+                };
+              } else {
+                return {
+                  message: "Something went wrong.",
+                  code: "INTERNAL_SERVER_ERROR",
+                  cause: e,
+                };
+              }
             })(result.unwrapErr());
 
             throw new TRPCError(errorOpts);
