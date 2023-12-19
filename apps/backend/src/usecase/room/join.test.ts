@@ -15,7 +15,7 @@ import { Room, roomIdSchema, roomPasswordSchema, roomPhaseSchema } from "@/domai
 import { InMemoryPlayerRepository } from "@/domain/repository/inMemory/player";
 import { InMemoryRoomRepository } from "@/domain/repository/inMemory/room";
 import { AlreadyJoinedOtherRoomError, PlayerNotFoundError } from "@/error/usecase/player";
-import { PasswordMismatchError, PlayerNameDuplicatedError } from "@/error/usecase/room";
+import { PlayerNameDuplicatedError, RoomNotFoundError } from "@/error/usecase/room";
 
 const playerRepository = container.resolve<InMemoryPlayerRepository>("PlayerRepository");
 const roomRepository = container.resolve<InMemoryRoomRepository>("RoomRepository");
@@ -27,6 +27,7 @@ const playerAlice = new Player(
   playerNameSchema.parse("Alice"),
   playerRoleSchema.parse("PENDING"),
   playerStatusSchema.parse("ALIVE"),
+  false,
   roomIdSchema.parse("9kzx7hf7w4"),
 );
 const playerBob = new Player(
@@ -34,12 +35,14 @@ const playerBob = new Player(
   playerNameSchema.parse("Bob"),
   playerRoleSchema.parse("PENDING"),
   playerStatusSchema.parse("ALIVE"),
+  false,
 );
 const playerAlice2 = new Player(
   playerIdSchema.parse("9kvyrk2hqb"),
   playerNameSchema.parse("Alice"),
   playerRoleSchema.parse("PENDING"),
   playerStatusSchema.parse("ALIVE"),
+  false,
 );
 
 const roomA = new Room(
@@ -87,14 +90,14 @@ it("プレイヤーIDに一致するプレイヤーが既に他の部屋に参�
   expect(result.unwrapErr()).toBeInstanceOf(AlreadyJoinedOtherRoomError);
 });
 
-it("合言葉が一致しなければ、PasswordMismatchErrorを返す", async () => {
+it("合言葉が一致する部屋が存在しなければ、RoomNotFoundErrorを返す", async () => {
   const result = await joinRoomUseCase.execute(
     roomPasswordSchema.parse("fugafuga"),
     playerAlice2.id,
   );
 
   expect(result.isErr()).toBe(true);
-  expect(result.unwrapErr()).toBeInstanceOf(PasswordMismatchError);
+  expect(result.unwrapErr()).toBeInstanceOf(RoomNotFoundError);
 });
 
 it("同じ名前のプレイヤーが同じ部屋に入ることはできず、PlayerNameDuplicateErrorを返す", async () => {

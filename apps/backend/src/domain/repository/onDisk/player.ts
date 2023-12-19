@@ -23,12 +23,14 @@ export const convertPlayer = (prismaPlayer: {
   isDead: boolean;
   joinedRoomId: string | null;
   role: PlayerRole;
+  skipFlag: boolean;
 }) =>
   new Player(
     playerIdSchema.parse(prismaPlayer.id),
     playerNameSchema.parse(prismaPlayer.name),
     playerRoleSchema.parse(prismaPlayer.role),
     playerStatusSchema.parse(prismaPlayer.isDead ? "DEAD" : "ALIVE"),
+    prismaPlayer.skipFlag,
     prismaPlayer.joinedRoomId ? roomIdSchema.parse(prismaPlayer.joinedRoomId) : undefined,
   );
 
@@ -80,12 +82,11 @@ export class OnDiskPlayerRepository implements IPlayerRepository {
         isDead: checkDead(player.status),
         joinedRoomId: player.roomId,
         role: player.role,
+        skipFlag: player.skipFlag,
       },
       create: {
         id: player.id,
         name: player.name,
-        isDead: checkDead(player.status),
-        role: "PENDING",
       },
     });
     //型変換して保存したplayerを返す
@@ -106,12 +107,11 @@ export class OnDiskPlayerRepository implements IPlayerRepository {
           isDead: checkDead(player.status),
           joinedRoomId: player.roomId,
           role: player.role,
+          skipFlag: player.skipFlag,
         },
         create: {
           id: player.id,
           name: player.name,
-          isDead: checkDead(player.status),
-          role: player.role,
         },
       }),
     );
