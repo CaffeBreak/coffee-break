@@ -16,11 +16,11 @@ from src.clients.room_join import join_room
 from src.config import CONFIG
 
 
-async def roomWebSocket(roomId: str):
+async def roomWebSocket(roomId: str, num:int):
   async with websockets.connect("ws://web:5555/trpc") as websocket:
     data = json.dumps(
       {
-        "id": 5,
+        "id": (f"roomId"+str(num)),
         "method": "subscription",
         "params": {
           "input": {
@@ -37,14 +37,17 @@ async def roomWebSocket(roomId: str):
     print(response)
   return response
 
-def playGame(playerName:str, roomId:str):
+def playGame():
+    p:int = 1
+    tmp = 1111
+
     with ApiClient(CONFIG.api_config) as client:
       instance = DefaultApi(client)
       player_result = create_player(instance, f"cffnpwr{str(p)}")
       if is_successful(player_result):
         player = player_result.unwrap()
 
-        room = join_room(instance, player["id"], str(args[1]))
+        room = join_room(instance, player["id"], str(tmp))
         pprint(room)
       else:
         pprint(player_result.failure())
@@ -52,32 +55,13 @@ def playGame(playerName:str, roomId:str):
 
       old_res = None
       while True:
-        res = asyncio.get_event_loop().run_until_complete(roomWebSocket(room.id))
+        i = 0
+        res = asyncio.get_event_loop().run_until_complete(roomWebSocket(room.id, num=i))
         if res != old_res:
             old_res = res
             print(res)
         sleep(1)  # ここで適切なスリープ時間を設定
+        i = i + 1
 
 if __name__ == "__main__":
-  # 引数1 合言葉 2 人数
-  # 引数0=1の処理
-  args = sys.argv
-  if(len(args) == 1):
-    print("合言葉を入れてください")
-    sys.exit(1)
-
-  elif(len(args) == 2):
-      playerCount:int = 1
-  elif(int(args[2]) > 7):
-      playerCount:int = 7
-  else:
-      playerCount:int = int(args[2])
-
-  players = []
-  # playerの生成 正直キモい
-  for p in range(playerCount):
-    players.append(Process(target=playGame, args=(f"cffnpwr{p}", args[1])))
-    players[p].start()
-
-  for p in range(playerCount):
-    players[p].join()
+  playGame()

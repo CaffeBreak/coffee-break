@@ -37,14 +37,14 @@ async def roomWebSocket(roomId: str):
     print(response)
   return response
 
-def playGame(playerName:str, roomId:str):
+async def playGame(playerName:str, roomId:str):
     with ApiClient(CONFIG.api_config) as client:
       instance = DefaultApi(client)
-      player_result = create_player(instance, f"cffnpwr{str(p)}")
+      player_result = create_player(instance, playerName)
       if is_successful(player_result):
         player = player_result.unwrap()
 
-        room = join_room(instance, player["id"], str(args[1]))
+        room = join_room(instance, player["id"], roomId)
         pprint(room)
       else:
         pprint(player_result.failure())
@@ -58,25 +58,10 @@ def playGame(playerName:str, roomId:str):
             print(res)
         sleep(1)  # ここで適切なスリープ時間を設定
 
-if __name__ == "__main__":
-  # 引数1 合言葉 2 人数
-  # 引数0=1の処理
-  args = sys.argv
-  if(len(args) == 1):
-    print("合言葉を入れてください")
-    sys.exit(1)
-
-  elif(len(args) == 2):
-      playerCount:int = 1
-  elif(int(args[2]) > 7):
-      playerCount:int = 7
-  else:
-      playerCount:int = int(args[2])
-
+async def parent(password:str, playerCount:int):
   players = []
-  # playerの生成 正直キモい
   for p in range(playerCount):
-    players.append(Process(target=playGame, args=(f"cffnpwr{p}", args[1])))
+    players.append(Process(target=playGame, args=(f"cffnpwr{p}", password)))
     players[p].start()
 
   for p in range(playerCount):

@@ -12,4 +12,4 @@ body = {'name':"aaaa"}
 
 # API接続の実行
 result = requests.post(API_Endpoint, data=json.dumps(body), headers=headers)
-print(result)
+print(result.text)
