@@ -8,7 +8,19 @@ import { publicProcedure, router } from "../trpc";
 
 import { playerIdSchema } from "@/domain/entity/player";
 import { roomIdSchema, roomPasswordSchema } from "@/domain/entity/room";
-import { RepositoryOperationError, UseCaseError } from "@/error/usecase/common";
+import {
+  OperationNotAllowedError,
+  RepositoryOperationError,
+  UseCaseError,
+} from "@/error/usecase/common";
+import { AlreadyJoinedOtherRoomError, PlayerNotFoundError } from "@/error/usecase/player";
+import {
+  PlayerNameDuplicatedError,
+  PlayerNotJoinedRoomError,
+  RoomNotFoundError,
+  RoomOwnerNotFoundError,
+  RoomPasswordDuplicateError,
+} from "@/error/usecase/room";
 import { ee } from "@/event";
 import { EventPort } from "@/misc/event";
 import { CreateRoomUseCase } from "@/usecase/room/create";
@@ -93,13 +105,29 @@ export class RoomRouter {
           );
           if (createRoomResult.isErr()) {
             const errorOpts = ((e: UseCaseError): ConstructorParameters<typeof TRPCError>[0] => {
-              if (e instanceof RepositoryOperationError)
+              if (e instanceof RepositoryOperationError) {
                 return {
-                  message: "Repository operation error",
+                  message: e.message,
                   code: "INTERNAL_SERVER_ERROR",
                   cause: e,
                 };
-              else return { message: "Something was happend", code: "INTERNAL_SERVER_ERROR" };
+              } else if (
+                e instanceof RoomPasswordDuplicateError ||
+                e instanceof RoomOwnerNotFoundError ||
+                e instanceof AlreadyJoinedOtherRoomError
+              ) {
+                return {
+                  message: e.message,
+                  code: "BAD_REQUEST",
+                  cause: e,
+                };
+              } else {
+                return {
+                  message: "Something went wrong.",
+                  code: "INTERNAL_SERVER_ERROR",
+                  cause: e,
+                };
+              }
             })(createRoomResult.unwrapErr());
 
             throw new TRPCError(errorOpts);
@@ -149,13 +177,27 @@ export class RoomRouter {
 
           if (deleteRoomResult.isErr()) {
             const errorOpts = ((e: UseCaseError): ConstructorParameters<typeof TRPCError>[0] => {
-              if (e instanceof RepositoryOperationError)
+              if (e instanceof RepositoryOperationError) {
                 return {
-                  message: "Repository operation error",
+                  message: e.message,
                   code: "INTERNAL_SERVER_ERROR",
                   cause: e,
                 };
-              else return { message: "Something was happend", code: "INTERNAL_SERVER_ERROR" };
+              } else if (e instanceof RoomNotFoundError) {
+                return {
+                  message: e.message,
+                  code: "BAD_REQUEST",
+                  cause: e,
+                };
+              } else if (e instanceof OperationNotAllowedError) {
+                return {
+                  message: e.message,
+                  code: "FORBIDDEN",
+                  cause: e,
+                };
+              } else {
+                return { message: "Something went wrong.", code: "INTERNAL_SERVER_ERROR" };
+              }
             })(deleteRoomResult.unwrapErr());
 
             throw new TRPCError(errorOpts);
@@ -188,13 +230,30 @@ export class RoomRouter {
           );
           if (joinRoomResult.isErr()) {
             const errorOpts = ((e: UseCaseError): ConstructorParameters<typeof TRPCError>[0] => {
-              if (e instanceof RepositoryOperationError)
+              if (e instanceof RepositoryOperationError) {
                 return {
-                  message: "Repository operation error",
+                  message: e.message,
                   code: "INTERNAL_SERVER_ERROR",
                   cause: e,
                 };
-              else return { message: "Something was happend", code: "INTERNAL_SERVER_ERROR" };
+              } else if (
+                e instanceof RoomNotFoundError ||
+                e instanceof PlayerNotFoundError ||
+                e instanceof AlreadyJoinedOtherRoomError ||
+                e instanceof PlayerNameDuplicatedError
+              ) {
+                return {
+                  message: e.message,
+                  code: "BAD_REQUEST",
+                  cause: e,
+                };
+              } else {
+                return {
+                  message: "Something went wrong.",
+                  code: "INTERNAL_SERVER_ERROR",
+                  cause: e,
+                };
+              }
             })(joinRoomResult.unwrapErr());
 
             throw new TRPCError(errorOpts);
@@ -245,13 +304,29 @@ export class RoomRouter {
           const leaveRoomResult = await this.leaveRoomUseCase.execute(playerIdResult.data);
           if (leaveRoomResult.isErr()) {
             const errorOpts = ((e: UseCaseError): ConstructorParameters<typeof TRPCError>[0] => {
-              if (e instanceof RepositoryOperationError)
+              if (e instanceof RepositoryOperationError) {
                 return {
-                  message: "Repository operation error",
+                  message: e.message,
                   code: "INTERNAL_SERVER_ERROR",
                   cause: e,
                 };
-              else return { message: "Something was happend", code: "INTERNAL_SERVER_ERROR" };
+              } else if (
+                e instanceof PlayerNotFoundError ||
+                e instanceof RoomNotFoundError ||
+                e instanceof PlayerNotJoinedRoomError
+              ) {
+                return {
+                  message: e.message,
+                  code: "BAD_REQUEST",
+                  cause: e,
+                };
+              } else {
+                return {
+                  message: "Something went wrong.",
+                  code: "INTERNAL_SERVER_ERROR",
+                  cause: e,
+                };
+              }
             })(leaveRoomResult.unwrapErr());
 
             throw new TRPCError(errorOpts);

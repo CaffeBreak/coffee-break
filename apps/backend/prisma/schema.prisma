@@ -15,6 +15,7 @@ model Player {
   joinedRoom   Room?      @relation("joinedPlayers", fields: [joinedRoomId], references: [id], onUpdate: Cascade, onDelete: SetNull)
   joinedRoomId String?
   role         PlayerRole @default(PENDING)
+  skipFlag     Boolean    @default(false)
 }
 
 model Room {

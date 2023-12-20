@@ -66,6 +66,10 @@ export class Room {
     return this._day;
   }
 
+  get canSkipPhase() {
+    return this._players.every((player) => player.skipFlag);
+  }
+
   public static new(password: RoomPassword, owner: Player): Room {
     return new Room(genId(), password, owner.id, "BEFORE_START", [owner], 0);
   }
@@ -86,25 +90,26 @@ export class Room {
       .with("BEFORE_START", () => "DISCUSSION")
       .with("DISCUSSION", () => "VOTING")
       .with("EXPULSION", () => {
-        if (
-          this._players
-            .filter((value) => value.status === "ALIVE")
-            .every((value, _index, array) => array[0].role === value.role)
-        ) {
-          return "FINISHED";
-        }
+        // if (
+        //   this._players
+        //     .filter((value) => value.status === "ALIVE")
+        //     .every((value, _index, array) => array[0].role === value.role)
+        // ) {
+        //   return "FINISHED";
+        // }
+        (() => {})();
 
         return "USING";
       })
       .with("FINISHED", () => "BEFORE_START")
       .with("KILLED", () => {
-        if (
-          this._players
-            .filter((value) => value.status === "ALIVE")
-            .every((value, _index, array) => array[0].role === value.role)
-        ) {
-          return "FINISHED";
-        }
+        // if (
+        //   this._players
+        //     .filter((value) => value.status === "ALIVE")
+        //     .every((value, _index, array) => array[0].role === value.role)
+        // ) {
+        //   return "FINISHED";
+        // }
         this._day += 1;
 
         return "DISCUSSION";
@@ -119,5 +124,9 @@ export class Room {
 
   public checkPassword(password: RoomPassword): boolean {
     return password === this.password;
+  }
+
+  public resetSkipFlag() {
+    this._players.map((player) => player.resetSkipFlag());
   }
 }

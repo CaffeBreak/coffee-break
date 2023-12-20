@@ -1,6 +1,7 @@
 import { Err, Ok, Result } from "@cffnpwr/result-ts";
-import { singleton } from "tsyringe";
+import { container, singleton } from "tsyringe";
 
+import { InMemoryPlayerRepository } from "./player";
 import { IRoomRepository } from "../interface/room";
 
 import { Room, RoomId, RoomPassword } from "@/domain/entity/room";
@@ -35,6 +36,9 @@ export class InMemoryRoomRepository implements IRoomRepository {
   }
 
   save(room: Room): Promise<Result<Room, RepositoryError>> {
+    const inMemoryPlayerRepository = container.resolve(InMemoryPlayerRepository);
+    void inMemoryPlayerRepository.saveMany(room.players);
+
     const index = this.store.findIndex((r) => r.id === room.id);
     if (index !== -1) {
       this.store[index] = room;
