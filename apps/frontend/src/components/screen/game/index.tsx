@@ -10,13 +10,16 @@ export const GameScreen = () => {
   const screenState = useAtomValue(ScreenStateAtom);
   const [roomObject, setRoomObject] = useAtom(RoomStateAtom);
 
-  trpc.stream.gameStream.useSubscription(roomObject.id, {
-    onData: (data) => {
-      if (data.eventType === "changePhase") {
-        setRoomObject((prev) => ({ ...prev, phase: data.phase, day: data.day }));
-      }
+  trpc.stream.gameStream.useSubscription(
+    { roomId: roomObject.id },
+    {
+      onData: (data) => {
+        if (data.eventType === "changePhase") {
+          setRoomObject((prev) => ({ ...prev, phase: data.phase, day: data.day }));
+        }
+      },
     },
-  });
+  );
 
   return <div>{screenState === "Game-ViewRole" && <ViewRole />}</div>;
 };

@@ -20,12 +20,14 @@ describe("findById", () => {
     playerNameSchema.parse("Alice"),
     playerRoleSchema.parse("PENDING"),
     playerStatusSchema.parse("ALIVE"),
+    false,
   );
   const playerBob = new Player(
     playerIdSchema.parse("9kvyrk2hqa"),
     playerNameSchema.parse("Bob"),
     playerRoleSchema.parse("PENDING"),
     playerStatusSchema.parse("ALIVE"),
+    false,
   );
 
   beforeAll(() => {
@@ -54,6 +56,7 @@ describe("findByRoomId", () => {
     playerNameSchema.parse("Alice"),
     playerRoleSchema.parse("VILLAGER"),
     playerStatusSchema.parse("ALIVE"),
+    false,
     roomId,
   );
   const playerBob = new Player(
@@ -61,6 +64,7 @@ describe("findByRoomId", () => {
     playerNameSchema.parse("Bob"),
     playerRoleSchema.parse("WEREWOLF"),
     playerStatusSchema.parse("ALIVE"),
+    false,
     roomId,
   );
   const playerCffnpwr = new Player(
@@ -68,12 +72,14 @@ describe("findByRoomId", () => {
     playerNameSchema.parse("cffnpwr"),
     playerRoleSchema.parse("PENDING"),
     playerStatusSchema.parse("ALIVE"),
+    false,
   );
   const playerDiana = new Player(
     playerIdSchema.parse("9kvyrk2hqc"),
     playerNameSchema.parse("Diana"),
     playerRoleSchema.parse("VILLAGER"),
     playerStatusSchema.parse("ALIVE"),
+    false,
     roomId,
   );
 
@@ -102,12 +108,14 @@ describe("save", () => {
     playerNameSchema.parse("Alice"),
     playerRoleSchema.parse("PENDING"),
     playerStatusSchema.parse("ALIVE"),
+    false,
   );
   const playerBob = new Player(
     playerIdSchema.parse("9kvyrk2hqa"),
     playerNameSchema.parse("Bob"),
     playerRoleSchema.parse("PENDING"),
     playerStatusSchema.parse("ALIVE"),
+    false,
   );
 
   beforeAll(() => {
@@ -140,18 +148,21 @@ describe("delete", () => {
     playerNameSchema.parse("Alice"),
     playerRoleSchema.parse("PENDING"),
     playerStatusSchema.parse("ALIVE"),
+    false,
   );
   const playerBob = new Player(
     playerIdSchema.parse("9kvyrk2hqa"),
     playerNameSchema.parse("Bob"),
     playerRoleSchema.parse("PENDING"),
     playerStatusSchema.parse("ALIVE"),
+    false,
   );
   const playerCffnpwr = new Player(
     playerIdSchema.parse("9kvyrk2hqb"),
     playerNameSchema.parse("cffnpwr"),
     playerRoleSchema.parse("PENDING"),
     playerStatusSchema.parse("ALIVE"),
+    false,
   );
 
   beforeAll(() => {

@@ -2,7 +2,7 @@
 
 /* eslint-disable @typescript-eslint/no-unsafe-argument */
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { EventEmitter as OriginalEventEmitter } from "events";
+import { EventEmitter as OriginalEventEmitter, on as originalOn } from "events";
 
 export class EventEmitter extends OriginalEventEmitter {
   public emit<T extends (...args: any[]) => void>(
@@ -72,3 +72,10 @@ export class EventPort<T extends (...args: any[]) => void> {
     this._emitter.removeAllListeners(this._name);
   }
 }
+
+export const on = <T extends (...args: any[]) => void>(
+  emitter: EventEmitter,
+  eventPort: EventPort<T>,
+  options?: { signal?: AbortSignal },
+): AsyncIterableIterator<Parameters<T>> =>
+  originalOn(emitter, eventPort.name.toString(), options) as AsyncIterableIterator<Parameters<T>>;

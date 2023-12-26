@@ -4,24 +4,40 @@ import { fastifySwaggerUi } from "@fastify/swagger-ui";
 import ws from "@fastify/websocket";
 import { fastifyTRPCPlugin } from "@trpc/server/adapters/fastify";
 import fastify from "fastify";
+import pc from "picocolors";
 import { fastifyTRPCOpenApiPlugin, generateOpenApiDocument } from "trpc-openapi";
 import { container } from "tsyringe";
 
 import { AppRouter } from "./api/trpc";
+import { log } from "./misc/log";
 
 const server = fastify({
   maxParamLength: 5000,
-  logger: {
-    transport: {
-      target: "pino-pretty",
-      options: {
-        translateTime: "SYS:yyyy/mm/dd HH:MM:ss o",
-        colorize: true,
-        ignore: "pid,hostname,reqId,responseTime,req,res",
-        messageFormat: "{msg}: [{reqId} {req.method}{res.statusCode} {req.url}] ",
-      },
-    },
-  },
+});
+server.addHook("preHandler", (req, _, done) => {
+  if (req) {
+    log("tRPC", pc.cyan(`<<< Receive request: ${req.method} ${req.url}`));
+    if (req.body && typeof req.body === "string") {
+      log(
+        "DEBUG",
+        pc.dim(`Request body:\n${String(JSON.stringify(JSON.parse(req.body), null, 2))}`),
+      );
+    }
+  }
+
+  done();
+});
+server.addHook("onSend", (_, res, payload, done) => {
+  log("tRPC", pc.cyan(`>>> Sent response: ${res.statusCode}`));
+  if (
+    payload &&
+    typeof payload === "string" &&
+    res.hasHeader("content-type") &&
+    res.getHeader("content-type") === "application/json"
+  ) {
+    log("DEBUG", pc.dim(`Response body:\n${String(JSON.stringify(JSON.parse(payload), null, 2))}`));
+  }
+  done();
 });
 
 export const startServer = () => {
@@ -58,6 +74,6 @@ export const startServer = () => {
 
   server
     .listen({ port: 5555, host: "0.0.0.0" })
-    .then(() => console.log("Listening in port 5555"))
+    .then(() => log("SERVER", pc.yellow("Listening in port 5555")))
     .catch((reason) => console.error(reason));
 };

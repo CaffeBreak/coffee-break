@@ -1,12 +1,13 @@
 import { observable } from "@trpc/server/observable";
-import { inject, injectable } from "tsyringe";
+import pc from "picocolors";
+import { injectable } from "tsyringe";
 import { z } from "zod";
 
 import { publicProcedure, router } from "../trpc";
 
 import { ee } from "@/event";
 import { EventPort } from "@/misc/event";
-import { GameEvent } from "@/usecase/game/event";
+import { log } from "@/misc/log";
 
 const gameStartSchema = z.object({
   roomId: z.string().regex(/^[0-9a-z]{10}$/),
@@ -59,8 +60,6 @@ type GameStreamPayload = z.infer<typeof gameStreamSchema>;
 
 @injectable()
 export class GameStream {
-  constructor(@inject(GameEvent) private readonly gameEvent: GameEvent) {}
-
   public execute() {
     return router({
       gameStream: publicProcedure.input(gameStartSchema).subscription((opts) => {
@@ -76,14 +75,19 @@ export class GameStream {
           ee,
         );
 
-        this.gameEvent.execute(changePhaseEE);
-
         return observable<GameStreamPayload>((emit) => {
+          log("tRPC", pc.cyan("<<< Subscription connected."));
           const onChangePhase = (data: ChangePhaseEventPayload) => {
             emit.next(data);
+
+            log("tRPC", pc.cyan(">>> Sent change phase event."));
+            log("DEBUG", pc.dim(JSON.stringify(data, null, 2)));
           };
           const onRoomUpdate = (data: RoomUpdateEventPayload) => {
             emit.next(data);
+
+            log("tRPC", pc.cyan(">>> Sent room update event."));
+            log("DEBUG", pc.dim(JSON.stringify(data, null, 2)));
           };
 
           changePhaseEE.on(onChangePhase);
