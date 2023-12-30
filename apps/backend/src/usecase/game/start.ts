@@ -1,5 +1,6 @@
 import { Err, Ok, Result } from "@cffnpwr/result-ts";
 import { inject, injectable } from "tsyringe";
+import { z } from "zod";
 
 import { ChangePhaseEventPayload, GameEvent } from "./event";
 
@@ -14,10 +15,19 @@ import {
   UseCaseError,
 } from "@/error/usecase/common";
 import { PlayerNotFoundError } from "@/error/usecase/player";
-import { RoomNotFoundError } from "@/error/usecase/room";
+import { NotEnoughPlayersError, RoomNotFoundError } from "@/error/usecase/room";
 import { ee } from "@/event";
 import { EventPort } from "@/misc/event";
 import { voidType } from "@/misc/type";
+
+const playerUpdateEventSchema = z.object({
+  eventType: z.literal("playerUpdate"),
+  id: z.string().regex(/^[0-9a-z]{10}$/),
+  name: z.string().regex(/^[^\s]{1,16}$/),
+  role: z.union([z.literal("PENDING"), z.literal("VILLAGER"), z.literal("WEREWOLF")]),
+  status: z.union([z.literal("ALIVE"), z.literal("DEAD")]),
+});
+type PlayerUpdateEventPayload = z.infer<typeof playerUpdateEventSchema>;
 
 @injectable()
 export class StartGameUseCase {
@@ -47,38 +57,55 @@ export class StartGameUseCase {
       return new Err(new OperationNotAllowedError());
     }
 
-    // // 部屋に参加してる人が7人じゃなければ開始できない
-    // if (room.players.length !== 7) {
-    //   return new Err(new NotEnoughPlayersError());
-    // }
+    // 部屋に参加してる人が7人じゃなければ開始できない
+    if (room.players.length !== 7) {
+      return new Err(new NotEnoughPlayersError());
+    }
 
-    // // 部屋内のすべてのプレイヤーに役職を割り当てする
-    // const playersResult = await this.playerRepository.findByRoomId(room.id);
-    // if (playersResult.isErr()) {
-    //   return new Err(new RepositoryOperationError(playersResult.unwrapErr()));
-    // }
-    // const players = playersResult.unwrap();
+    // 部屋内のすべてのプレイヤーに役職を割り当てする
+    const playersResult = await this.playerRepository.findByRoomId(room.id);
+    if (playersResult.isErr()) {
+      return new Err(new RepositoryOperationError(playersResult.unwrapErr()));
+    }
+    const players = playersResult.unwrap();
 
-    // // 役職を割り振る 人狼2 村人5
-    // const indexes = [...Array<number>(players.length)].map((_, i) => i);
-    // const werewolves = [
-    //   ...indexes.splice(Math.floor(Math.random() * indexes.length), 1),
-    //   ...indexes.splice(Math.floor(Math.random() * (indexes.length - 1))),
-    // ];
-    // players.map((player, index) => {
-    //   player.role = index === werewolves[0] || index === werewolves[1] ? "WEREWOLF" : "VILLAGER";
-    // });
+    // 役職を割り振る 人狼2 村人5
+    const indexes = [...Array<number>(players.length)].map((_, i) => i);
+    const werewolves = [
+      ...indexes.splice(Math.floor(Math.random() * indexes.length), 1),
+      ...indexes.splice(Math.floor(Math.random() * (indexes.length - 1))),
+    ];
+    players.map((player, index) => {
+      player.role = index === werewolves[0] || index === werewolves[1] ? "WEREWOLF" : "VILLAGER";
+    });
 
     const phase = room.nextPhase();
     const roomRepoResult = await this.roomRepository.save(room);
-    // const playerRepoResult = await this.playerRepository.saveMany(players);
+    const playerRepoResult = await this.playerRepository.saveMany(players);
     if (roomRepoResult.isErr()) {
       return new Err(new RepositoryOperationError(roomRepoResult.unwrapErr()));
     }
-    // if (playerRepoResult.isErr()) {
-    //   return new Err(new RepositoryOperationError(playerRepoResult.unwrapErr()));
-    // }
+    if (playerRepoResult.isErr()) {
+      return new Err(new RepositoryOperationError(playerRepoResult.unwrapErr()));
+    }
 
+    // 各プレイヤーに役職を通知する
+    players.map((player) => {
+      const playerUpdateEE: EventPort<(payload: PlayerUpdateEventPayload) => void> = new EventPort(
+        `playerUpdate-${player.id}`,
+        ee,
+      );
+
+      ee.emit(playerUpdateEE, {
+        eventType: "playerUpdate",
+        id: player.id,
+        name: player.name,
+        role: player.role,
+        status: player.status,
+      });
+    });
+
+    // ゲームの開始を通知する
     const changePhaseEE: EventPort<(payload: ChangePhaseEventPayload) => void> = new EventPort(
       `changePhase-${room.id}`,
       ee,
