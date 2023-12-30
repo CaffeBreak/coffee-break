@@ -16,6 +16,7 @@ export const ViewRole = () => {
 
   return (
     <div>
+      <div>{player.role !== "PENDING" ? player.role : "PENDING"}</div>
       <div>{roomObject.phase}</div>
       <button onClick={handler}>skip</button>
     </div>
