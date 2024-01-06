@@ -16,7 +16,7 @@ from src.clients.room_join import join_room
 from src.config import CONFIG
 
 
-async def roomWebSocket(roomId: str):
+async def roomWebSocket(player_id: str, roomId: str):
   async with websockets.connect("ws://web:5555/trpc") as websocket:
     data = json.dumps(
       {
@@ -25,6 +25,7 @@ async def roomWebSocket(roomId: str):
         "params": {
           "input": {
             "json": {
+              "playerId": player_id,
               "roomId": roomId
             }
           },
@@ -50,7 +51,7 @@ def playGame(playerName:str, roomId:str):
         pprint(player_result.failure())
         exit(1)
 
-      asyncio.get_event_loop().run_until_complete(roomWebSocket(room.id))
+      asyncio.get_event_loop().run_until_complete(roomWebSocket(player["id"], room.id))
 
 if __name__ == "__main__":
   # 引数1 合言葉 2 人数
