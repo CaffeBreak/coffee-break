@@ -25,6 +25,7 @@ import { ee } from "@/event";
 import { EventPort } from "@/misc/event";
 import { CreateRoomUseCase } from "@/usecase/room/create";
 import { DeleteRoomUseCase } from "@/usecase/room/delete";
+import { GetRoomUseCase } from "@/usecase/room/get";
 import { LeaveRoomUseCase } from "@/usecase/room/leave";
 
 export const roomObjSchema = z.object({
@@ -73,6 +74,7 @@ const deleteRoomSchema = z.object({
 export class RoomRouter {
   constructor(
     @inject(CreateRoomUseCase) private readonly createRoomUseCase: CreateRoomUseCase,
+    @inject(GetRoomUseCase) private readonly getRoomUseCase: GetRoomUseCase,
     @inject(JoinRoomUseCase) private readonly joinRoomUseCase: JoinRoomUseCase,
     @inject(LeaveRoomUseCase) private readonly leaveRoomUseCase: LeaveRoomUseCase,
     @inject(DeleteRoomUseCase) private readonly deleteRoomUseCase: DeleteRoomUseCase,
@@ -134,6 +136,64 @@ export class RoomRouter {
           }
 
           const room = createRoomResult.unwrap();
+
+          return {
+            id: room.id,
+            password: room.password,
+            ownerId: room.ownerId,
+            phase: room.phase,
+            players: room.players.map((player) => ({
+              id: player.id,
+              name: player.name,
+              role: player.role,
+              status: player.status,
+              roomId: player.roomId,
+            })),
+            day: room.day,
+          };
+        }),
+      get: publicProcedure
+        .meta({ openapi: { method: "GET", path: "/room/{roomId}" } })
+        .input(z.object({ roomId: z.string().regex(/^[0-9a-z]{10}$/) }))
+        .output(roomObjSchema)
+        .query(async (opts) => {
+          const { input } = opts;
+
+          const roomIdResult = roomIdSchema.safeParse(input.roomId);
+          if (!roomIdResult.success) {
+            const errorOpts: ConstructorParameters<typeof TRPCError>[0] = {
+              code: "BAD_REQUEST",
+              cause: roomIdResult.error,
+            };
+
+            throw new TRPCError(errorOpts);
+          }
+
+          const getRoomResult = await this.getRoomUseCase.execute(roomIdResult.data);
+
+          if (getRoomResult.isErr()) {
+            const errorOpts = ((e: UseCaseError): ConstructorParameters<typeof TRPCError>[0] => {
+              if (e instanceof RepositoryOperationError) {
+                return {
+                  message: e.message,
+                  code: "INTERNAL_SERVER_ERROR",
+                  cause: e,
+                };
+              } else if (e instanceof RoomNotFoundError) {
+                return {
+                  message: e.message,
+                  code: "BAD_REQUEST",
+                  cause: e,
+                };
+              } else {
+                return { message: "Something went wrong.", code: "INTERNAL_SERVER_ERROR" };
+              }
+            })(getRoomResult.unwrapErr());
+
+            throw new TRPCError(errorOpts);
+          }
+
+          const room = getRoomResult.unwrap();
 
           return {
             id: room.id,
