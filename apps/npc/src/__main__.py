@@ -15,6 +15,7 @@ from src.clients.player_create import create_player
 from src.clients.room_join import join_room
 from src.config import CONFIG
 
+
 async def roomWebSocket(player_id: str, roomId: str):
     async with websockets.connect("ws://web:5555/trpc") as websocket:
         data = json.dumps(
@@ -29,6 +30,7 @@ async def roomWebSocket(player_id: str, roomId: str):
                 }
               },
               "path": "stream.gameStream"
+
             }
           }
         )
@@ -67,6 +69,7 @@ def playGame(playerName:str, roomId:str):
             exit(1)
 
         asyncio.get_event_loop().run_until_complete(roomWebSocket(player["id"], room.id))
+
 
 async def send_player_skipPhase(player_id:str):
     # ベースURLとエンドポイント

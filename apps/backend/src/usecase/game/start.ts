@@ -1,7 +1,8 @@
 import { Err, Ok, Result } from "@cffnpwr/result-ts";
 import { inject, injectable } from "tsyringe";
+import { z } from "zod";
 
-import { ChangePhaseEventPayload } from "./event";
+import { ChangePhaseEventPayload, GameEvent } from "./event";
 
 import type { IPlayerRepository } from "@/domain/repository/interface/player";
 import type { IRoomRepository } from "@/domain/repository/interface/room";
@@ -19,11 +20,21 @@ import { ee } from "@/event";
 import { EventPort } from "@/misc/event";
 import { voidType } from "@/misc/type";
 
+const playerUpdateEventSchema = z.object({
+  eventType: z.literal("playerUpdate"),
+  id: z.string().regex(/^[0-9a-z]{10}$/),
+  name: z.string().regex(/^[^\s]{1,16}$/),
+  role: z.union([z.literal("PENDING"), z.literal("VILLAGER"), z.literal("WEREWOLF")]),
+  status: z.union([z.literal("ALIVE"), z.literal("DEAD")]),
+});
+type PlayerUpdateEventPayload = z.infer<typeof playerUpdateEventSchema>;
+
 @injectable()
 export class StartGameUseCase {
   constructor(
     @inject("RoomRepository") private readonly roomRepository: IRoomRepository,
     @inject("PlayerRepository") private readonly playerRepository: IPlayerRepository,
+    @inject(GameEvent) private readonly gameEvent: GameEvent,
   ) {}
 
   public async execute(operator: PlayerId, roomId: RoomId): Promise<Result<void, UseCaseError>> {
@@ -78,11 +89,29 @@ export class StartGameUseCase {
       return new Err(new RepositoryOperationError(playerRepoResult.unwrapErr()));
     }
 
+    // 各プレイヤーに役職を通知する
+    players.map((player) => {
+      const playerUpdateEE: EventPort<(payload: PlayerUpdateEventPayload) => void> = new EventPort(
+        `playerUpdate-${player.id}`,
+        ee,
+      );
+
+      ee.emit(playerUpdateEE, {
+        eventType: "playerUpdate",
+        id: player.id,
+        name: player.name,
+        role: player.role,
+        status: player.status,
+      });
+    });
+
+    // ゲームの開始を通知する
     const changePhaseEE: EventPort<(payload: ChangePhaseEventPayload) => void> = new EventPort(
       `changePhase-${room.id}`,
       ee,
     );
 
+    void this.gameEvent.execute(changePhaseEE);
     ee.emit(changePhaseEE, {
       eventType: "changePhase",
       roomId: room.id,

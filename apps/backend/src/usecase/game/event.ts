@@ -1,3 +1,6 @@
+import { setTimeout } from "timers/promises";
+
+import pc from "picocolors";
 import { inject, injectable } from "tsyringe";
 import { z } from "zod";
 
@@ -5,7 +8,9 @@ import type { IRoomRepository } from "@/domain/repository/interface/room";
 
 import { roomIdSchema } from "@/domain/entity/room";
 import { ee } from "@/event";
-import { EventPort } from "@/misc/event";
+import { EventPort, on } from "@/misc/event";
+import { log } from "@/misc/log";
+import { voidType } from "@/misc/type";
 
 const changePhaseEventSchema = z.object({
   eventType: z.literal("changePhase"),
@@ -27,29 +32,35 @@ export type ChangePhaseEventPayload = z.infer<typeof changePhaseEventSchema>;
 export class GameEvent {
   constructor(@inject("RoomRepository") private readonly roomRepository: IRoomRepository) {}
 
-  public execute(changePhaseEE: EventPort<(payload: ChangePhaseEventPayload) => void>) {
+  public async execute(changePhaseEE: EventPort<(payload: ChangePhaseEventPayload) => void>) {
     const changePhase = async (roomId: string) => {
       const room = (await this.roomRepository.findById(roomIdSchema.parse(roomId))).unwrap();
       const nextPhase = room.nextPhase();
+      log("DEBUG", pc.dim(`Next phase: ${nextPhase}`));
 
-      console.log(`next phase: ${nextPhase}`);
+      const newRoom = (await this.roomRepository.save(room)).unwrap();
 
-      await this.roomRepository.save(room);
+      return newRoom;
+    };
+
+    for await (const payload of on(ee, changePhaseEE)) {
+      const phase = payload[0].phase;
+      const waitTime = ["DISCUSSION", "USING", "VOTING"].includes(phase) ? 1 * 10 * 1000 : 0;
+
+      const abortController = new AbortController();
+      ee.once(`skipPhase-${payload[0].roomId}`, () => {
+        abortController.abort();
+      });
+      await setTimeout(waitTime, voidType, { signal: abortController.signal }).catch(() => {});
+
+      const room = await changePhase(payload[0].roomId);
 
       ee.emit(changePhaseEE, {
         eventType: "changePhase",
         roomId: room.id,
-        phase: nextPhase,
+        phase: room.phase,
         day: room.day,
       });
-    };
-
-    changePhaseEE.on((payload) => {
-      const phase = payload.phase;
-      const waitTime =
-        phase === "DISCUSSION" || phase === "USING" || phase === "VOTING" ? 1 * 60 * 1000 : 0;
-
-      setTimeout(() => void changePhase(payload.roomId), waitTime);
-    });
+    }
   }
 }

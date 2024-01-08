@@ -1,4 +1,4 @@
-import { useAtom, useAtomValue, useSetAtom } from "jotai";
+import { useAtom, useSetAtom } from "jotai";
 import { useEffect, useState } from "react";
 
 import { PlayerStateAtom } from "@/components/atoms/PlayerState";
@@ -14,7 +14,7 @@ export const MathcingRoom = () => {
     setPrevScreenState("");
   }, [setPrevScreenState]);
 
-  const playerObject = useAtomValue(PlayerStateAtom);
+  const [playerObject, setPlayerObject] = useAtom(PlayerStateAtom);
   const [roomObject, setRoomObject] = useAtom(RoomStateAtom);
   const [roomOwner, setRoomOwner] = useState(true);
   useEffect(() => {
@@ -52,14 +52,25 @@ export const MathcingRoom = () => {
   };
 
   trpc.stream.gameStream.useSubscription(
-    { roomId: roomObject.id },
+    { roomId: roomObject.id, playerId: playerObject.id },
     {
       onData: (data) => {
-        if (data.eventType === "roomUpdate") {
-          setRoomObject(data);
-        } else if (data.phase === "DISCUSSION") {
-          setRoomObject((prev) => ({ ...prev, phase: data.phase, day: data.day }));
-          setScreenState("Game-ViewRole");
+        console.log(data);
+        switch (data.eventType) {
+          case "changePhase":
+            if (data.phase === "DISCUSSION") {
+              setRoomObject((prev) => ({ ...prev, phase: data.phase, day: data.day }));
+              setScreenState("Game-ViewRole");
+            }
+            break;
+
+          case "playerUpdate":
+            setPlayerObject((prev) => ({ ...prev, ...data }));
+            break;
+
+          case "roomUpdate":
+            setRoomObject(data);
+            break;
         }
       },
     },

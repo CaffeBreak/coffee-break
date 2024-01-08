@@ -15,7 +15,7 @@ ARG GID=1000
 WORKDIR /caffe
 
 RUN apt-get update && \
-  apt-get install -y --no-install-recommends sudo && \
+  apt-get install -y --no-install-recommends sudo man lsof && \
   apt-get clean && \
   rm -rf /var/lib/apt/lists/* && \
   echo "node   ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers && \

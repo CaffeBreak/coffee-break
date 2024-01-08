@@ -4,6 +4,7 @@ All URIs are relative to *http://web:5555/api*
 
 Method | HTTP request | Description
 ------------- | ------------- | -------------
+[**game_skip_phase**](DefaultApi.md#game_skip_phase) | **POST** /game/skipPhase | 
 [**game_start**](DefaultApi.md#game_start) | **POST** /game/{roomId} | 
 [**player_create**](DefaultApi.md#player_create) | **POST** /player | 
 [**room_create**](DefaultApi.md#room_create) | **POST** /room | 
@@ -11,6 +12,74 @@ Method | HTTP request | Description
 [**room_join**](DefaultApi.md#room_join) | **POST** /room/join | 
 [**room_leave**](DefaultApi.md#room_leave) | **POST** /room/leave | 
 
+
+# **game_skip_phase**
+> object game_skip_phase(room_leave_request)
+
+
+
+### Example
+
+
+```python
+import time
+import os
+import caffe_break_client
+from caffe_break_client.models.room_leave_request import RoomLeaveRequest
+from caffe_break_client.rest import ApiException
+from pprint import pprint
+
+# Defining the host is optional and defaults to http://web:5555/api
+# See configuration.py for a list of all supported configuration parameters.
+configuration = caffe_break_client.Configuration(
+    host = "http://web:5555/api"
+)
+
+
+# Enter a context with an instance of the API client
+with caffe_break_client.ApiClient(configuration) as api_client:
+    # Create an instance of the API class
+    api_instance = caffe_break_client.DefaultApi(api_client)
+    room_leave_request = caffe_break_client.RoomLeaveRequest() # RoomLeaveRequest | 
+
+    try:
+        api_response = api_instance.game_skip_phase(room_leave_request)
+        print("The response of DefaultApi->game_skip_phase:\n")
+        pprint(api_response)
+    except Exception as e:
+        print("Exception when calling DefaultApi->game_skip_phase: %s\n" % e)
+```
+
+
+
+### Parameters
+
+
+Name | Type | Description  | Notes
+------------- | ------------- | ------------- | -------------
+ **room_leave_request** | [**RoomLeaveRequest**](RoomLeaveRequest.md)|  | 
+
+### Return type
+
+**object**
+
+### Authorization
+
+No authorization required
+
+### HTTP request headers
+
+ - **Content-Type**: application/json
+ - **Accept**: application/json
+
+### HTTP response details
+
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+**200** | Successful response |  -  |
+**0** | Error response |  -  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 # **game_start**
 > object game_start(room_id, room_leave_request)

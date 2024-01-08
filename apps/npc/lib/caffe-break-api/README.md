@@ -67,15 +67,14 @@ configuration = caffe_break_client.Configuration(
 with caffe_break_client.ApiClient(configuration) as api_client:
     # Create an instance of the API class
     api_instance = caffe_break_client.DefaultApi(api_client)
-    room_id = 'room_id_example' # str | 
     room_leave_request = caffe_break_client.RoomLeaveRequest() # RoomLeaveRequest | 
 
     try:
-        api_response = api_instance.game_start(room_id, room_leave_request)
-        print("The response of DefaultApi->game_start:\n")
+        api_response = api_instance.game_skip_phase(room_leave_request)
+        print("The response of DefaultApi->game_skip_phase:\n")
         pprint(api_response)
     except ApiException as e:
-        print("Exception when calling DefaultApi->game_start: %s\n" % e)
+        print("Exception when calling DefaultApi->game_skip_phase: %s\n" % e)
 
 ```
 
@@ -85,6 +84,7 @@ All URIs are relative to *http://web:5555/api*
 
 Class | Method | HTTP request | Description
 ------------ | ------------- | ------------- | -------------
+*DefaultApi* | [**game_skip_phase**](docs/DefaultApi.md#game_skip_phase) | **POST** /game/skipPhase | 
 *DefaultApi* | [**game_start**](docs/DefaultApi.md#game_start) | **POST** /game/{roomId} | 
 *DefaultApi* | [**player_create**](docs/DefaultApi.md#player_create) | **POST** /player | 
 *DefaultApi* | [**room_create**](docs/DefaultApi.md#room_create) | **POST** /room | 

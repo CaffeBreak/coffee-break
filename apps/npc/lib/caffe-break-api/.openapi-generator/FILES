@@ -1,7 +1,6 @@
 .github/workflows/python.yml
 .gitignore
 .gitlab-ci.yml
-.openapi-generator-ignore
 .travis.yml
 README.md
 caffe_break_client/__init__.py
@@ -44,16 +43,4 @@ setup.cfg
 setup.py
 test-requirements.txt
 test/__init__.py
-test/test_default_api.py
-test/test_player_create200_response.py
-test/test_player_create200_response_role.py
-test/test_player_create200_response_status.py
-test/test_player_create_default_response.py
-test/test_player_create_default_response_issues_inner.py
-test/test_player_create_request.py
-test/test_room_create200_response.py
-test/test_room_create200_response_phase.py
-test/test_room_create200_response_players_inner.py
-test/test_room_create_request.py
-test/test_room_leave_request.py
 tox.ini
