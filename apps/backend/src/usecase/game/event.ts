@@ -35,6 +35,7 @@ export class GameEvent {
   public async execute(changePhaseEE: EventPort<(payload: ChangePhaseEventPayload) => void>) {
     const changePhase = async (roomId: string) => {
       const room = (await this.roomRepository.findById(roomIdSchema.parse(roomId))).unwrap();
+      room.resetSkipFlag();
       const nextPhase = room.nextPhase();
       log("DEBUG", pc.dim(`Next phase: ${nextPhase}`));
 
