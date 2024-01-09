@@ -13,10 +13,10 @@
   },
   "dependencies": {
     "@tanstack/react-query": "^4.35.3",
-    "@trpc/client": "^10.43.6",
-    "@trpc/react-query": "^10.44.1",
-    "@trpc/server": "^10.44.1",
-    "jotai": "^2.6.0",
+    "@trpc/client": "^10.45.0",
+    "@trpc/react-query": "^10.45.0",
+    "@trpc/server": "^10.45.0",
+    "jotai": "^2.6.1",
     "next": "^14.0.4",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
@@ -24,16 +24,16 @@
     "ts-pattern": "^5.0.6"
   },
   "devDependencies": {
-    "@types/react": "^18.2.45",
+    "@types/react": "^18.2.47",
     "@types/react-dom": "^18.2.18",
     "autoprefixer": "^10.4.16",
     "backend": "workspace:*",
     "eslint-config-next": "^13.5.6",
-    "eslint-config-turbo": "^1.11.2",
-    "eslint-plugin-tailwindcss": "^3.13.0",
-    "postcss": "^8.4.32",
+    "eslint-config-turbo": "^1.11.3",
+    "eslint-plugin-tailwindcss": "^3.13.1",
+    "postcss": "^8.4.33",
     "prettier": "^3.1.1",
     "prettier-plugin-tailwindcss": "^0.4.1",
-    "tailwindcss": "^3.3.6"
+    "tailwindcss": "^3.4.1"
   }
 }

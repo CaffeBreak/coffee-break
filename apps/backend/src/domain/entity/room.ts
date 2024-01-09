@@ -129,4 +129,8 @@ export class Room {
   public resetSkipFlag() {
     this._players.map((player) => player.resetSkipFlag());
   }
+
+  public resetVote() {
+    this._players.map((player) => player.resetVote());
+  }
 }

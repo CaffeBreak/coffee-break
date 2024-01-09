@@ -30,7 +30,12 @@ const convertRoom = (prismaRoom: {
     roomPasswordSchema.parse(prismaRoom.password),
     playerIdSchema.parse(prismaRoom.ownerId),
     roomPhaseSchema.parse(prismaRoom.phase),
-    prismaRoom.players.map((player) => convertPlayer(player)),
+    prismaRoom.players.map((player) =>
+      convertPlayer({
+        votedPlayers: [],
+        ...player,
+      }),
+    ),
     prismaRoom.day,
   );
 

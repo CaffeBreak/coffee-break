@@ -2,6 +2,7 @@ import { TRPCError } from "@trpc/server";
 import { inject, injectable } from "tsyringe";
 import { SafeParseError, z } from "zod";
 
+import { playerObjSchema } from "./player";
 import { publicProcedure, router } from "../trpc";
 
 import { playerIdSchema } from "@/domain/entity/player";
@@ -19,6 +20,7 @@ import {
 } from "@/error/usecase/room";
 import { SkipPhaseUseCase } from "@/usecase/game/skipPhase";
 import { StartGameUseCase } from "@/usecase/game/start";
+import { VotingUseCase } from "@/usecase/game/vote";
 
 const startGameSchema = z.object({
   playerId: z.string().regex(/^[0-9a-z]{10}$/),
@@ -27,12 +29,17 @@ const startGameSchema = z.object({
 const skipPhaseSchema = z.object({
   playerId: z.string().regex(/^[0-9a-z]{10}$/),
 });
+const votingSchema = z.object({
+  playerId: z.string().regex(/^[0-9a-z]{10}$/),
+  target: z.string().regex(/^[0-9a-z]{10}$/),
+});
 
 @injectable()
 export class GameRouter {
   constructor(
     @inject(StartGameUseCase) private readonly startGameUseCase: StartGameUseCase,
     @inject(SkipPhaseUseCase) private readonly skipPhaseUseCase: SkipPhaseUseCase,
+    @inject(VotingUseCase) private readonly votingUseCase: VotingUseCase,
   ) {}
 
   public execute() {
@@ -88,6 +95,69 @@ export class GameRouter {
           }
 
           return {};
+        }),
+      vote: publicProcedure
+        .meta({ openapi: { method: "POST", path: "/game/vote" } })
+        .input(votingSchema)
+        .output(playerObjSchema)
+        .mutation(async (opts) => {
+          const { input } = opts;
+          const { playerId, target } = input;
+
+          const playerIdResult = playerIdSchema.safeParse(playerId);
+          const targetResult = playerIdSchema.safeParse(target);
+          if (!playerIdResult.success || !targetResult.success) {
+            const errorOpts: ConstructorParameters<typeof TRPCError>[0] = {
+              code: "BAD_REQUEST",
+              cause: !playerIdResult.success
+                ? playerIdResult.error
+                : (targetResult as SafeParseError<string>).error,
+            };
+
+            throw new TRPCError(errorOpts);
+          }
+
+          const result = await this.votingUseCase.execute(playerIdResult.data, targetResult.data);
+          if (result.isErr()) {
+            const errorOpts = ((e: UseCaseError): ConstructorParameters<typeof TRPCError>[0] => {
+              if (e instanceof RepositoryOperationError) {
+                return {
+                  message: e.message,
+                  code: "INTERNAL_SERVER_ERROR",
+                  cause: e,
+                };
+              } else if (
+                e instanceof PlayerNotFoundError ||
+                e instanceof OperationNotAllowedError ||
+                e instanceof RoomNotFoundError ||
+                e instanceof PlayerNotJoinedRoomError
+              ) {
+                return {
+                  message: e.message,
+                  code: "BAD_REQUEST",
+                  cause: e,
+                };
+              } else {
+                return {
+                  message: "Something went wrong.",
+                  code: "INTERNAL_SERVER_ERROR",
+                  cause: e,
+                };
+              }
+            })(result.unwrapErr());
+
+            throw new TRPCError(errorOpts);
+          }
+
+          const player = result.unwrap();
+
+          return {
+            id: player.id,
+            name: player.name,
+            role: player.role,
+            status: player.status,
+            roomId: player.roomId,
+          };
         }),
       start: publicProcedure
         .meta({ openapi: { method: "POST", path: "/game/{roomId}" } })

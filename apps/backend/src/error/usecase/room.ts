@@ -111,3 +111,14 @@ export class NotEnoughPlayersError extends UseCaseError {
     Object.setPrototypeOf(this, NotEnoughPlayersError.prototype);
   }
 }
+
+export class VotingTargetNotFoundError extends UseCaseError {
+  static {
+    this.prototype.name = "VotingTargetNotFoundError";
+  }
+  constructor() {
+    super("The voting target is not found in this room");
+
+    Object.setPrototypeOf(this, VotingTargetNotFoundError.prototype);
+  }
+}
