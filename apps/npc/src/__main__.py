@@ -1,7 +1,8 @@
 import asyncio
 from urllib import response
 import websockets
-import json, sys, datetime, aiohttp
+import json, sys, datetime, aiohttp, random
+
 
 from multiprocessing import Process
 from time import sleep
@@ -42,10 +43,16 @@ async def roomWebSocket(player_id: str, roomId: str):
                 res_dic = json.loads(response)
                 print(res_dic)
                 if(res_dic["result"]["type"] == "data"):
-                    if(res_dic["result"]["data"]["json"]["eventType"] == "changePhase" and res_dic["result"]["data"]["json"]["phase"] == "VOTING"):
-                        print(res_dic["result"]["data"]["json"]["phase"])
-                        res = await send_player_skipPhase(player_id)
-                        print(res)
+                    if(res_dic["result"]["data"]["json"]["eventType"] == "changePhase"):
+                        match res_dic["result"]["data"]["json"]["phase"]:
+                            case "VOTING":
+                                res = await rand_voting(roomId, player_id)
+                                print(res)
+                            case "DISCUSSION":                        
+                                print(res_dic["result"]["data"]["json"]["phase"])
+                                res = await send_player_skipPhase(player_id)
+                                print(res)
+                            
                 # if(await send_room_state(roomId) == "VOTING"):
                 #     res = await send_player_skipPhase(player_id)
                 #     print(res)
@@ -101,6 +108,39 @@ async def send_room_state(room_id:str):
             else:
                 # エラーハンドリング
                 return None
+
+async def rand_voting(room_id:str, player_id:str):
+    base_url = "http://web:5555/api"
+    endpoint = f"/room/{room_id}"
+    
+    async with aiohttp.ClientSession() as session:
+        async with session.get(f"{base_url}{endpoint}") as response:
+            if response.status == 200:
+                data = await response.json()
+            else:
+                # エラーハンドリング
+                return "Don't get Room State"
+        players = data["players"]
+        targetPlayers = []
+        
+        # 気合の生きているPの取得
+        #プロデューサーじゃないよ
+        for p in players:
+            if(p["status"] == "ALIVE" and p["id"] != player_id):
+                targetPlayers.append(p)
+
+        # リクエストボディに含めるJSONデータ
+        json_data = {
+            "playerId": player_id,
+            "target": targetPlayers[random.randrange(0, len(targetPlayers)-1, 1)]["id"]
+        }
+
+        # POSTリクエストを送信
+        async with session.post(f"{base_url}/game/vote", json=json_data) as response:
+            data = await response.json()
+            return data
+
+
 
 if __name__ == "__main__":
     args = sys.argv
