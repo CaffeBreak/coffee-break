@@ -26,6 +26,11 @@ export class SkipPhaseUseCase {
     }
     const player = playerResult.unwrap();
 
+    // 死んでいるプレイヤーはスキップできない
+    if (player.status === "DEAD") {
+      return new Err(new OperationNotAllowedError());
+    }
+
     // プレイヤーが部屋に参加していなければスキップは無効
     if (!player.roomId) {
       return new Err(new PlayerNotJoinedRoomError());

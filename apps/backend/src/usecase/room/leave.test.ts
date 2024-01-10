@@ -27,6 +27,7 @@ const playerAlice = new Player(
   playerRoleSchema.parse("PENDING"),
   playerStatusSchema.parse("ALIVE"),
   false,
+  [],
   roomIdSchema.parse("9kzx7hf7w4"),
 );
 const playerBob = new Player(
@@ -35,6 +36,7 @@ const playerBob = new Player(
   playerRoleSchema.parse("PENDING"),
   playerStatusSchema.parse("ALIVE"),
   false,
+  [],
 );
 const playerCffnpwr = new Player(
   playerIdSchema.parse("9kvyrk2hqb"),
@@ -42,6 +44,7 @@ const playerCffnpwr = new Player(
   playerRoleSchema.parse("PENDING"),
   playerStatusSchema.parse("ALIVE"),
   false,
+  [],
   roomIdSchema.parse("9kzx7hf7w5"),
 );
 

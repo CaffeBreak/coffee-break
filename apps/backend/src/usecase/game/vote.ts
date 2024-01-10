@@ -4,7 +4,7 @@ import { inject, injectable } from "tsyringe";
 import type { IPlayerRepository } from "@/domain/repository/interface/player";
 import type { IRoomRepository } from "@/domain/repository/interface/room";
 
-import { Player, PlayerId } from "@/domain/entity/player";
+import { PlayerId } from "@/domain/entity/player";
 import { OperationNotAllowedError } from "@/error/usecase/common";
 import { PlayerNotFoundError } from "@/error/usecase/player";
 import {
@@ -71,46 +71,8 @@ export class VotingUseCase {
     const index = room.players.findIndex((player) => player.id === playerId);
     room.players[index] = player;
 
-    // 部屋の中のプレイヤー全員が投票したら投票を終了する
-    if (
-      room.players
-        .filter((player) => player.status === "ALIVE")
-        .every((player) => player.voteTarget)
-    ) {
-      // 最も投票されたプレイヤーを処刑する
-      const voteCountMap = new Map<PlayerId, number>();
-      room.players
-        .filter((player) => player.status === "ALIVE")
-        .forEach((player) => {
-          const voteTarget = player.voteTarget;
-          if (voteTarget) {
-            const voteCount = voteCountMap.get(voteTarget) ?? 0;
-            voteCountMap.set(voteTarget, voteCount + 1);
-          }
-        });
-      const maxVoteCount = Math.max(...voteCountMap.values());
-      const maxVoteTargets: [PlayerId, number][] = [];
-      voteCountMap.forEach((voteCount, voteTarget) => {
-        if (voteCount === maxVoteCount) {
-          maxVoteTargets.push([voteTarget, voteCount]);
-        }
-      });
-      let targetPlayer: Player;
-      if (maxVoteTargets?.length === 1) {
-        const [maxVoteTarget] = maxVoteTargets;
-        targetPlayer = room.players.find((player) => player.id === maxVoteTarget[0]) as Player;
-      } else {
-        // 最大投票数が同数の場合は最大投票数のプレイヤーをランダムに処刑する
-        const [maxVoteTarget] = maxVoteTargets[Math.floor(Math.random() * maxVoteTargets.length)];
-        targetPlayer = room.players.find((player) => player.id === maxVoteTarget) as Player;
-      }
-
-      targetPlayer.kill();
-      const saveResult = await this.playerRepository.save(targetPlayer);
-      if (saveResult.isErr()) {
-        return new Err(saveResult.unwrapErr());
-      }
-
+    // 部屋の中のプレイヤー全員が投票 or スキップしたら投票を終了する
+    if (room.canSkipPhase) {
       ee.emit(`skipPhase-${room.id}`);
     }
 
