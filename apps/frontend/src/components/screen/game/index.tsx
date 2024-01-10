@@ -5,6 +5,7 @@ import { RoomStateAtom } from "@/components/atoms/RoomState";
 import { ScreenStateAtom } from "@/components/atoms/ScreenState";
 import { trpc } from "@/utils/trpc";
 
+import { PlayRoom } from "./PlayRoom";
 import { ViewRole } from "./ViewRole";
 
 export const GameScreen = () => {
@@ -33,5 +34,10 @@ export const GameScreen = () => {
     },
   );
 
-  return <div>{screenState === "Game-ViewRole" && <ViewRole />}</div>;
+  return (
+    <div>
+      {screenState === "Game-ViewRole" && <ViewRole />}
+      {screenState === "Game-PlayRoom" && <PlayRoom />}
+    </div>
+  );
 };
