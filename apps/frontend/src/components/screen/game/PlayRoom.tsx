@@ -31,7 +31,7 @@ export const PlayRoom = () => {
         <div className="h-[400px] w-[180px] space-y-2 rounded bg-yellow-500 p-3">
           <div className="text-center text-xl text-white">覗き見</div>
           <div className="flex justify-center">
-            <Image src="/card/0覗き見.png" alt={""} width="128" height="212" />
+            <Image src="/card/peeking.png" alt={""} width="128" height="212" />
           </div>
           <div className="rounded bg-white p-1">
             ランダムに対象が選ばれる(人狼含む)。対象の手札の内容を見る。
@@ -65,31 +65,31 @@ export const PlayRoom = () => {
       <div className="flex h-[150px] w-full justify-between p-3">
         <div className="mr-3 flex h-full w-full items-center justify-center space-x-2 rounded border border-gray-300 bg-gray-100">
           <div>
-            <Image src="/card/0覗き見.png" alt={""} width="64" height="106" />
+            <Image src="/card/peeking.png" alt={""} width="64" height="106" />
           </div>
           <div>
-            <Image src="/card/0覗き見.png" alt={""} width="64" height="106" />
+            <Image src="/card/peeking.png" alt={""} width="64" height="106" />
           </div>
           <div>
-            <Image src="/card/0覗き見.png" alt={""} width="64" height="106" />
+            <Image src="/card/peeking.png" alt={""} width="64" height="106" />
           </div>
           <div>
-            <Image src="/card/0覗き見.png" alt={""} width="64" height="106" />
+            <Image src="/card/peeking.png" alt={""} width="64" height="106" />
           </div>
           <div>
-            <Image src="/card/0覗き見.png" alt={""} width="64" height="106" />
+            <Image src="/card/peeking.png" alt={""} width="64" height="106" />
           </div>
           <div>
-            <Image src="/card/0覗き見.png" alt={""} width="64" height="106" />
+            <Image src="/card/peeking.png" alt={""} width="64" height="106" />
           </div>
           <div>
-            <Image src="/card/0覗き見.png" alt={""} width="64" height="106" />
+            <Image src="/card/peeking.png" alt={""} width="64" height="106" />
           </div>
           <div>
-            <Image src="/card/0覗き見.png" alt={""} width="64" height="106" />
+            <Image src="/card/peeking.png" alt={""} width="64" height="106" />
           </div>
           <div>
-            <Image src="/card/0覗き見.png" alt={""} width="64" height="106" />
+            <Image src="/card/peeking.png" alt={""} width="64" height="106" />
           </div>
         </div>
         <div>
