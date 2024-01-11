@@ -43,15 +43,20 @@ async def roomWebSocket(player_id: str, roomId: str):
                 res_dic = json.loads(response)
                 print(res_dic)
                 if(res_dic["result"]["type"] == "data"):
-                    if(res_dic["result"]["data"]["json"]["eventType"] == "changePhase"):
-                        match res_dic["result"]["data"]["json"]["phase"]:
-                            case "VOTING":
-                                res = await rand_voting(roomId, player_id)
-                                print(res)
-                            case "DISCUSSION":                        
-                                print(res_dic["result"]["data"]["json"]["phase"])
-                                res = await send_player_skipPhase(player_id)
-                                print(res)
+                    match res_dic["result"]["data"]["json"]["eventType"]:
+                        case "changePhase":
+                            match res_dic["result"]["data"]["json"]["phase"]:
+                                case "VOTING":
+                                    res = await rand_voting(roomId, player_id)
+                                    print(res)
+                                case "DISCUSSION":                        
+                                    print(res_dic["result"]["data"]["json"]["phase"])
+                                    res = await send_player_skipPhase(player_id)
+                                    print(res)
+                        case "playerUpdate":
+                            if(res_dic["result"]["data"]["json"]["status"] == "DEAD"):
+                                print("グエー死んだンゴ")
+                                exit()
                             
                 # if(await send_room_state(roomId) == "VOTING"):
                 #     res = await send_player_skipPhase(player_id)
