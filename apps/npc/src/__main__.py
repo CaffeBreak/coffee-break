@@ -19,9 +19,11 @@ from src.config import CONFIG
 
 async def roomWebSocket(player_id: str, roomId: str):
     async with websockets.connect("ws://web:5555/trpc") as websocket:
+        # intなら1年運用しないからMDHMSmsでいいんじゃないですかね
+        # 実際長いこれstr使えるならPID+MSでいい気ガス
         data = json.dumps(
           {
-            "id": 5,
+        "id": player_id,
             "method": "subscription",
             "params": {
               "input": {
