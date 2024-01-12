@@ -2,6 +2,7 @@ import { useAtomValue } from "jotai";
 import Image from "next/image";
 import { useState } from "react";
 
+import { DeathStateAtom } from "@/components/atoms/DeathState";
 import { PlayerStateAtom } from "@/components/atoms/PlayerState";
 import { RoomStateAtom } from "@/components/atoms/RoomState";
 import { VoteButton } from "@/components/ui/button/VoteButton";
@@ -10,6 +11,8 @@ export const PlayRoom = () => {
   const player = useAtomValue(PlayerStateAtom);
   const roomObject = useAtomValue(RoomStateAtom);
   const [activeButton, setActiveButton] = useState("");
+  const deathPlayer = useAtomValue(DeathStateAtom);
+  console.log(deathPlayer);
 
   return (
     <div className="flex h-screen min-h-[650px] w-screen min-w-[900px] flex-col justify-between">
@@ -39,10 +42,16 @@ export const PlayRoom = () => {
         </div>
         <div className="flex w-[400px] flex-col justify-center space-y-8">
           <div className="text-center text-xl">前日の夜の行動</div>
-          <div className="text-center">cffnpwr3が教育教育教育死刑死刑死刑された</div>
+          <div className="text-center">
+            {deathPlayer.map((player, index) => (
+              <p key={index}>{`${player}は教育死刑された`}</p>
+            ))}
+          </div>
         </div>
         <div className="w-[250px]">
-          <div className="m-3 text-center text-xl">{`${roomObject.players.length}/7`}</div>
+          <div className="m-3 text-center text-xl">
+            {`${roomObject.players.filter((player) => player.status === "ALIVE").length}/7`}
+          </div>
           <div className="flex-col space-y-2">
             {roomObject.players.map((player, index) => {
               if (player.status === "ALIVE") {

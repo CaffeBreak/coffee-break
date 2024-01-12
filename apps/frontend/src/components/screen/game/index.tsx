@@ -1,5 +1,6 @@
-import { useAtom, useAtomValue } from "jotai";
+import { useAtom, useAtomValue, useSetAtom } from "jotai";
 
+import { DeathStateAtom } from "@/components/atoms/DeathState";
 import { PlayerStateAtom } from "@/components/atoms/PlayerState";
 import { RoomStateAtom } from "@/components/atoms/RoomState";
 import { ScreenStateAtom } from "@/components/atoms/ScreenState";
@@ -12,6 +13,9 @@ export const GameScreen = () => {
   const screenState = useAtomValue(ScreenStateAtom);
   const [roomObject, setRoomObject] = useAtom(RoomStateAtom);
   const [playerObject, setPlayerObject] = useAtom(PlayerStateAtom);
+  const setDeath = useSetAtom(DeathStateAtom);
+
+  let prevRoomObjectPlayers: { status: string }[];
 
   trpc.stream.gameStream.useSubscription(
     { roomId: roomObject.id, playerId: playerObject.id },
@@ -20,7 +24,11 @@ export const GameScreen = () => {
         console.log(data);
         switch (data.eventType) {
           case "changePhase":
-            setRoomObject((prev) => ({ ...prev, phase: data.phase, day: data.day }));
+            setRoomObject((prev) => ({
+              ...prev,
+              phase: data.phase,
+              day: data.day,
+            }));
             break;
 
           case "playerUpdate":
@@ -28,6 +36,13 @@ export const GameScreen = () => {
             break;
 
           case "roomUpdate":
+            prevRoomObjectPlayers = roomObject.players;
+            setRoomObject(data);
+            data.players.forEach((player, i) => {
+              if (player.status !== prevRoomObjectPlayers[i].status) {
+                setDeath((prev) => [...prev, player.name]);
+              }
+            });
             break;
         }
       },
