@@ -21,12 +21,16 @@ const playerAlice = new Player(
   playerNameSchema.parse("Alice"),
   playerRoleSchema.parse("VILLAGER"),
   playerStatusSchema.parse("ALIVE"),
+  false,
+  [],
 );
 const playerBob = new Player(
   playerIdSchema.parse("9kvyrk2hqa"),
   playerNameSchema.parse("Bob"),
   playerRoleSchema.parse("WEREWOLF"),
   playerStatusSchema.parse("ALIVE"),
+  false,
+  [],
 );
 
 beforeAll(() => {

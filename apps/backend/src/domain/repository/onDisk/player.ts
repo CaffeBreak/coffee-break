@@ -24,6 +24,16 @@ export const convertPlayer = (prismaPlayer: {
   joinedRoomId: string | null;
   role: PlayerRole;
   skipFlag: boolean;
+  voteTargetId: string | null;
+  votedPlayers: {
+    id: string;
+    name: string;
+    isDead: boolean;
+    joinedRoomId: string | null;
+    role: PlayerRole;
+    skipFlag: boolean;
+    voteTargetId: string | null;
+  }[];
 }) =>
   new Player(
     playerIdSchema.parse(prismaPlayer.id),
@@ -31,7 +41,21 @@ export const convertPlayer = (prismaPlayer: {
     playerRoleSchema.parse(prismaPlayer.role),
     playerStatusSchema.parse(prismaPlayer.isDead ? "DEAD" : "ALIVE"),
     prismaPlayer.skipFlag,
+    prismaPlayer.votedPlayers.map(
+      (player) =>
+        new Player(
+          playerIdSchema.parse(player.id),
+          playerNameSchema.parse(player.name),
+          playerRoleSchema.parse(player.role),
+          playerStatusSchema.parse(player.isDead ? "DEAD" : "ALIVE"),
+          player.skipFlag,
+          [],
+          prismaPlayer.joinedRoomId ? roomIdSchema.parse(prismaPlayer.joinedRoomId) : undefined,
+          player.voteTargetId ? playerIdSchema.parse(player.voteTargetId) : undefined,
+        ),
+    ),
     prismaPlayer.joinedRoomId ? roomIdSchema.parse(prismaPlayer.joinedRoomId) : undefined,
+    prismaPlayer.voteTargetId ? playerIdSchema.parse(prismaPlayer.voteTargetId) : undefined,
   );
 
 @singleton()
@@ -42,6 +66,9 @@ export class OnDiskPlayerRepository implements IPlayerRepository {
     const res = await this.prismaClient.player.findUnique({
       where: {
         id: id,
+      },
+      include: {
+        votedPlayers: true,
       },
     });
     if (!res) {
@@ -57,6 +84,9 @@ export class OnDiskPlayerRepository implements IPlayerRepository {
     const res = await this.prismaClient.player.findMany({
       where: {
         joinedRoomId: roomId,
+      },
+      include: {
+        votedPlayers: true,
       },
     });
     if (!res) {
@@ -83,6 +113,7 @@ export class OnDiskPlayerRepository implements IPlayerRepository {
         joinedRoomId: player.roomId,
         role: player.role,
         skipFlag: player.skipFlag,
+        voteTargetId: player.voteTarget,
       },
       create: {
         id: player.id,
@@ -90,7 +121,10 @@ export class OnDiskPlayerRepository implements IPlayerRepository {
       },
     });
     //型変換して保存したplayerを返す
-    const returnplayer: Player = convertPlayer(res);
+    const returnplayer: Player = convertPlayer({
+      votedPlayers: [],
+      ...res,
+    });
     return new Ok(returnplayer);
   }
 
@@ -108,6 +142,7 @@ export class OnDiskPlayerRepository implements IPlayerRepository {
           joinedRoomId: player.roomId,
           role: player.role,
           skipFlag: player.skipFlag,
+          voteTargetId: player.voteTarget,
         },
         create: {
           id: player.id,
@@ -118,7 +153,17 @@ export class OnDiskPlayerRepository implements IPlayerRepository {
 
     const result = await this.prismaClient
       .$transaction(query)
-      .then((result) => new Ok(result.map((r) => convertPlayer(r))))
+      .then(
+        (result) =>
+          new Ok(
+            result.map((r) =>
+              convertPlayer({
+                votedPlayers: [],
+                ...r,
+              }),
+            ),
+          ),
+      )
       .catch((error: Error) => new Err(new DataSaveError(error)));
 
     return result;

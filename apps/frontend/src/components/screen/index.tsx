@@ -17,7 +17,7 @@ export const Screen = () => {
 
   return (
     <div className="flex h-screen flex-col">
-      <Header />
+      {screenState.includes("Home") && <Header />}
       <div className="flex grow">
         {screenState.includes("Home") && <HomeScreen />}
         {screenState.includes("Game") && <GameScreen />}

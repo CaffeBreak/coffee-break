@@ -67,7 +67,9 @@ export class Room {
   }
 
   get canSkipPhase() {
-    return this._players.every((player) => player.skipFlag);
+    return this._players
+      .filter((player) => player.status === "ALIVE")
+      .every((player) => player.skipFlag || player.voteTarget);
   }
 
   public static new(password: RoomPassword, owner: Player): Room {
@@ -87,29 +89,29 @@ export class Room {
 
   public nextPhase(): RoomPhase {
     const next: RoomPhase = match<RoomPhase, RoomPhase>(this._phase)
-      .with("BEFORE_START", () => "DISCUSSION")
+      .with("BEFORE_START", () => "USING")
       .with("DISCUSSION", () => "VOTING")
       .with("EXPULSION", () => {
-        // if (
-        //   this._players
-        //     .filter((value) => value.status === "ALIVE")
-        //     .every((value, _index, array) => array[0].role === value.role)
-        // ) {
-        //   return "FINISHED";
-        // }
+        if (
+          this._players
+            .filter((value) => value.status === "ALIVE")
+            .every((value, _index, array) => array[0].role === value.role)
+        ) {
+          return "FINISHED";
+        }
         (() => {})();
 
         return "USING";
       })
       .with("FINISHED", () => "BEFORE_START")
       .with("KILLED", () => {
-        // if (
-        //   this._players
-        //     .filter((value) => value.status === "ALIVE")
-        //     .every((value, _index, array) => array[0].role === value.role)
-        // ) {
-        //   return "FINISHED";
-        // }
+        if (
+          this._players
+            .filter((value) => value.status === "ALIVE")
+            .every((value, _index, array) => array[0].role === value.role)
+        ) {
+          return "FINISHED";
+        }
         this._day += 1;
 
         return "DISCUSSION";
@@ -128,5 +130,9 @@ export class Room {
 
   public resetSkipFlag() {
     this._players.map((player) => player.resetSkipFlag());
+  }
+
+  public resetVote() {
+    this._players.map((player) => player.resetVote());
   }
 }

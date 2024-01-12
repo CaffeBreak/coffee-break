@@ -96,19 +96,16 @@ export class GameStream {
             emit.next(data);
 
             log("tRPC", pc.cyan(">>> Sent change phase event."));
-            log("DEBUG", pc.dim(JSON.stringify(data, null, 2)));
           };
           const onRoomUpdate = (data: RoomUpdateEventPayload) => {
             emit.next(data);
 
             log("tRPC", pc.cyan(">>> Sent room update event."));
-            log("DEBUG", pc.dim(JSON.stringify(data, null, 2)));
           };
           const onPlayerUpdate = (data: PlayerUpdateEventPayload) => {
             emit.next(data);
 
             log("tRPC", pc.cyan(">>> Sent player update event."));
-            log("DEBUG", pc.dim(JSON.stringify(data, null, 2)));
           };
 
           changePhaseEE.on(onChangePhase);
@@ -116,6 +113,8 @@ export class GameStream {
           playerUpdateEE.on(onPlayerUpdate);
 
           return () => {
+            log("tRPC", pc.cyan("<<< Subscription disconnected."));
+
             changePhaseEE.off(onChangePhase);
             roomUpdateEE.off(onRoomUpdate);
             playerUpdateEE.off(onPlayerUpdate);

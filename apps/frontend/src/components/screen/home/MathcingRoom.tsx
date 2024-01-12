@@ -58,10 +58,9 @@ export const MathcingRoom = () => {
         console.log(data);
         switch (data.eventType) {
           case "changePhase":
-            if (data.phase === "DISCUSSION") {
-              setRoomObject((prev) => ({ ...prev, phase: data.phase, day: data.day }));
-              setScreenState("Game-ViewRole");
-            }
+            setRoomObject((prev) => ({ ...prev, phase: data.phase, day: data.day }));
+            setScreenState("Game-ViewRole");
+
             break;
 
           case "playerUpdate":

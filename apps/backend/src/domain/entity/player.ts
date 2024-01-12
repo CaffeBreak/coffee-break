@@ -31,6 +31,8 @@ export class Player {
   private _status: PlayerStatus;
   private _roomId?: RoomId;
   private _skipFlag: SkipFlag;
+  private _voteTarget?: PlayerId;
+  private _votedPlayers: Player[] = [];
 
   constructor(
     id: PlayerId,
@@ -38,7 +40,9 @@ export class Player {
     role: PlayerRole,
     status: PlayerStatus,
     skipFlag: SkipFlag,
+    votedPlayers: Player[],
     roomId?: RoomId,
+    voteTarget?: PlayerId,
   ) {
     this.id = id;
     this._name = name;
@@ -46,6 +50,8 @@ export class Player {
     this._status = status;
     this._skipFlag = skipFlag;
     this._roomId = roomId;
+    this._voteTarget = voteTarget;
+    this._votedPlayers = votedPlayers;
   }
 
   get name() {
@@ -74,6 +80,14 @@ export class Player {
     return this._skipFlag;
   }
 
+  get voteTarget() {
+    return this._voteTarget;
+  }
+
+  get votedPlayers() {
+    return this._votedPlayers;
+  }
+
   public kill() {
     this._status = playerStatusSchema.parse("DEAD");
   }
@@ -94,6 +108,14 @@ export class Player {
     this._skipFlag = false;
   }
 
+  public vote(target: PlayerId) {
+    this._voteTarget = target;
+  }
+
+  public resetVote() {
+    this._voteTarget = undefined;
+  }
+
   public static new(name: PlayerName): Player {
     return new Player(
       genId(),
@@ -101,6 +123,7 @@ export class Player {
       playerRoleSchema.parse("PENDING"),
       playerStatusSchema.parse("ALIVE"),
       false,
+      [],
     );
   }
 }

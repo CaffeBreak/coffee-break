@@ -16,6 +16,9 @@ model Player {
   joinedRoomId String?
   role         PlayerRole @default(PENDING)
   skipFlag     Boolean    @default(false)
+  voteTarget   Player?    @relation("voteTarget", fields: [voteTargetId], references: [id], onUpdate: Cascade, onDelete: SetNull)
+  voteTargetId String?
+  votedPlayers Player[]   @relation("voteTarget")
 }
 
 model Room {

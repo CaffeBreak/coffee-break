@@ -21,6 +21,7 @@ describe("findById", () => {
     playerRoleSchema.parse("PENDING"),
     playerStatusSchema.parse("ALIVE"),
     false,
+    [],
   );
   const playerBob = new Player(
     playerIdSchema.parse("9kvyrk2hqa"),
@@ -28,6 +29,7 @@ describe("findById", () => {
     playerRoleSchema.parse("PENDING"),
     playerStatusSchema.parse("ALIVE"),
     false,
+    [],
   );
 
   beforeAll(() => {
@@ -57,6 +59,7 @@ describe("findByRoomId", () => {
     playerRoleSchema.parse("VILLAGER"),
     playerStatusSchema.parse("ALIVE"),
     false,
+    [],
     roomId,
   );
   const playerBob = new Player(
@@ -65,6 +68,7 @@ describe("findByRoomId", () => {
     playerRoleSchema.parse("WEREWOLF"),
     playerStatusSchema.parse("ALIVE"),
     false,
+    [],
     roomId,
   );
   const playerCffnpwr = new Player(
@@ -73,6 +77,7 @@ describe("findByRoomId", () => {
     playerRoleSchema.parse("PENDING"),
     playerStatusSchema.parse("ALIVE"),
     false,
+    [],
   );
   const playerDiana = new Player(
     playerIdSchema.parse("9kvyrk2hqc"),
@@ -80,6 +85,7 @@ describe("findByRoomId", () => {
     playerRoleSchema.parse("VILLAGER"),
     playerStatusSchema.parse("ALIVE"),
     false,
+    [],
     roomId,
   );
 
@@ -109,6 +115,7 @@ describe("save", () => {
     playerRoleSchema.parse("PENDING"),
     playerStatusSchema.parse("ALIVE"),
     false,
+    [],
   );
   const playerBob = new Player(
     playerIdSchema.parse("9kvyrk2hqa"),
@@ -116,6 +123,7 @@ describe("save", () => {
     playerRoleSchema.parse("PENDING"),
     playerStatusSchema.parse("ALIVE"),
     false,
+    [],
   );
 
   beforeAll(() => {
@@ -149,6 +157,7 @@ describe("delete", () => {
     playerRoleSchema.parse("PENDING"),
     playerStatusSchema.parse("ALIVE"),
     false,
+    [],
   );
   const playerBob = new Player(
     playerIdSchema.parse("9kvyrk2hqa"),
@@ -156,6 +165,7 @@ describe("delete", () => {
     playerRoleSchema.parse("PENDING"),
     playerStatusSchema.parse("ALIVE"),
     false,
+    [],
   );
   const playerCffnpwr = new Player(
     playerIdSchema.parse("9kvyrk2hqb"),
@@ -163,6 +173,7 @@ describe("delete", () => {
     playerRoleSchema.parse("PENDING"),
     playerStatusSchema.parse("ALIVE"),
     false,
+    [],
   );
 
   beforeAll(() => {
