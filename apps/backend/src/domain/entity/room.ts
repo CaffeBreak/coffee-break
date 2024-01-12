@@ -89,7 +89,7 @@ export class Room {
 
   public nextPhase(): RoomPhase {
     const next: RoomPhase = match<RoomPhase, RoomPhase>(this._phase)
-      .with("BEFORE_START", () => "DISCUSSION")
+      .with("BEFORE_START", () => "USING")
       .with("DISCUSSION", () => "VOTING")
       .with("EXPULSION", () => {
         if (
