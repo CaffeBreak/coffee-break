@@ -27,6 +27,7 @@ const changePhaseEventSchema = z.object({
     z.literal("FINISHED"),
   ]),
   day: z.number().int().nonnegative(),
+  winner: z.union([z.literal("VILLAGER"), z.literal("WEREWOLF")]).optional(),
 });
 const roomUpdateEventSchema = z.object({
   eventType: z.literal("roomUpdate"),
@@ -93,6 +94,7 @@ export class GameEvent {
         roomId: room.id,
         phase: room.phase,
         day: room.day,
+        winner: room.winner,
       });
     }
   }
@@ -112,14 +114,15 @@ export class GameEvent {
 
   private async randomVote(roomId: string) {
     const room = (await this.roomRepository.findById(roomIdSchema.parse(roomId))).unwrap();
-    room.players
-      .filter((player) => player.status === "ALIVE" && !player.voteTarget && !player.skipFlag)
-      .forEach((player) => {
-        const targetPlayer = room.players[Math.floor(Math.random() * room.players.length)];
-        player.vote(targetPlayer.id);
+    const players = room.players.filter(
+      (player) => player.status === "ALIVE" && !player.voteTarget && !player.skipFlag,
+    );
+    players.forEach((player) => {
+      const targetPlayer = players[Math.floor(Math.random() * players.length)];
+      room.players.find((p) => p.id === player.id)?.vote(targetPlayer.id);
 
-        log("DEBUG", pc.dim(`Random voted: ${player.id} voted ${targetPlayer.id}`));
-      });
+      log("DEBUG", pc.dim(`Random voted: ${player.id} voted ${targetPlayer.id}`));
+    });
 
     const saveResult = await this.roomRepository.save(room);
     if (saveResult.isErr()) {
@@ -140,7 +143,7 @@ export class GameEvent {
         `Votes: ${JSON.stringify(
           room.players.map(
             (player) =>
-              `${player.name}(${player.id}): ${
+              `${player.name}(${player.id}, ${player.role}): ${
                 // prettier-ignore
                 player.status === "ALIVE"
                   ? `${players.find((p) => p.id === player.voteTarget)?.name}(${
@@ -159,7 +162,7 @@ export class GameEvent {
     const voteCountMap = new Map<PlayerId, number>();
     votes.forEach((vote) => {
       if (voteCountMap.has(vote)) {
-        voteCountMap.set(vote, voteCountMap.get(vote) ?? 0 + 1);
+        voteCountMap.set(vote, (voteCountMap.get(vote) ?? 0) + 1);
       } else {
         voteCountMap.set(vote, 1);
       }
@@ -191,7 +194,10 @@ export class GameEvent {
     room.resetSkipFlag();
     room.resetVote();
 
-    log("DEBUG", pc.dim(`Expulsed: ${room.players[index].name}(${targetPlayer})`));
+    log(
+      "DEBUG",
+      pc.dim(`Expulsed: ${room.players[index].name}(${targetPlayer}) ${maxVoteCount} votes`),
+    );
 
     const saveResult = await this.roomRepository.save(room);
     if (saveResult.isErr()) {
