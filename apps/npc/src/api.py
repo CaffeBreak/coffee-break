@@ -23,13 +23,12 @@ from src.config import CONFIG
 
 app = Flask(__name__)
 
-@app.route('/createnpc/<room_id>/<player_count>', methods=['GET'])
-def start_game(room_id, player_count=1):
+@app.route('/createnpc/<aikotoba>/<player_count>', methods=['GET'])
+def start_game(aikotoba, player_count=1):
 
     try:
-        # サブプロセスを開始
         i = int(player_count)
-        create_npc(i, room_id)
+        create_npc(i, aikotoba)
         return {'message': 'ゲームが正常に開始されました'}, 200
     except Exception as e:
         return {'error': str(e)}, 500
