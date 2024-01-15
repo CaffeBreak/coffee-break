@@ -1,16 +1,9 @@
 from flask import Flask
-import subprocess
-import shlex
+from flask.json.provider import DefaultJSONProvider
 import asyncio
-from urllib import response
 import websockets
-import json, sys, datetime, aiohttp, random
-
-
+import json, sys, aiohttp, random
 from multiprocessing import Process
-from time import sleep
-from os import getpid, getppid
-
 from pprint import pprint
 from caffe_break_client.api_client import ApiClient
 from caffe_break_client.api.default_api import DefaultApi
@@ -21,72 +14,80 @@ from src.config import CONFIG
 
 
 
-app = Flask(__name__)
 
-@app.route('/createnpc/<aikotoba>/<player_count>', methods=['GET'])
+app = Flask(__name__)
+json_provider = DefaultJSONProvider(app)
+json_provider.ensure_ascii = False
+app.json = json_provider
+
+@app.route("/createnpc/<aikotoba>/<player_count>", methods=["GET"])
 def start_game(aikotoba, player_count=1):
 
+    i = int(player_count)
+    process = None
     try:
-        i = int(player_count)
-        create_npc(i, aikotoba)
-        return {'message': 'ゲームが正常に開始されました'}, 200
+        process = Process(target=create_npc, args=(i, aikotoba))
+        process.start()
     except Exception as e:
-        return {'error': str(e)}, 500
+        return {"error": str(e)}, 500
 
+    return {"message": "ゲームが正常に開始されました"}, 200
 
 
 
 async def roomWebSocket(player_id: str, roomId: str):
     async with websockets.connect("ws://web:5555/trpc") as websocket:
-        # intなら1年運用しないからMDHMSmsでいいんじゃないですかね
-        # 実際長いこれstr使えるならPID+MSでいい気ガス
-        data = json.dumps(
-          {
-        "id": player_id,
-            "method": "subscription",
-            "params": {
-              "input": {
-                "json": {
-                  "playerId": player_id,
-                  "roomId": roomId
-                }
-              },
-              "path": "stream.gameStream"
+      # intなら1年運用しないからMDHMSmsでいいんじゃないですかね
+      # 実際長いこれstr使えるならPID+MSでいい気ガス
+      data = json.dumps(
+        {
+      "id": player_id,
+          "method": "subscription",
+          "params": {
+            "input": {
+              "json": {
+                "playerId": player_id,
+                "roomId": roomId
+              }
+            },
+            "path": "stream.gameStream"
 
-            }
           }
-        )
-        await websocket.send(data)
+        }
+      )
+      await websocket.send(data)
 
+      while True:  # メッセージを聞き続ける
         try:
-            while True:  # メッセージを聞き続ける
-                response = await websocket.recv()
-                res_dic = json.loads(response)
-                print(res_dic)
-                if(res_dic["result"]["type"] == "data"):
-                    match res_dic["result"]["data"]["json"]["eventType"]:
-                        case "changePhase":
-                            match res_dic["result"]["data"]["json"]["phase"]:
-                                case "VOTING":
-                                    res = await rand_voting(roomId, player_id)
-                                    print(res)
-                                case "DISCUSSION":                        
-                                    print(res_dic["result"]["data"]["json"]["phase"])
-                                    res = await send_player_skipPhase(player_id)
-                                    print(res)
-                        case "playerUpdate":
-                            if(res_dic["result"]["data"]["json"]["status"] == "DEAD"):
-                                print("グエー死んだンゴ")
-                                exit()
-                            
-                # if(await send_room_state(roomId) == "VOTING"):
-                #     res = await send_player_skipPhase(player_id)
-                #     print(res)
-                
+          response = await websocket.recv()
         except websockets.exceptions.ConnectionClosed:
-            print("接続が閉じられました")
+          print("接続が閉じられました")
 
-    return 0
+          return 0
+
+        res_dic = json.loads(response)
+        print(res_dic)
+        if(res_dic["result"]["type"] == "data"):
+            match res_dic["result"]["data"]["json"]["eventType"]:
+                case "changePhase":
+                    match res_dic["result"]["data"]["json"]["phase"]:
+                        case "VOTING":
+                            res = await rand_voting(roomId, player_id)
+                            print(res)
+                        case "DISCUSSION":
+                            print(res_dic["result"]["data"]["json"]["phase"])
+                            res = await send_player_skipPhase(player_id)
+                            print(res)
+                case "playerUpdate":
+                    if(res_dic["result"]["data"]["json"]["status"] == "DEAD"):
+                        print("グエー死んだンゴ")
+                        exit()
+
+          # if(await send_room_state(roomId) == "VOTING"):
+          #     res = await send_player_skipPhase(player_id)
+          #     print(res)
+
+
 
 def playGame(playerName:str, roomId:str):
     with ApiClient(CONFIG.api_config) as client:
@@ -124,7 +125,7 @@ async def send_room_state(room_id:str):
     # ベースURLとエンドポイント
     base_url = "http://web:5555/api"
     endpoint = f"/room/{room_id}"
-    
+
     async with aiohttp.ClientSession() as session:
         async with session.get(f"{base_url}{endpoint}") as response:
             if response.status == 200:
@@ -138,7 +139,7 @@ async def send_room_state(room_id:str):
 async def rand_voting(room_id:str, player_id:str):
     base_url = "http://web:5555/api"
     endpoint = f"/room/{room_id}"
-    
+
     async with aiohttp.ClientSession() as session:
         async with session.get(f"{base_url}{endpoint}") as response:
             if response.status == 200:
@@ -148,7 +149,7 @@ async def rand_voting(room_id:str, player_id:str):
                 return "Don't get Room State"
         players = data["players"]
         targetPlayers = []
-        
+
         # 気合の生きているPの取得
         #プロデューサーじゃないよ
         for p in players:
@@ -158,7 +159,7 @@ async def rand_voting(room_id:str, player_id:str):
         # リクエストボディに含めるJSONデータ
         json_data = {
             "playerId": player_id,
-            "target": targetPlayers[random.randrange(0, len(targetPlayers)-1, 1)]["id"]
+            "target": targetPlayers[random.randrange(0, len(targetPlayers), 1)]["id"]
         }
 
         # POSTリクエストを送信
@@ -171,17 +172,16 @@ async def rand_voting(room_id:str, player_id:str):
 def create_npc(playerCount:int, roomPassword):
     players = []
     for p in range(playerCount):
-        players.append(Process(target=playGame, args=(f"cffnpwr{p+7}", roomPassword)))
+        players.append(Process(target=playGame, args=(f"cffnpwr{p}", roomPassword)))
         players[p].start()
 
-    try:
-        for p in range(playerCount):
-            players[p].join()
-    except KeyboardInterrupt:
+    for p in range(playerCount):
+      try:
+        players[p].join()
+      except KeyboardInterrupt:
         print("ユーザーによってプログラムが終了されました")
         sys.exit(0)
 
 
 if __name__ == "__main__":
-    app.run(debug=True, host='0.0.0.0', port=5432)
-    
+    app.run(debug=True, host="0.0.0.0", port=6000)
