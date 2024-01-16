@@ -28,6 +28,7 @@ export const GameScreen = () => {
               ...prev,
               phase: data.phase,
               day: data.day,
+              winner: data.winner,
             }));
             break;
 
@@ -37,7 +38,7 @@ export const GameScreen = () => {
 
           case "roomUpdate":
             prevRoomObjectPlayers = roomObject.players;
-            setRoomObject(data);
+            setRoomObject((prev) => ({ ...prev, ...data }));
             data.players.forEach((player, i) => {
               if (player.status !== prevRoomObjectPlayers[i].status) {
                 setDeath((prev) => [...prev, player.name]);
