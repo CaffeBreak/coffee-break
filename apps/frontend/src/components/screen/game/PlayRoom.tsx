@@ -20,13 +20,23 @@ export const PlayRoom = () => {
         <button className="h-[55px] w-[55px] rounded-xl bg-yellow-500 p-1 text-center">
           チャット
         </button>
-        <div className="text-3xl">
-          {player.role === "VILLAGER" ? (
-            <span className="text-blue-500">村人 </span>
-          ) : (
-            <span className="text-red-500">人狼 </span>
-          )}
-          {roomObject.day}日目 {roomObject.phase}
+        <div className="flex flex-row">
+          <div className="text-3xl">
+            {player.role === "VILLAGER" ? (
+              <span className="text-blue-500">村人 </span>
+            ) : (
+              <span className="text-red-500">人狼 </span>
+            )}
+            {roomObject.day}日目 {roomObject.phase}
+          </div>
+          <div className="w-8" />
+          <div className="text-3xl">
+            {roomObject.winner
+              ? roomObject.winner === player.role
+                ? "お前の勝ち"
+                : "お前の負け"
+              : ""}
+          </div>
         </div>
         <div className="h-[50px] w-[50px]"></div>
       </div>

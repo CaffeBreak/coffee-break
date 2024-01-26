@@ -3,6 +3,7 @@ import { z } from "zod";
 
 import { Player, PlayerId } from "./player";
 
+import { unreachable } from "@/misc/error";
 import { genId, idSchema } from "@/misc/id";
 
 export const roomIdSchema = idSchema.brand("roomId");
@@ -20,11 +21,13 @@ export const roomPhaseSchema = z.union([
   z.literal("FINISHED"),
 ]);
 export const roomDaySchema = z.number().int().nonnegative();
+const roomWinnerSchema = z.union([z.literal("VILLAGER"), z.literal("WEREWOLF")]).optional();
 
 export type RoomId = z.infer<typeof roomIdSchema>;
 export type RoomPassword = z.infer<typeof roomPasswordSchema>;
 export type RoomPhase = z.infer<typeof roomPhaseSchema>;
 export type RoomDay = z.infer<typeof roomDaySchema>;
+type RoomWinner = z.infer<typeof roomWinnerSchema>;
 
 export class Room {
   public readonly id: RoomId;
@@ -33,6 +36,7 @@ export class Room {
   private _phase: RoomPhase;
   private _players: Player[];
   private _day: RoomDay;
+  private _winner: RoomWinner;
 
   constructor(
     id: RoomId,
@@ -41,6 +45,7 @@ export class Room {
     phase: RoomPhase,
     players: Player[],
     day: RoomDay,
+    winner: RoomWinner = undefined,
   ) {
     this.id = id;
     this.password = password;
@@ -48,6 +53,7 @@ export class Room {
     this._phase = phase;
     this._players = players;
     this._day = day;
+    this._winner = winner;
   }
 
   get ownerId() {
@@ -64,6 +70,10 @@ export class Room {
 
   get day() {
     return this._day;
+  }
+
+  get winner() {
+    return this._winner;
   }
 
   get canSkipPhase() {
@@ -95,8 +105,14 @@ export class Room {
         if (
           this._players
             .filter((value) => value.status === "ALIVE")
-            .every((value, _index, array) => array[0].role === value.role)
+            .every((value, _, array) => array[0].role === value.role)
         ) {
+          const winner = this._players.filter((value) => value.status === "ALIVE")[0].role;
+          if (winner === "PENDING") {
+            unreachable();
+          }
+          this._winner = winner as "VILLAGER" | "WEREWOLF";
+
           return "FINISHED";
         }
         (() => {})();
@@ -108,8 +124,14 @@ export class Room {
         if (
           this._players
             .filter((value) => value.status === "ALIVE")
-            .every((value, _index, array) => array[0].role === value.role)
+            .every((value, _, array) => array[0].role === value.role)
         ) {
+          const winner = this._players.filter((value) => value.status === "ALIVE")[0].role;
+          if (winner === "PENDING") {
+            unreachable();
+          }
+          this._winner = winner as "VILLAGER" | "WEREWOLF";
+
           return "FINISHED";
         }
         this._day += 1;

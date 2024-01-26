@@ -58,6 +58,7 @@ export const changePhaseEventSchema = z.object({
     z.literal("FINISHED"),
   ]),
   day: z.number().int().nonnegative(),
+  winner: z.union([z.literal("VILLAGER"), z.literal("WEREWOLF")]).optional(),
 });
 
 const gameStreamSchema = z.union([
